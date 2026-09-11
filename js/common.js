@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   checkAuthState();
   setupGlobalSearch();
   setupActiveNav();
+  setupBackToTopButton();
 });
 
 // ==================== CẬP NHẬT BADGE GIỎ HÀNG ====================
@@ -210,7 +211,7 @@ function setupGlobalSearch() {
 // Active Nav Link highlight
 function setupActiveNav() {
   const currentPath = window.location.pathname.split('/').pop() || 'index.html';
-  const navLinks = document.querySelectorAll('.navbar-nav .nav-link, .mobile-nav-item');
+  const navLinks = document.querySelectorAll('.navbar-nav .nav-link, .site-nav-menu .nav-link, .mobile-nav-item');
   navLinks.forEach(link => {
     const href = link.getAttribute('href');
     if (href === currentPath || (currentPath === '' && href === 'index.html')) {
@@ -218,3 +219,36 @@ function setupActiveNav() {
     }
   });
 }
+
+// ==================== NÚT CUỘN LÊN ĐẦU TRANG (BACK TO TOP) ====================
+function setupBackToTopButton() {
+  let btn = document.getElementById('btn-back-to-top');
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.id = 'btn-back-to-top';
+    btn.className = 'btn-back-to-top';
+    btn.type = 'button';
+    btn.setAttribute('title', 'Cuộn lên đầu trang');
+    btn.setAttribute('aria-label', 'Cuộn lên đầu trang');
+    btn.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
+    document.body.appendChild(btn);
+  }
+
+  // Lắng nghe sự kiện cuộn trang
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 280) {
+      btn.classList.add('visible');
+    } else {
+      btn.classList.remove('visible');
+    }
+  }, { passive: true });
+
+  // Bấm nút -> cuộn mượt mà lên đầu trang
+  btn.addEventListener('click', () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
+}
+
