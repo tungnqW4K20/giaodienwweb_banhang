@@ -68,12 +68,23 @@
 .checkout-mini-item:last-child {
   border-bottom: none;
 }
+.checkout-mini-thumb-link {
+  display: block;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
 .checkout-mini-thumb {
   width: 50px;
   height: 50px;
   border-radius: 8px;
   object-fit: cover;
   border: 1px solid var(--border-color);
+  transition: transform 0.25s ease;
+}
+.checkout-mini-thumb-link:hover .checkout-mini-thumb {
+  transform: scale(1.1);
+  border-color: var(--primary);
 }
 
 /* VietQR Modal Box */

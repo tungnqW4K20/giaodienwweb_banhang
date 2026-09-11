@@ -106,11 +106,18 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 10px 0;
+  padding: 12px 0;
   border-bottom: 1px solid #f8fafc;
 }
 .order-item-row:last-child {
   border-bottom: none;
+}
+.order-item-thumb-link {
+  display: block;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
 }
 .order-item-thumb {
   width: 60px;
@@ -118,6 +125,44 @@
   border-radius: 10px;
   object-fit: cover;
   border: 1px solid var(--border-color);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.order-item-thumb-link:hover .order-item-thumb {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  border-color: var(--primary);
+}
+.order-item-title-link {
+  color: var(--dark);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+.order-item-title-link:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+.btn-view-order-detail {
+  font-size: 13px;
+  padding: 5px 12px;
+  border-radius: 8px;
+}
+.order-detail-modal-table {
+  vertical-align: middle;
+  margin-bottom: 0;
+}
+.order-detail-modal-table th {
+  background: #f8fafc;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.order-info-pill {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 16px;
 }
 
 /* Wallet & VNPay Simulator Section */

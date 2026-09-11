@@ -223,14 +223,22 @@ async function renderOrderHistory() {
   orders.forEach(order => {
     let itemsHTML = '';
     (order.items || []).forEach(item => {
+      const targetId = item.id || item.product_id || item.product || 'sp-01';
+      const itemImg = item.image || item.product_image || 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=100&q=80';
+      const itemName = item.name || item.product_name || 'Hoa quả sạch';
+
       itemsHTML += `
         <div class="order-item-row">
-          <img src="${item.image || 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=100&q=80'}" alt="${item.name}" class="order-item-thumb">
+          <a href="product-detail.html?id=${encodeURIComponent(targetId)}" class="order-item-thumb-link" title="Xem chi tiết ${itemName}">
+            <img src="${itemImg}" alt="${itemName}" class="order-item-thumb">
+          </a>
           <div class="flex-grow-1">
-            <div class="fw-bold text-dark small">${item.name}</div>
-            <small class="text-muted">SL: ${item.qty} ${item.unit} x ${formatCurrency(item.price)}</small>
+            <a href="product-detail.html?id=${encodeURIComponent(targetId)}" class="order-item-title-link" title="Xem chi tiết ${itemName}">
+              ${itemName}
+            </a>
+            <div class="text-muted small mt-1">SL: <strong>${item.qty || item.quantity || 1}</strong> ${item.unit || 'kg'} x ${formatCurrency(item.price || item.unit_price || 0)}</div>
           </div>
-          <strong class="text-dark small font-heading">${formatCurrency(item.price * item.qty)}</strong>
+          <strong class="text-dark small font-heading">${formatCurrency((item.price || item.unit_price || 0) * (item.qty || item.quantity || 1))}</strong>
         </div>
       `;
     });
@@ -238,12 +246,15 @@ async function renderOrderHistory() {
     html += `
       <div class="order-card">
         <div class="order-header">
-          <div>
-            <span class="fw-bold text-primary font-heading fs-6">${order.id}</span>
-            <small class="text-muted ms-2"><i class="fa-regular fa-clock me-1"></i>${order.date}</small>
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="fw-bold text-primary font-heading fs-6">#${order.id}</span>
+            <small class="text-muted"><i class="fa-regular fa-clock me-1"></i>${order.date}</small>
           </div>
-          <div>
-            <span class="badge ${order.badgeColor || 'bg-secondary'}">${order.statusText}</span>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge ${order.badgeColor || 'bg-secondary'} px-2 py-1">${order.statusText}</span>
+            <button type="button" class="btn btn-outline-gf btn-sm btn-view-order-detail" onclick="openOrderDetailModal('${order.id}')" title="Xem chi tiết đầy đủ đơn hàng">
+              <i class="fa-solid fa-receipt me-1"></i> Chi tiết
+            </button>
           </div>
         </div>
 
@@ -259,8 +270,11 @@ async function renderOrderHistory() {
           <div class="text-end">
             <span class="text-muted small">Tổng tiền: </span>
             <strong class="text-danger font-heading fs-5">${formatCurrency(order.total)}</strong>
-            <div class="mt-2">
-              <button class="btn btn-outline-gf btn-sm" onclick="reOrderItems('${order.id}')">
+            <div class="mt-2 d-flex gap-2 justify-content-end">
+              <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openOrderDetailModal('${order.id}')">
+                <i class="fa-regular fa-eye me-1"></i> Xem chi tiết
+              </button>
+              <button type="button" class="btn btn-outline-gf btn-sm" onclick="reOrderItems('${order.id}')">
                 <i class="fa-solid fa-rotate-right me-1"></i> Mua lại
               </button>
             </div>
@@ -273,20 +287,234 @@ async function renderOrderHistory() {
   container.innerHTML = html;
 }
 
+// ==================== POPUP XEM CHI TIẾT ĐƠN HÀNG ====================
+async function openOrderDetailModal(orderId) {
+  let orders = getOrders();
+  let order = orders.find(o => String(o.id) === String(orderId) || String(o.order_code) === String(orderId));
+
+  // Nếu có API Django, fetch chi tiết mới nhất
+  if (window.EcoFruitAPI && EcoFruitAPI.getToken()) {
+    try {
+      const apiDetail = await EcoFruitAPI.getOrderDetail(orderId);
+      if (apiDetail) {
+        let badge = 'bg-warning text-dark';
+        let statusKey = 'pending';
+        const orderSt = apiDetail.order_status || 'PENDING';
+        if (orderSt === 'COMPLETED') { badge = 'bg-success'; statusKey = 'completed'; }
+        else if (orderSt === 'SHIPPING' || orderSt === 'PROCESSING') { badge = 'bg-primary'; statusKey = 'shipping'; }
+        else if (orderSt === 'CANCELLED') { badge = 'bg-danger'; statusKey = 'cancelled'; }
+
+        order = {
+          id: apiDetail.order_code,
+          date: new Date(apiDetail.created_at).toLocaleString('vi-VN'),
+          status: statusKey,
+          statusText: apiDetail.order_status_display || orderSt,
+          badgeColor: badge,
+          customerName: apiDetail.customer_name || (currentUser ? currentUser.fullName : 'Khách hàng'),
+          customerPhone: apiDetail.customer_phone || (currentUser ? currentUser.phone : ''),
+          customerEmail: apiDetail.customer_email || (currentUser ? currentUser.email : ''),
+          shippingAddress: apiDetail.delivery_address || 'Địa chỉ giao hàng',
+          note: apiDetail.delivery_note || 'Không có ghi chú',
+          paymentMethod: apiDetail.payment_method_display || apiDetail.payment_method,
+          paymentStatus: apiDetail.payment_status_display || apiDetail.payment_status,
+          trackingCode: apiDetail.tracking_code || `VNPOST-${apiDetail.order_code}`,
+          subtotal: Number(apiDetail.subtotal || 0),
+          shippingFee: Number(apiDetail.shipping_fee || 0),
+          discount: Number(apiDetail.discount_amount || 0),
+          total: Number(apiDetail.total_amount || 0),
+          items: (apiDetail.items || []).map(item => ({
+            id: String(item.product || item.product_id || ''),
+            name: item.product_name,
+            price: Number(item.unit_price),
+            qty: item.quantity,
+            unit: item.unit || 'kg',
+            image: item.product_image || 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=100&q=80'
+          }))
+        };
+      }
+    } catch (err) {
+      console.debug('[OrderDetail API] Fallback to local:', err.message);
+    }
+  }
+
+  if (!order) {
+    showToast('Lỗi', 'Không tìm thấy thông tin đơn hàng này.', 'error');
+    return;
+  }
+
+  let itemsRowsHTML = '';
+  (order.items || []).forEach(item => {
+    const targetId = item.id || item.product_id || item.product || 'sp-01';
+    const itemImg = item.image || item.product_image || 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=100&q=80';
+    const itemName = item.name || item.product_name || 'Hoa quả sạch EcoFruit';
+    const itemPrice = Number(item.price || item.unit_price || 0);
+    const itemQty = Number(item.qty || item.quantity || 1);
+    const itemTotal = itemPrice * itemQty;
+
+    itemsRowsHTML += `
+      <tr>
+        <td>
+          <div class="d-flex align-items-center gap-3">
+            <a href="product-detail.html?id=${encodeURIComponent(targetId)}" class="order-item-thumb-link" title="Bấm xem chi tiết ${itemName}">
+              <img src="${itemImg}" alt="${itemName}" class="order-item-thumb" style="width: 55px; height: 55px;">
+            </a>
+            <div>
+              <a href="product-detail.html?id=${encodeURIComponent(targetId)}" class="order-item-title-link fs-6" title="Bấm xem chi tiết ${itemName}">
+                ${itemName}
+              </a>
+              <div class="small text-muted mt-1">Đơn vị: ${item.unit || 'kg'}</div>
+            </div>
+          </div>
+        </td>
+        <td class="text-center font-heading">${formatCurrency(itemPrice)}</td>
+        <td class="text-center fw-bold">x ${itemQty}</td>
+        <td class="text-end fw-bold text-dark font-heading">${formatCurrency(itemTotal)}</td>
+      </tr>
+    `;
+  });
+
+  const modalHTML = `
+    <div class="modal fade" id="order-detail-view-modal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+          
+          <div class="modal-header bg-success text-white py-3 px-4">
+            <div>
+              <h5 class="modal-title fw-bold mb-0 text-white">
+                <i class="fa-solid fa-receipt me-2"></i> Chi Tiết Đơn Hàng #${order.id}
+              </h5>
+              <small class="text-white-50">Ngày đặt: ${order.date}</small>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body p-4">
+            
+            <!-- Trạng thái & Mã vận đơn -->
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 p-3 bg-light rounded-3 border mb-4">
+              <div>
+                <span class="text-muted small me-2">Trạng thái:</span>
+                <span class="badge ${order.badgeColor || 'bg-success'} fs-6">${order.statusText}</span>
+              </div>
+              <div>
+                <span class="text-muted small me-2">Mã vận đơn:</span>
+                <code class="fw-bold fs-6">${order.trackingCode || `VNPOST-${order.id}`}</code>
+              </div>
+            </div>
+
+            <!-- Bảng sản phẩm trong đơn -->
+            <div class="mb-4">
+              <h6 class="fw-bold text-dark mb-2">
+                <i class="fa-solid fa-basket-shopping text-success me-2"></i> Danh Sách Sản Phẩm (${(order.items || []).length} món)
+              </h6>
+              <div class="table-responsive border rounded-3">
+                <table class="table order-detail-modal-table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Sản phẩm (Bấm vào ảnh để xem)</th>
+                      <th class="text-center">Đơn giá</th>
+                      <th class="text-center">Số lượng</th>
+                      <th class="text-end">Thành tiền</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${itemsRowsHTML}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Thông tin người nhận & Thanh toán -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <div class="order-info-pill h-100">
+                  <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-location-dot text-danger me-2"></i> Địa Chỉ Nhận Hàng</h6>
+                  <div class="small">
+                    <div><strong>${order.customerName || (currentUser ? currentUser.fullName : 'Khách hàng')}</strong> - ${order.customerPhone || (currentUser ? currentUser.phone : '')}</div>
+                    <div class="text-muted mt-1">${order.shippingAddress || 'Hà Nội'}</div>
+                    ${order.note ? `<div class="text-muted mt-1"><em>Ghi chú: ${order.note}</em></div>` : ''}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="order-info-pill h-100">
+                  <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-credit-card text-primary me-2"></i> Thanh Toán & Chi Phí</h6>
+                  <div class="small">
+                    <div class="d-flex justify-content-between mb-1">
+                      <span class="text-muted">Hình thức:</span>
+                      <strong>${order.paymentMethod || 'COD'}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                      <span class="text-muted">Trạng thái thanh toán:</span>
+                      <span class="badge bg-success-subtle text-success">${order.paymentStatus || 'Đã thanh toán'}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                      <span class="text-muted">Tiền hàng:</span>
+                      <span>${formatCurrency(order.subtotal || order.total)}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                      <span class="text-muted">Phí giao hàng:</span>
+                      <span>${order.shippingFee === 0 ? '<span class="text-success font-weight-bold">Miễn phí</span>' : formatCurrency(order.shippingFee)}</span>
+                    </div>
+                    ${order.discount > 0 ? `
+                      <div class="d-flex justify-content-between mb-1 text-danger">
+                        <span>Giảm giá:</span>
+                        <strong>-${formatCurrency(order.discount)}</strong>
+                      </div>
+                    ` : ''}
+                    <div class="d-flex justify-content-between pt-2 mt-2 border-top">
+                      <strong class="text-dark">Tổng thanh toán:</strong>
+                      <strong class="text-danger fs-5 font-heading">${formatCurrency(order.total)}</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="modal-footer bg-light py-2 px-4 d-flex justify-content-between">
+            <button type="button" class="btn btn-secondary-gf" data-bs-dismiss="modal">Đóng</button>
+            <button type="button" class="btn btn-primary-gf" onclick="reOrderItems('${order.id}')">
+              <i class="fa-solid fa-rotate-right me-1"></i> Mua lại toàn bộ đơn này
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  `;
+
+  let existingModal = document.getElementById('order-detail-view-modal');
+  if (existingModal) {
+    existingModal.remove();
+  }
+
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = modalHTML;
+  document.body.appendChild(wrapper.firstElementChild);
+
+  const modalEl = document.getElementById('order-detail-view-modal');
+  const bsModal = new bootstrap.Modal(modalEl);
+  bsModal.show();
+}
+window.openOrderDetailModal = openOrderDetailModal;
+
 // Mua lại đơn hàng
 function reOrderItems(orderId) {
   const orders = getOrders();
-  const order = orders.find(o => o.id === orderId);
+  const order = orders.find(o => String(o.id) === String(orderId) || String(o.order_code) === String(orderId));
   if (!order) return;
 
   order.items.forEach(item => {
-    addToCart(item.id, item.qty, item.unit);
+    addToCart(item.id || item.product || item.product_id, item.qty || item.quantity || 1, item.unit);
   });
 
   showToast('Đã thêm vào giỏ!', `Đã nạp toàn bộ món từ đơn ${order.id} vào giỏ hàng.`, 'success');
   setTimeout(() => {
     window.location.href = 'cart.html';
-  }, 1000);
+  }, 800);
 }
 window.reOrderItems = reOrderItems;
 

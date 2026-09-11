@@ -15,6 +15,7 @@ class OrderStatusLogSerializer(serializers.ModelSerializer):
         fields = ['id', 'previous_status', 'new_status', 'note', 'created_by', 'created_at']
 
 class OrderListSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
     payment_method_display = serializers.CharField(source='get_payment_method_display', read_only=True)
     payment_status_display = serializers.CharField(source='get_payment_status_display', read_only=True)
     order_status_display = serializers.CharField(source='get_order_status_display', read_only=True)
@@ -24,10 +25,11 @@ class OrderListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = [
-            'id', 'order_code', 'is_guest', 'customer_name', 'customer_phone',
+            'id', 'order_code', 'is_guest', 'customer_name', 'customer_phone', 'customer_email',
+            'delivery_address', 'delivery_city', 'delivery_district', 'delivery_ward', 'delivery_note',
             'payment_method', 'payment_method_display', 'payment_status', 'payment_status_display',
             'order_status', 'order_status_display', 'subtotal', 'discount_amount',
-            'shipping_fee', 'total_amount', 'total_quantity', 'items_preview', 'created_at'
+            'shipping_fee', 'total_amount', 'total_quantity', 'items', 'items_preview', 'created_at'
         ]
 
     def get_items_preview(self, obj):

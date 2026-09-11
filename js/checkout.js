@@ -21,7 +21,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ==================== KHỞI TẠO TRANG CHECKOUT ====================
 function initCheckoutPage() {
-  const cart = getCart();
+  let cart = [];
+  try {
+    const savedSelected = localStorage.getItem('gf_selected_checkout_items');
+    if (savedSelected) {
+      cart = JSON.parse(savedSelected);
+    }
+  } catch (e) {
+    cart = [];
+  }
+
+  if (!cart || cart.length === 0) {
+    cart = getCart();
+  }
+
   if (cart.length === 0) {
     showToast('Giỏ hàng trống', 'Vui lòng chọn sản phẩm trước khi thanh toán.', 'info');
     setTimeout(() => {
@@ -65,18 +78,29 @@ function calculateAndRenderOrderSummary() {
   let itemsHTML = '';
 
   checkoutData.cart.forEach(item => {
-    const product = getProductById(item.id);
-    if (!product) return;
+    const targetId = item.id || item.product_id;
+    const product = (typeof getProductById === 'function' ? getProductById(targetId) : null) || {
+      id: targetId,
+      name: item.name || 'Hoa quả sạch EcoFruit',
+      price: Number(item.price || 0),
+      images: [item.image || 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=600'],
+      unit: item.unit || 'kg'
+    };
 
-    const itemTotal = product.price * item.qty;
+    const itemPrice = Number(product.price || item.price || 0);
+    const itemTotal = itemPrice * item.qty;
     subtotal += itemTotal;
+    const itemImg = (product.images && product.images[0]) || product.image || item.image || 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=600';
+    const detailUrl = `product-detail.html?id=${encodeURIComponent(product.id)}`;
 
     itemsHTML += `
       <div class="checkout-mini-item">
-        <img src="${product.images[0]}" alt="${product.name}" class="checkout-mini-thumb">
+        <a href="${detailUrl}" class="checkout-mini-thumb-link" title="Xem chi tiết ${product.name}">
+          <img src="${itemImg}" alt="${product.name}" class="checkout-mini-thumb">
+        </a>
         <div class="flex-grow-1">
-          <div class="fw-bold small text-dark">${product.name}</div>
-          <small class="text-muted">SL: ${item.qty} ${item.unit || product.unit} x ${formatCurrency(product.price)}</small>
+          <a href="${detailUrl}" class="fw-bold small text-dark text-decoration-none" title="Xem chi tiết ${product.name}">${product.name}</a>
+          <div class="text-muted small">SL: ${item.qty} ${item.unit || product.unit} x ${formatCurrency(itemPrice)}</div>
         </div>
         <strong class="text-dark small font-heading">${formatCurrency(itemTotal)}</strong>
       </div>
