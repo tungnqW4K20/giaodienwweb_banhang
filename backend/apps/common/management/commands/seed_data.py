@@ -1,4 +1,6 @@
 from datetime import timedelta
+from decimal import Decimal
+from typing import Any
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.db.models import Avg, Count
@@ -47,7 +49,7 @@ class Command(BaseCommand):
             # =========================================================================
             # 1. SEED USERS & ADDRESSES
             # =========================================================================
-            users_to_seed = [
+            users_to_seed: list[dict[str, Any]] = [
                 {
                     'email': 'admin@ecofruit.vn',
                     'password': 'Admin@123456',
@@ -241,7 +243,7 @@ class Command(BaseCommand):
             # =========================================================================
             # 2. SEED CATEGORIES WITH HIGH-RES BANNERS
             # =========================================================================
-            categories_data = [
+            categories_data: list[dict[str, Any]] = [
                 {
                     "name": "Hoa Quả Nhập Khẩu",
                     "slug": "nhap-khau",
@@ -306,7 +308,7 @@ class Command(BaseCommand):
             # =========================================================================
             # 3. SEED 28+ PRODUCTS WITH FULL ATTRIBUTES & NUTRITIONAL FACTS
             # =========================================================================
-            products_data = [
+            products_data: list[dict[str, Any]] = [
                 # --- Nhóm Nhập Khẩu ---
                 {
                     "category": cat_map['nhap-khau'],
@@ -1106,7 +1108,7 @@ class Command(BaseCommand):
             # 4. SEED VOUCHERS (ACTIVE & UP-TO-DATE)
             # =========================================================================
             now = timezone.now()
-            vouchers_data = [
+            vouchers_data: list[dict[str, Any]] = [
                 {
                     "code": "CHAOBAN",
                     "title": "Giảm ngay 15k cho khách hàng mới",
@@ -1190,7 +1192,7 @@ class Command(BaseCommand):
             # =========================================================================
             # 5. SEED AUTHENTIC PRODUCT REVIEWS & SYNC RATINGS
             # =========================================================================
-            reviews_data = [
+            reviews_data: list[dict[str, Any]] = [
                 {
                     "sku": "AP-ENVY-NZ",
                     "user": user_objects.get('lan.tran@gmail.com'),
@@ -1290,9 +1292,9 @@ class Command(BaseCommand):
 
             # Auto-calculate and synchronize average rating & review count for all products
             for p in Product.objects.all():
-                stats = p.reviews.aggregate(avg_rating=Avg('rating'), total_reviews=Count('id'))
+                stats = ProductReview.objects.filter(product=p).aggregate(avg_rating=Avg('rating'), total_reviews=Count('id'))
                 if stats['total_reviews'] and stats['total_reviews'] > 0:
-                    p.rating = round(float(stats['avg_rating']), 1)
+                    p.rating = Decimal(str(round(float(stats['avg_rating']), 1)))
                     p.review_count = max(stats['total_reviews'], p.review_count)
                     p.save(update_fields=['rating', 'review_count'])
 
@@ -1301,12 +1303,12 @@ class Command(BaseCommand):
             # =========================================================================
             # 6. SEED REALISTIC ORDERS COVERING ALL STATUSES & CHECKOUT TYPES
             # =========================================================================
-            user_admin = user_objects.get('admin@ecofruit.vn')
-            user_staff = user_objects.get('staff@ecofruit.vn')
-            user_long = user_objects.get('vip@ecofruit.vn')
-            user_an = user_objects.get('khachhang@gmail.com')
-            user_lan = user_objects.get('lan.tran@gmail.com')
-            user_xanh = user_objects.get('demo@greenfruit.vn')
+            user_admin = user_objects.get('admin@ecofruit.vn') or User.objects.filter(email='admin@ecofruit.vn').first()
+            user_staff = user_objects.get('staff@ecofruit.vn') or User.objects.filter(email='staff@ecofruit.vn').first()
+            user_long = user_objects.get('vip@ecofruit.vn') or User.objects.filter(email='vip@ecofruit.vn').first()
+            user_an = user_objects.get('khachhang@gmail.com') or User.objects.filter(email='khachhang@gmail.com').first()
+            user_lan = user_objects.get('lan.tran@gmail.com') or User.objects.filter(email='lan.tran@gmail.com').first()
+            user_xanh = user_objects.get('demo@greenfruit.vn') or User.objects.filter(email='demo@greenfruit.vn').first()
 
             p_apple = Product.objects.filter(sku='AP-ENVY-NZ').first()
             p_muscat = Product.objects.filter(sku='GR-SHINE-JP').first()
@@ -1323,7 +1325,7 @@ class Command(BaseCommand):
             p_gift_gold = Product.objects.filter(sku='GIFT-SUCKHOE-GOLD').first()
             p_combo = Product.objects.filter(sku='CB-FAMILY-WEEK').first()
 
-            orders_to_seed = [
+            orders_to_seed: list[dict[str, Any]] = [
                 # --- NGUYỄN VĂN AN (khachhang@gmail.com) ---
                 {
                     'order_code': 'ECO-20260911-0001',
@@ -1899,10 +1901,10 @@ class Command(BaseCommand):
                 timeline_data = o_data.pop('timeline')
 
                 # Calculate subtotal and total
-                subtotal = sum(item['product'].price * item['quantity'] for item in items_data if item['product'])
-                discount = o_data.get('discount_amount', 0)
-                shipping = o_data.get('shipping_fee', 20000)
-                total = max(0, (subtotal - discount) + shipping)
+                subtotal = sum((item['product'].price * item['quantity'] for item in items_data if item['product']), Decimal(0))
+                discount = Decimal(o_data.get('discount_amount', 0))
+                shipping = Decimal(o_data.get('shipping_fee', 20000))
+                total = max(Decimal(0), (subtotal - discount) + shipping)
 
                 order_obj, created = Order.objects.get_or_create(
                     order_code=o_data['order_code'],
@@ -1955,7 +1957,7 @@ class Command(BaseCommand):
             # =========================================================================
             # 7. SEED RICH DATABASE CARTS & CART ITEMS FOR ALL TEST USERS
             # =========================================================================
-            user_carts_data = [
+            user_carts_data: list[dict[str, Any]] = [
                 {
                     'user': user_admin,
                     'items': [
@@ -2033,7 +2035,7 @@ class Command(BaseCommand):
             # =========================================================================
             # 8. SEED RICH REALISTIC PRODUCT REVIEWS (VERIFIED PURCHASES ONLY)
             # =========================================================================
-            reviews_data = [
+            reviews_data: list[dict[str, Any]] = [
                 # Táo Envy New Zealand
                 {
                     'product': p_apple,
@@ -2198,7 +2200,7 @@ class Command(BaseCommand):
                 ProductReview.objects.create(
                     product=prod,
                     user=usr,
-                    reviewer_name=usr.full_name,
+                    reviewer_name=getattr(usr, 'full_name', '') or "Khách hàng EcoFruit",
                     rating=r_data['rating'],
                     comment=r_data['comment'],
                     is_verified_purchase=True,
@@ -2209,11 +2211,13 @@ class Command(BaseCommand):
             # Seed extra reviews for all remaining products so no product has 0 reviews
             all_prods = Product.objects.all()
             for p in all_prods:
-                if p.reviews.count() == 0:
+                if ProductReview.objects.filter(product=p).count() == 0:
+                    eval_user = (user_lan if p.id % 2 == 0 else user_an) or user_an or user_lan or User.objects.first()
+                    reviewer_name = getattr(eval_user, 'full_name', '') if eval_user else "Khách hàng EcoFruit"
                     ProductReview.objects.create(
                         product=p,
-                        user=user_lan if p.id % 2 == 0 else user_an,
-                        reviewer_name=user_lan.full_name if p.id % 2 == 0 else user_an.full_name,
+                        user=eval_user,
+                        reviewer_name=reviewer_name or "Khách hàng EcoFruit",
                         rating=5,
                         comment=f"{p.name} rất tươi ngon, đúng chuẩn chất lượng VietGAP/GlobalGAP của EcoFruit. Đóng gói sạch sẽ và giao hàng hỏa tốc mát lạnh!",
                         is_verified_purchase=True,
@@ -2222,9 +2226,9 @@ class Command(BaseCommand):
                     seeded_reviews_count += 1
 
                 # Recompute product rating and review count from real reviews
-                avg_rat = p.reviews.aggregate(Avg('rating'))['rating__avg'] or 5.0
-                p.rating = round(float(avg_rat), 1)
-                p.review_count = p.reviews.count()
+                avg_rat = ProductReview.objects.filter(product=p).aggregate(Avg('rating'))['rating__avg'] or 5.0
+                p.rating = Decimal(str(round(float(avg_rat), 1)))
+                p.review_count = ProductReview.objects.filter(product=p).count()
                 p.save()
 
             self.stdout.write(self.style.SUCCESS(f"[OK] {seeded_reviews_count} Verified Purchase Product Reviews seeded & synchronized."))

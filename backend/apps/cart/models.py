@@ -34,8 +34,8 @@ class Cart(TimeStampedModel):
         return sum(item.quantity for item in self.items.all())
 
     @property
-    def total_amount(self):
-        return sum(item.subtotal for item in self.items.all())
+    def total_amount(self) -> Decimal:
+        return sum((item.subtotal for item in self.items.all()), Decimal(0))
 
 class CartItem(TimeStampedModel):
     if TYPE_CHECKING:

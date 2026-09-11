@@ -100,7 +100,6 @@ async function loadUserProfile() {
           address: liveProfile.addresses?.[0]?.detail_address || 'Hà Nội'
         };
         setCurrentUser(currentUser);
-      }
     } catch (err) {
       console.debug('[Profile API] Profile sync:', err.message);
     }
