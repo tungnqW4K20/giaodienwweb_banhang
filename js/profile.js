@@ -84,9 +84,8 @@ function setupProfileForm() {
           full_name: currentUser.fullName,
           phone_number: currentUser.phone
         });
-        console.log('[Profile] Đã lưu thông tin vào MySQL Backend!');
       } catch (err) {
-        console.warn('[Profile] Lưu backend fallback:', err.message);
+        // Fallback to local profile
       }
     }
 
@@ -304,9 +303,8 @@ function setupVNPaySandboxWallet() {
           if (window.EcoFruitAPI && EcoFruitAPI.getToken()) {
             try {
               await EcoFruitAPI.topUpWallet(amount);
-              console.log('[Wallet] Đã nạp số dư vào MySQL Backend thành công!');
             } catch (err) {
-              console.warn('[Wallet] Nạp backend fallback:', err.message);
+              // Fallback to local wallet
             }
           }
 

@@ -256,8 +256,23 @@ VNPAY_PAYMENT_URL = os.getenv('VNPAY_PAYMENT_URL', 'https://sandbox.vnpayment.vn
 VNPAY_RETURN_URL = os.getenv('VNPAY_RETURN_URL', 'http://localhost:3000/profile.html')
 
 # ==============================================================================
-# Free AI Integration (Gemini, Groq, OpenRouter)
+# PRODUCTION SECURITY HEADERS & COOKIE POLICIES
 # ==============================================================================
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
-GROQ_API_KEY = os.getenv('GROQ_API_KEY', '')
-OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '')
+if not DEBUG:
+    SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', 31536000))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True').lower() in ('true', '1')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+else:
+    # Silence deploy security warnings in local dev mode
+    SILENCED_SYSTEM_CHECKS = [
+        'security.W004',
+        'security.W008',
+        'security.W012',
+        'security.W016',
+        'security.W018',
+    ]
+

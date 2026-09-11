@@ -394,9 +394,8 @@ function setupReviewForm() {
           rating: parseInt(ratingSelect.value),
           comment: commentInput.value.trim()
         });
-        console.log('[ProductDetail] Đã lưu đánh giá vào MySQL thành công!');
       } catch (err) {
-        console.warn('[ProductDetail] Lưu đánh giá local fallback:', err.message);
+        // Fallback to local storage review
       }
     }
 

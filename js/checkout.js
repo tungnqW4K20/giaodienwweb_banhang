@@ -300,7 +300,7 @@ async function finalizeOrder(orderPayload) {
       }
     }
   } catch (err) {
-    console.warn('[EcoFruit Backend] Gửi backend offline fallback local:', err.message);
+    // Graceful offline fallback
   }
 
   // 2. Lưu vào local storage để đồng bộ UI

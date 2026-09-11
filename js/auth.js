@@ -47,7 +47,7 @@ function setupLoginForm() {
           return;
         }
       } catch (err) {
-        console.warn('[EcoFruit Auth] Backend login fallback:', err.message);
+        // Fallback to local authentication
       }
     }
 
@@ -118,7 +118,7 @@ function setupRegisterForm() {
           return;
         }
       } catch (err) {
-        console.warn('[EcoFruit Auth] Backend register fallback:', err.message);
+        // Fallback to local registration
       }
     }
 

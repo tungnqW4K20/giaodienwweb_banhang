@@ -74,7 +74,10 @@ class ApiClient {
       return json;
     } catch (err) {
       clearTimeout(timeoutId);
-      console.warn(`[EcoFruit API] (${endpoint}):`, err.message);
+      // Clean silent debug logging
+      if (API_CONFIG.DEBUG) {
+        console.debug(`[EcoFruit API] (${endpoint}):`, err.message);
+      }
       throw err;
     }
   }
@@ -430,7 +433,6 @@ class ApiClient {
 
       return true;
     } catch (e) {
-      console.warn('[EcoFruit API] Live sync skipped (using cached):', e.message);
       return false;
     }
   }
