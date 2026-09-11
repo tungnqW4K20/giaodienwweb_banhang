@@ -166,13 +166,31 @@ class GreenFruitChatbot {
 
     try {
       let botReply = '';
-      if (this.apiKey) {
-        botReply = await this.callGeminiAPI(message);
-      } else {
-        // Trì hoãn 500ms giả lập suy nghĩ
-        await new Promise(r => setTimeout(r, 600));
-        botReply = this.generateSmartOfflineResponse(message);
+      // 1. Try Backend Django AI API (Gemini / Groq / Autonomous Domain Engine)
+      if (window.EcoFruitAPI) {
+        try {
+          const res = await window.EcoFruitAPI.askAI(message);
+          if (res && res.data && res.data.reply) {
+            botReply = res.data.reply
+              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+              .replace(/\*(.*?)\*/g, '<em>$1</em>')
+              .replace(/\n/g, '<br>');
+          }
+        } catch (apiErr) {
+          console.log('[EcoFruit AI] Local backend AI fallback:', apiErr.message);
+        }
       }
+
+      // 2. Client-side fallback if backend AI not available
+      if (!botReply) {
+        if (this.apiKey) {
+          botReply = await this.callGeminiAPI(message);
+        } else {
+          await new Promise(r => setTimeout(r, 400));
+          botReply = this.generateSmartOfflineResponse(message);
+        }
+      }
+
       typingIndicator.remove();
       this.appendMessage('bot', botReply);
     } catch (err) {

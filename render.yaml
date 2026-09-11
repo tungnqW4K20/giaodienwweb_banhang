@@ -1,0 +1,58 @@
+services:
+  # 1. Django Web Service (Gunicorn + Whitenoise + MySQL)
+  - type: web
+    name: ecofruit-backend
+    env: python
+    region: singapore
+    plan: free
+    buildCommand: "./backend/build.sh"
+    startCommand: "cd backend && gunicorn core.wsgi:application --bind 0.0.0.0:$PORT --workers 4 --threads 2"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.2
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com,localhost,127.0.0.1"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ecofruit-mysql
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: ecofruit-redis
+          property: connectionString
+      - key: CORS_ALLOW_ALL_ORIGINS
+        value: "True"
+
+  # 2. Celery Worker (Asynchronous Task Queue)
+  - type: worker
+    name: ecofruit-celery-worker
+    env: python
+    region: singapore
+    plan: free
+    buildCommand: "pip install -r backend/requirements.txt"
+    startCommand: "cd backend && celery -A core worker -l info --concurrency=2"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.2
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: ecofruit-redis
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: ecofruit-redis
+          property: connectionString
+
+# Managed Redis Cache & Pub/Sub
+redis:
+  - name: ecofruit-redis
+    region: singapore
+    plan: free
+    maxmemoryPolicy: allkeys-lru

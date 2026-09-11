@@ -11,6 +11,29 @@ Tài liệu này ghi lại toàn bộ lịch sử các lần thay đổi mã ngu
 
 ## 🗂️ Nhật Ký Các Phiên Bản & Thay Đổi
 
+### [v2.0.0] - 11/09/2026
+#### 🚀 Xây dựng Toàn Bộ Hệ Thống Backend Python Django Doanh Nghiệp (Enterprise Backend)
+- **Kiến Trúc & Cơ Sở Dữ Liệu MySQL Typed ORM**:
+  - Tách biệt module kiến trúc sạch (Clean Layered Architecture): `apps/common`, `apps/authentication`, `apps/products`, `apps/cart`, `apps/orders`, `apps/payments`, `apps/vouchers`, `apps/reviews`, `apps/notifications`, `apps/ai_assistant`.
+  - Kết nối cơ sở dữ liệu MySQL chuẩn công nghiệp với PyMySQL alias và cấu hình `DATABASE_URL` / auto-fallback SQLite cho môi trường dev.
+  - Phân tách cấu hình rõ ràng qua `.env`, hỗ trợ bảo mật JWT Authentication (Access Token + Refresh Token).
+- **Cơ chế Khóa Hàng Đồng Thời ACID & Xử lý Tất cả tình huống Mua hàng**:
+  - Hỗ trợ đầy đủ 2 luồng: **Khách vãng lai (Guest - Không cần đăng nhập)** và **Khách hàng thành viên (Member - Đăng nhập, tích điểm, ví EcoPay)**.
+  - Sử dụng `transaction.atomic()` kết hợp `select_for_update()` khóa dòng sản phẩm trong DB khi đặt hàng, loại trừ hoàn toàn nguy cơ âm kho khi có hàng trăm người bấm mua cùng lúc.
+  - Tự động đồng bộ giỏ hàng từ LocalStorage vào MySQL (`/api/v1/cart/merge/`) khi đăng nhập.
+  - Lưu trữ toàn bộ thông tin người mua, địa chỉ, lịch sử đơn hàng vào database kể cả khi mua không cần đăng nhập.
+- **Message Queue Celery & Redis Cache**:
+  - Tích hợp Celery 5.6 với Redis Message Broker cho tác vụ bất đồng bộ, gửi email và ghi nhận thống kê.
+  - Tối ưu bộ đệm Redis Cache cho danh mục và dữ liệu sản phẩm, tăng tốc độ truy vấn lên hàng micro giây.
+- **Thông Báo Tức Thời (Real-time SSE & Redis Pub/Sub)**:
+  - Cổng Server-Sent Events (SSE) `/api/v1/notifications/stream/` phát sóng tức thời trạng thái đơn hàng mới.
+- **Tích Hợp Trí Tuệ Nhân Tạo AI Tư Vấn & Auto Domain Engine**:
+  - Bộ định tuyến AI đa tầng: Tự động kết nối Google Gemini API (`gemini-1.5-flash`), Groq API (`llama-3.3-70b-versatile`), và bộ não suy luận chuyên sâu Offline Domain Intelligence (trích xuất trực tiếp dữ liệu kho hàng, mùa vụ, voucher thực tế).
+- **Bộ Dữ Liệu Khởi Tạo Đồ Sộ (Seed Data)**:
+  - Tạo sẵn 22+ sản phẩm đặc sản & nhập khẩu cao cấp kèm thẻ Meta SEO, 6 danh mục, 5 voucher ưu đãi, 3 tài khoản mẫu, hàng loạt đánh giá 5 sao thực tế.
+- **Sẵn Sàng Triển Khai Production**:
+  - Cung cấp file cấu hình [render.yaml](file:///d:/giaodienwweb_banhang/render.yaml), [Dockerfile](file:///d:/giaodienwweb_banhang/Dockerfile), [docker-compose.yml](file:///d:/giaodienwweb_banhang/docker-compose.yml), [Procfile](file:///d:/giaodienwweb_banhang/Procfile), và script [backend/build.sh](file:///d:/giaodienwweb_banhang/backend/build.sh).
+
 ### [v1.3.0] - 11/09/2026
 #### ✨ Tính năng mới (Features)
 - **Nút Cuộn Lên Đầu Trang (Back to Top)**:

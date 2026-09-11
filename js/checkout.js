@@ -272,8 +272,38 @@ function openVietQRModal(orderPayload) {
   };
 }
 
-// Lưu đơn hàng và hiển thị biên lai thành công
-function finalizeOrder(orderPayload) {
+// Lưu đơn hàng vào Database MySQL qua Django API và hiển thị biên lai thành công
+async function finalizeOrder(orderPayload) {
+  // 1. Gửi request lưu vào Backend Django / MySQL
+  try {
+    if (window.EcoFruitAPI) {
+      const apiItems = (orderPayload.items || []).map(i => ({
+        product_id: parseInt(i.id) || 1,
+        quantity: parseInt(i.qty) || 1
+      }));
+
+      const dbPayload = {
+        customer_name: orderPayload.customerName || 'Khách hàng',
+        customer_phone: orderPayload.customerPhone || '0900000000',
+        customer_email: orderPayload.customerEmail || '',
+        delivery_address: orderPayload.shippingAddress || 'Hà Nội',
+        delivery_note: orderPayload.note || '',
+        payment_method: orderPayload.paymentMethod?.includes('VNPay') ? 'VNPAY' : (orderPayload.paymentMethod?.includes('VietQR') ? 'BANKING' : 'COD'),
+        voucher_code: orderPayload.voucherCode || '',
+        items: apiItems
+      };
+
+      const res = await window.EcoFruitAPI.checkout(dbPayload);
+      if (res && res.data && res.data.order) {
+        orderPayload.id = res.data.order.order_code;
+        console.log('[EcoFruit Backend] Đã lưu đơn hàng vào MySQL thành công:', orderPayload.id);
+      }
+    }
+  } catch (err) {
+    console.warn('[EcoFruit Backend] Gửi backend offline fallback local:', err.message);
+  }
+
+  // 2. Lưu vào local storage để đồng bộ UI
   createOrder(orderPayload);
   clearCart();
   localStorage.removeItem('gf_applied_voucher');

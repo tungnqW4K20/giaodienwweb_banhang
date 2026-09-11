@@ -15,12 +15,43 @@ function setupLoginForm() {
   const form = document.getElementById('login-form');
   if (!form) return;
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
 
+    // 1. Try Django Backend API
+    if (window.EcoFruitAPI) {
+      try {
+        const res = await window.EcoFruitAPI.login(email, password);
+        if (res && res.data && res.data.user) {
+          const u = res.data.user;
+          const localUser = {
+            id: u.id,
+            fullName: u.full_name,
+            email: u.email,
+            phone: u.phone_number || '',
+            avatar: u.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
+            address: u.addresses?.[0]?.detail_address || 'Hà Nội',
+            membership: 'Khách hàng VIP EcoFruit',
+            points: u.loyalty_points || 100,
+            walletBalance: parseInt(u.balance) || 0,
+            joinedDate: new Date().toLocaleDateString('vi-VN')
+          };
+          setCurrentUser(localUser);
+          showToast('Đăng nhập thành công!', `Chào mừng ${u.full_name} quay trở lại! (MySQL Auth)`, 'success');
+          setTimeout(() => {
+            window.location.href = 'profile.html';
+          }, 600);
+          return;
+        }
+      } catch (err) {
+        console.warn('[EcoFruit Auth] Backend login fallback:', err.message);
+      }
+    }
+
+    // 2. Local Fallback
     const users = getUsers();
     const user = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
 
@@ -41,7 +72,7 @@ function setupRegisterForm() {
   const form = document.getElementById('register-form');
   if (!form) return;
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const fullName = document.getElementById('reg-name').value.trim();
@@ -55,6 +86,43 @@ function setupRegisterForm() {
       return;
     }
 
+    // 1. Try Django Backend API
+    if (window.EcoFruitAPI) {
+      try {
+        const res = await window.EcoFruitAPI.register({
+          full_name: fullName,
+          email: email,
+          phone_number: phone,
+          password: password,
+          confirm_password: confirmPassword
+        });
+        if (res && res.data && res.data.user) {
+          const u = res.data.user;
+          const localUser = {
+            id: u.id,
+            fullName: u.full_name,
+            email: u.email,
+            phone: u.phone_number || phone,
+            avatar: u.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
+            address: 'Hà Nội',
+            membership: 'Thành viên Mới',
+            points: 100,
+            walletBalance: 0,
+            joinedDate: new Date().toLocaleDateString('vi-VN')
+          };
+          setCurrentUser(localUser);
+          showToast('Tạo tài khoản thành công!', `Chào mừng ${u.full_name} gia nhập EcoFruit! (Đã lưu DB)`, 'success');
+          setTimeout(() => {
+            window.location.href = 'profile.html';
+          }, 800);
+          return;
+        }
+      } catch (err) {
+        console.warn('[EcoFruit Auth] Backend register fallback:', err.message);
+      }
+    }
+
+    // 2. Local Fallback
     const users = getUsers();
     const existing = users.find(u => u.email.toLowerCase() === email.toLowerCase());
     if (existing) {
