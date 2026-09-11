@@ -1,14 +1,32 @@
+import os
+import sys
 from datetime import timedelta
+from pathlib import Path
+
+# Ensure backend root directory is in sys.path for IDE linters (Pylance/Pyright) and runtime
+_CURRENT_DIR = Path(__file__).resolve()
+_BACKEND_DIR = _CURRENT_DIR.parents[4]  # backend root directory
+if str(_BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(_BACKEND_DIR))
+
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.db.models import Avg, Count
 from django.utils import timezone
 
-from apps.authentication.models import User, UserAddress
-from apps.orders.models import Order, OrderItem, OrderStatusLog
-from apps.products.models import Category, Product, ProductImage
-from apps.reviews.models import ProductReview
-from apps.vouchers.models import Voucher
+try:
+    from apps.authentication.models import User, UserAddress
+    from apps.orders.models import Order, OrderItem, OrderStatusLog
+    from apps.products.models import Category, Product, ProductImage
+    from apps.reviews.models import ProductReview
+    from apps.vouchers.models import Voucher
+except ImportError:
+    from backend.apps.authentication.models import User, UserAddress
+    from backend.apps.orders.models import Order, OrderItem, OrderStatusLog
+    from backend.apps.products.models import Category, Product, ProductImage
+    from backend.apps.reviews.models import ProductReview
+    from backend.apps.vouchers.models import Voucher
+
 
 
 class Command(BaseCommand):
