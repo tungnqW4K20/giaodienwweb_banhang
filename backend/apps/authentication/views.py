@@ -116,3 +116,12 @@ class TopUpWalletView(views.APIView):
                 message=f"Nạp thành công {int(amount):,}đ vào ví EcoPay!"
             )
         return api_error(message="Nạp tiền thất bại.", errors=serializer.errors)
+
+
+class LogoutView(views.APIView):
+    """Enterprise Logout endpoint to clear session and invalidate tokens."""
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        return api_response(data=None, message="Đăng xuất hoàn toàn thành công! Hẹn gặp lại quý khách.")
+

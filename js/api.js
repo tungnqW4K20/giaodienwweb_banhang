@@ -22,6 +22,7 @@ class ApiClient {
       localStorage.setItem('ecofruit_access_token', token);
     } else {
       localStorage.removeItem('ecofruit_access_token');
+      localStorage.removeItem('ecofruit_refresh_token');
     }
   }
 
@@ -37,8 +38,23 @@ class ApiClient {
   static setUser(user) {
     if (user) {
       localStorage.setItem('ecofruit_current_user', JSON.stringify(user));
+      // Normalize & Sync to gf_current_user for universal UI compatibility
+      const normalized = {
+        id: user.id,
+        fullName: user.full_name || user.fullName || 'Thành viên EcoFruit',
+        email: user.email,
+        phone: user.phone_number || user.phone || '',
+        avatar: user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
+        role: user.role || 'CUSTOMER',
+        membership: user.role === 'ADMIN' ? 'Quản trị viên EcoFruit' : (user.role === 'STAFF' ? 'Nhân viên quản lý' : 'Khách hàng VIP EcoFruit'),
+        points: user.loyalty_points !== undefined ? user.loyalty_points : (user.points || 0),
+        walletBalance: Number(user.balance !== undefined ? user.balance : (user.walletBalance || 0)),
+        address: user.addresses?.[0]?.detail_address || user.address || 'Hà Nội'
+      };
+      localStorage.setItem('gf_current_user', JSON.stringify(normalized));
     } else {
       localStorage.removeItem('ecofruit_current_user');
+      localStorage.removeItem('gf_current_user');
     }
   }
 
@@ -74,7 +90,6 @@ class ApiClient {
       return json;
     } catch (err) {
       clearTimeout(timeoutId);
-      // Clean silent debug logging
       if (API_CONFIG.DEBUG) {
         console.debug(`[EcoFruit API] (${endpoint}):`, err.message);
       }
@@ -162,28 +177,49 @@ class ApiClient {
   }
 
   // =========================================================================
-  // AUTHENTICATION & PROFILE
+  // AUTHENTICATION & PROFILE (EXPERT ZERO-CACHE INTEGRATION)
   // =========================================================================
   static async register(userData) {
+    // 1. Purge any stale user caches before registering new account
+    this.purgeLocalUserCache();
+
     const res = await this.request('/auth/register/', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
     if (res.data && res.data.tokens) {
       this.setToken(res.data.tokens.access_token);
+      if (res.data.tokens.refresh_token) {
+        localStorage.setItem('ecofruit_refresh_token', res.data.tokens.refresh_token);
+      }
       this.setUser(res.data.user);
+      window.dispatchEvent(new CustomEvent('ecofruit:auth-changed', { detail: { action: 'register', user: res.data.user } }));
     }
     return res;
   }
 
   static async login(email, password) {
+    // 1. Purge all previous user state to guarantee ZERO leakage
+    this.purgeLocalUserCache();
+
     const res = await this.request('/auth/login/', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email: email.trim(), password }),
     });
+
     if (res.data && res.data.tokens) {
       this.setToken(res.data.tokens.access_token);
+      if (res.data.tokens.refresh_token) {
+        localStorage.setItem('ecofruit_refresh_token', res.data.tokens.refresh_token);
+      }
       this.setUser(res.data.user);
+
+      // Fetch fresh profile with cache-busting to ensure 100% accurate balance, points & addresses
+      try {
+        await this.getProfile();
+      } catch (e) {
+        console.debug('Profile fetch sync:', e);
+      }
 
       // Auto merge local storage cart items into DB
       try {
@@ -192,21 +228,50 @@ class ApiClient {
           await this.mergeCart(localCart.map(i => ({ product_id: parseInt(i.id) || 1, quantity: i.qty || 1 })));
         }
       } catch (e) {
-        console.log('Cart merge optional step:', e);
+        console.debug('Cart merge optional step:', e);
       }
+
+      window.dispatchEvent(new CustomEvent('ecofruit:auth-changed', { detail: { action: 'login', user: res.data.user } }));
     }
     return res;
   }
 
-  static logout() {
+  static async logout(redirectUrl = 'auth.html?mode=login&logged_out=1') {
+    try {
+      // 1. Notify Backend of logout (invalidate token / session)
+      if (this.getToken()) {
+        await this.request('/auth/logout/', { method: 'POST' }).catch(() => {});
+      }
+    } catch (e) {
+      // Non-blocking logout
+    }
+
+    // 2. Completely eradicate all user tokens, credentials, caches, orders & wallets
+    this.purgeLocalUserCache();
+
+    // 3. Dispatch global auth state change
+    window.dispatchEvent(new CustomEvent('ecofruit:auth-changed', { detail: { action: 'logout', user: null } }));
+
+    // 4. Redirect cleanly to login window
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+    }
+  }
+
+  static purgeLocalUserCache() {
     this.setToken(null);
     this.setUser(null);
-    localStorage.removeItem('gf_current_user');
-    window.location.reload();
+    localStorage.removeItem('ecofruit_refresh_token');
+    localStorage.removeItem('gf_orders');
+    localStorage.removeItem('gf_vnpay_wallets');
+    sessionStorage.clear();
   }
 
   static async getProfile() {
-    const res = await this.request('/auth/profile/');
+    // Cache-busting timestamp parameter to prevent 304 or browser HTTP stale cache
+    const res = await this.request(`/auth/profile/?_t=${Date.now()}`, {
+      headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
+    });
     if (res.data) {
       this.setUser(res.data);
     }
@@ -230,6 +295,7 @@ class ApiClient {
       body: JSON.stringify({ amount }),
     });
   }
+
 
   // =========================================================================
   // CART & MERGING

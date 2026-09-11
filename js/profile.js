@@ -20,50 +20,78 @@ window.addEventListener('ecofruit:data-synced', () => {
   loadUserProfile();
 });
 
-// ==================== NẠP DỮ LIỆU USER ====================
+// ==================== NẠP DỮ LIỆU USER (EXPERT FRESH SYNC) ====================
 async function loadUserProfile() {
+  const token = window.EcoFruitAPI ? EcoFruitAPI.getToken() : null;
   currentUser = getCurrentUser();
-  if (!currentUser) {
-    currentUser = DEFAULT_USER;
-    setCurrentUser(currentUser);
+
+  // If completely unauthenticated, redirect to login with return URL
+  if (!token && (!currentUser || !currentUser.email)) {
+    window.location.href = 'auth.html?mode=login&redirect=profile.html';
+    return;
   }
 
-  // 1. Thử tải profile mới nhất từ Django API (nếu đã đăng nhập)
-  if (window.EcoFruitAPI && EcoFruitAPI.getToken()) {
+  // 1. Tải profile mới nhất 100% từ Django MySQL API
+  if (window.EcoFruitAPI && token) {
     try {
       const liveProfile = await EcoFruitAPI.getProfile();
       if (liveProfile) {
-        currentUser.fullName = liveProfile.full_name || currentUser.fullName;
-        currentUser.email = liveProfile.email || currentUser.email;
-        currentUser.phone = liveProfile.phone_number || currentUser.phone;
-        currentUser.walletBalance = Number(liveProfile.balance || currentUser.walletBalance);
-        currentUser.points = liveProfile.loyalty_points || currentUser.points;
+        currentUser = {
+          id: liveProfile.id,
+          fullName: liveProfile.full_name || 'Thành viên EcoFruit',
+          email: liveProfile.email,
+          phone: liveProfile.phone_number || '',
+          avatar: liveProfile.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
+          role: liveProfile.role || 'CUSTOMER',
+          membership: liveProfile.role === 'ADMIN' ? 'Quản trị viên EcoFruit' : (liveProfile.role === 'STAFF' ? 'Nhân viên quản lý kho' : 'Khách hàng VIP EcoFruit'),
+          points: liveProfile.loyalty_points || 0,
+          walletBalance: Number(liveProfile.balance || 0),
+          address: liveProfile.addresses?.[0]?.detail_address || 'Hà Nội'
+        };
         setCurrentUser(currentUser);
       }
     } catch (err) {
-      console.log('[Profile API] Dùng cached profile:', err.message);
+      console.debug('[Profile API] Profile sync:', err.message);
     }
   }
 
+  if (!currentUser) return;
+
   // Sidebar info
-  document.getElementById('user-sidebar-name').textContent = currentUser.fullName;
-  document.getElementById('user-sidebar-email').textContent = currentUser.email;
-  document.getElementById('user-sidebar-badge').textContent = currentUser.membership || 'Khách hàng VIP EcoFruit';
-  document.getElementById('user-avatar-img').src = currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80';
+  const sidebarName = document.getElementById('user-sidebar-name');
+  if (sidebarName) sidebarName.textContent = currentUser.fullName;
+
+  const sidebarEmail = document.getElementById('user-sidebar-email');
+  if (sidebarEmail) sidebarEmail.textContent = currentUser.email;
+
+  const sidebarBadge = document.getElementById('user-sidebar-badge');
+  if (sidebarBadge) sidebarBadge.textContent = currentUser.membership || 'Khách hàng VIP EcoFruit';
+
+  const avatarImg = document.getElementById('user-avatar-img');
+  if (avatarImg) avatarImg.src = currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80';
 
   // Form info
-  document.getElementById('profile-fullname').value = currentUser.fullName || '';
-  document.getElementById('profile-email').value = currentUser.email || '';
-  document.getElementById('profile-phone').value = currentUser.phone || '';
-  document.getElementById('profile-address').value = currentUser.address || '';
+  const fName = document.getElementById('profile-fullname');
+  if (fName) fName.value = currentUser.fullName || '';
+
+  const fEmail = document.getElementById('profile-email');
+  if (fEmail) fEmail.value = currentUser.email || '';
+
+  const fPhone = document.getElementById('profile-phone');
+  if (fPhone) fPhone.value = currentUser.phone || '';
+
+  const fAddr = document.getElementById('profile-address');
+  if (fAddr) fAddr.value = currentUser.address || '';
 
   // Wallet balance
   const balance = currentUser.walletBalance || 0;
-  document.getElementById('wallet-balance-amount').textContent = formatCurrency(balance);
+  const walletAmount = document.getElementById('wallet-balance-amount');
+  if (walletAmount) walletAmount.textContent = formatCurrency(balance);
 
   // Render orders
   await renderOrderHistory();
 }
+
 
 // ==================== XỬ LÝ SỬA THÔNG TIN CÁ NHÂN ====================
 function setupProfileForm() {
@@ -128,12 +156,12 @@ async function renderOrderHistory() {
 
   let orders = getOrders();
 
-  // Thử kéo danh sách đơn hàng thực tế từ Django Backend MySQL
-  if (window.EcoFruitAPI) {
+  // Thử kéo danh sách đơn hàng thực tế từ Django Backend MySQL cho riêng tài khoản hiện tại
+  if (window.EcoFruitAPI && EcoFruitAPI.getToken()) {
     try {
       const apiOrders = await EcoFruitAPI.getOrders();
-      if (apiOrders && apiOrders.length > 0) {
-        const transformedApiOrders = apiOrders.map(o => {
+      if (apiOrders) {
+        orders = apiOrders.map(o => {
           let badge = 'bg-warning text-dark';
           let statusKey = 'pending';
           const orderSt = o.order_status || o.status || 'PENDING';
@@ -165,17 +193,13 @@ async function renderOrderHistory() {
             trackingCode: o.tracking_code || `VNPOST-${o.order_code}`
           };
         });
-
-        // Kết hợp và loại bỏ trùng lặp mã đơn
-        const existingCodes = new Set(transformedApiOrders.map(o => o.id));
-        const nonDuplicateLocal = orders.filter(o => !existingCodes.has(o.id));
-        orders = [...transformedApiOrders, ...nonDuplicateLocal];
         localStorage.setItem(DB_KEYS.ORDERS, JSON.stringify(orders));
       }
     } catch (err) {
-      console.log('[Orders API] Local orders fallback:', err.message);
+      console.debug('[Orders API] Local orders fallback:', err.message);
     }
   }
+
 
   if (currentOrderFilter !== 'all') {
     orders = orders.filter(o => o.status === currentOrderFilter);

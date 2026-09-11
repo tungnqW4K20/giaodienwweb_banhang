@@ -806,27 +806,21 @@ function initDatabase() {
   if (!localStorage.getItem(DB_KEYS.USERS)) {
     localStorage.setItem(DB_KEYS.USERS, JSON.stringify([DEFAULT_USER]));
   }
-  if (!localStorage.getItem(DB_KEYS.CURRENT_USER)) {
-    localStorage.setItem(DB_KEYS.CURRENT_USER, JSON.stringify(DEFAULT_USER));
-  }
+  // IMPORTANT: Do NOT auto-set CURRENT_USER to DEFAULT_USER so guest state is truly unauthenticated
   if (!localStorage.getItem(DB_KEYS.ORDERS)) {
-    localStorage.setItem(DB_KEYS.ORDERS, JSON.stringify(DEFAULT_ORDERS));
+    localStorage.setItem(DB_KEYS.ORDERS, JSON.stringify([]));
   }
   if (!localStorage.getItem(DB_KEYS.REVIEWS)) {
     localStorage.setItem(DB_KEYS.REVIEWS, JSON.stringify(DEFAULT_REVIEWS));
   }
   if (!localStorage.getItem(DB_KEYS.CART)) {
-    // Khởi tạo giỏ hàng mẫu có sẵn 2 món để người dùng dễ kiểm tra
-    const sampleCart = [
-      { id: 'sp-01', qty: 1, unit: 'kg' },
-      { id: 'sp-03', qty: 2, unit: 'hộp 500g' }
-    ];
-    localStorage.setItem(DB_KEYS.CART, JSON.stringify(sampleCart));
+    localStorage.setItem(DB_KEYS.CART, JSON.stringify([]));
   }
 }
 
 // Chạy khởi tạo ngay khi nạp file
 initDatabase();
+
 
 // ==================== CÁC HÀM TRUY XUẤT DATABASE (CRUD) ====================
 

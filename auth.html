@@ -62,15 +62,44 @@
           <!-- TAB 1: ĐĂNG NHẬP -->
           <div class="tab-pane fade show active" id="pane-login" role="tabpanel">
             
-            <!-- Quick Demo Login Pill -->
-            <div class="demo-account-box">
-              <div class="small">
-                <strong class="text-success d-block"><i class="fa-solid fa-sparkles me-1"></i> Tài khoản Demo sẵn sàng:</strong>
-                <span class="text-muted"><code>demo@greenfruit.vn</code> / <code>password123</code></span>
+            <!-- Logout Notification Banner (Shows when redirected from logout) -->
+            <div id="logout-alert-banner" class="alert alert-success d-none align-items-center py-2 px-3 small mb-3 border-0 rounded-3" role="alert">
+              <i class="fa-solid fa-circle-check me-2 fs-5"></i>
+              <div><strong>Đã đăng xuất hoàn toàn!</strong> Phiên làm việc cũ đã được xóa sạch.</div>
+            </div>
+
+            <!-- Quick Enterprise Test Account Switcher -->
+            <div class="p-3 mb-4 rounded-3 border bg-light">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small fw-bold text-success font-heading"><i class="fa-solid fa-user-shield me-1"></i> Tài khoản Test Nhanh (1-Click):</span>
+                <span class="badge bg-secondary-subtle text-secondary small">MySQL Live DB</span>
               </div>
-              <button type="button" class="btn btn-sm btn-primary-gf" id="btn-demo-login">
-                Đăng nhập 1-Click
-              </button>
+              <div class="row g-2">
+                <div class="col-6">
+                  <button type="button" class="btn btn-outline-danger btn-sm w-100 text-start py-2 quick-user-btn" data-email="admin@ecofruit.vn" data-pass="Admin@123456">
+                    <div class="fw-bold small text-truncate"><i class="fa-solid fa-crown text-warning me-1"></i>1. Admin EcoFruit</div>
+                    <div class="text-muted" style="font-size: 11px;">Ví: 10M | 5.000 điểm</div>
+                  </button>
+                </div>
+                <div class="col-6">
+                  <button type="button" class="btn btn-outline-warning btn-sm w-100 text-start py-2 quick-user-btn" data-email="vip@ecofruit.vn" data-pass="Vip@123456">
+                    <div class="fw-bold small text-truncate"><i class="fa-solid fa-gem text-info me-1"></i>2. VIP Hoàng Long</div>
+                    <div class="text-muted" style="font-size: 11px;">Ví: 5M | 8.800 điểm</div>
+                  </button>
+                </div>
+                <div class="col-6">
+                  <button type="button" class="btn btn-outline-primary btn-sm w-100 text-start py-2 quick-user-btn" data-email="khachhang@gmail.com" data-pass="Customer@123456">
+                    <div class="fw-bold small text-truncate"><i class="fa-solid fa-user-check text-primary me-1"></i>3. Khách Văn An</div>
+                    <div class="text-muted" style="font-size: 11px;">Ví: 500k | 350 điểm</div>
+                  </button>
+                </div>
+                <div class="col-6">
+                  <button type="button" class="btn btn-outline-success btn-sm w-100 text-start py-2 quick-user-btn" data-email="lan.tran@gmail.com" data-pass="Password@123">
+                    <div class="fw-bold small text-truncate"><i class="fa-solid fa-heart text-danger me-1"></i>4. Mẹ Bầu Mai Lan</div>
+                    <div class="text-muted" style="font-size: 11px;">Ví: 850k | 620 điểm</div>
+                  </button>
+                </div>
+              </div>
             </div>
 
             <form id="login-form">
@@ -78,18 +107,18 @@
                 <label class="form-label small fw-bold">Địa chỉ Email</label>
                 <div class="input-group">
                   <span class="input-group-text bg-light"><i class="fa-solid fa-envelope text-muted"></i></span>
-                  <input type="email" class="form-control" id="login-email" placeholder="demo@greenfruit.vn" value="demo@greenfruit.vn" required>
+                  <input type="email" class="form-control" id="login-email" placeholder="khachhang@gmail.com" value="khachhang@gmail.com" required>
                 </div>
               </div>
 
               <div class="mb-3">
                 <div class="d-flex justify-content-between align-items-center mb-1">
                   <label class="form-label small fw-bold mb-0">Mật khẩu</label>
-                  <a href="#" class="small text-muted" onclick="alert('Mật khẩu tài khoản demo là: password123')">Quên mật khẩu?</a>
+                  <a href="#" class="small text-muted" onclick="alert('Mật khẩu mẫu các tài khoản: Customer@123456, Vip@123456, Admin@123456, Password@123')">Gợi ý mật khẩu?</a>
                 </div>
                 <div class="input-group">
                   <span class="input-group-text bg-light"><i class="fa-solid fa-lock text-muted"></i></span>
-                  <input type="password" class="form-control" id="login-password" placeholder="••••••••" value="password123" required>
+                  <input type="password" class="form-control" id="login-password" placeholder="••••••••" value="Customer@123456" required>
                 </div>
               </div>
 
@@ -100,11 +129,12 @@
                 </label>
               </div>
 
-              <button type="submit" class="btn btn-primary-gf w-100 py-3 font-heading fs-5">
+              <button type="submit" id="btn-submit-login" class="btn btn-primary-gf w-100 py-3 font-heading fs-5">
                 <i class="fa-solid fa-arrow-right-to-bracket me-2"></i> Đăng Nhập Ngay
               </button>
             </form>
           </div>
+
 
           <!-- TAB 2: ĐĂNG KÝ -->
           <div class="tab-pane fade" id="pane-register" role="tabpanel">

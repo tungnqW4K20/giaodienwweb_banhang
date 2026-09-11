@@ -140,46 +140,69 @@ function checkAuthState() {
   const authContainer = document.getElementById('header-auth-container');
   if (!authContainer) return;
 
-  if (currentUser) {
+  const token = window.EcoFruitAPI ? window.EcoFruitAPI.getToken() : null;
+
+  if (currentUser && (token || currentUser.email)) {
+    const displayName = currentUser.fullName ? currentUser.fullName.split(' ').pop() : 'Tài khoản';
+    const membershipBadge = currentUser.role === 'ADMIN' 
+      ? '<span class="badge bg-danger">Quản trị viên</span>' 
+      : (currentUser.role === 'STAFF' ? '<span class="badge bg-info text-dark">Nhân viên</span>' : `<span class="badge bg-success">${currentUser.membership || 'Thành viên VIP'}</span>`);
+
     authContainer.innerHTML = `
       <div class="dropdown">
-        <a href="#" class="header-action-btn dropdown-toggle text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
-          <img src="${currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80'}" alt="${currentUser.fullName}" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover;">
-          <span class="d-none d-md-inline">${currentUser.fullName.split(' ').pop()}</span>
+        <a href="#" class="header-action-btn dropdown-toggle text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false" id="headerUserDropdown">
+          <img src="${currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80'}" alt="${currentUser.fullName}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 2px solid #28a745;">
+          <span class="d-none d-md-inline fw-semibold">${displayName}</span>
         </a>
-        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2">
-          <li class="px-3 py-2 border-bottom">
-            <div class="fw-bold">${currentUser.fullName}</div>
-            <small class="text-muted">${currentUser.email}</small>
-            <div class="mt-1"><span class="badge bg-success">${currentUser.membership || 'Thành viên'}</span></div>
+        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2 py-2" style="min-width: 240px;">
+          <li class="px-3 py-2 border-bottom mb-1">
+            <div class="fw-bold text-dark text-truncate">${currentUser.fullName}</div>
+            <div class="text-muted small text-truncate">${currentUser.email}</div>
+            <div class="mt-1 d-flex justify-content-between align-items-center">
+              ${membershipBadge}
+              <span class="small text-success fw-bold">${formatCurrency(currentUser.walletBalance || 0)}</span>
+            </div>
           </li>
-          <li><a class="dropdown-item py-2" href="profile.html"><i class="fa-regular fa-user me-2 text-primary"></i>Tài khoản của tôi</a></li>
+          <li><a class="dropdown-item py-2" href="profile.html"><i class="fa-regular fa-user me-2 text-primary"></i>Hồ sơ tài khoản</a></li>
           <li><a class="dropdown-item py-2" href="profile.html#orders"><i class="fa-solid fa-box-open me-2 text-primary"></i>Lịch sử đơn hàng</a></li>
-          <li><a class="dropdown-item py-2" href="profile.html#vnpay-test"><i class="fa-solid fa-wallet me-2 text-warning"></i>Nạp / Test VNPay</a></li>
-          <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item py-2 text-danger" href="javascript:void(0)" onclick="logoutUser()"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Đăng xuất</a></li>
+          <li><a class="dropdown-item py-2" href="profile.html#vnpay-test"><i class="fa-solid fa-wallet me-2 text-warning"></i>Ví EcoPay & Nạp tiền</a></li>
+          <li><hr class="dropdown-divider my-1"></li>
+          <li><a class="dropdown-item py-2 text-danger fw-semibold" href="javascript:void(0)" onclick="logoutUser()"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Đăng xuất hoàn toàn</a></li>
         </ul>
       </div>
     `;
   } else {
     authContainer.innerHTML = `
-      <a href="auth.html" class="header-action-btn">
+      <a href="auth.html" class="header-action-btn text-decoration-none">
         <div class="icon-wrap"><i class="fa-regular fa-user"></i></div>
-        <span class="d-none d-md-inline">Tài khoản</span>
+        <span class="d-none d-md-inline">Đăng nhập</span>
       </a>
     `;
   }
 }
+window.checkAuthState = checkAuthState;
 
-// Đăng xuất
-function logoutUser() {
-  localStorage.removeItem(DB_KEYS.CURRENT_USER);
-  showToast('Đã đăng xuất', 'Hẹn gặp lại quý khách tại GreenFruit Eco!', 'info');
-  setTimeout(() => {
-    window.location.href = 'index.html';
-  }, 800);
+// Lắng nghe sự kiện thay đổi phiên đăng nhập
+window.addEventListener('ecofruit:auth-changed', () => {
+  checkAuthState();
+});
+
+// Đăng xuất hoàn toàn (Clean Expert Logout)
+async function logoutUser() {
+  showToast('Đang đăng xuất...', 'Hệ thống đang thu hồi phiên làm việc.', 'info');
+  if (window.EcoFruitAPI) {
+    await window.EcoFruitAPI.logout('auth.html?mode=login&logged_out=1');
+  } else {
+    localStorage.removeItem(DB_KEYS.CURRENT_USER);
+    localStorage.removeItem(DB_KEYS.ORDERS);
+    localStorage.removeItem('ecofruit_access_token');
+    setTimeout(() => {
+      window.location.href = 'auth.html?mode=login&logged_out=1';
+    }, 500);
+  }
 }
 window.logoutUser = logoutUser;
+
 
 // ==================== TÌM KIẾM NHANH TOÀN TRANG ====================
 function setupGlobalSearch() {

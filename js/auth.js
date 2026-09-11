@@ -1,16 +1,29 @@
 /**
- * GreenFruit Eco - Authentication Logic
- * Xử lý đăng nhập, đăng ký tài khoản, tài khoản dùng thử và ghi nhớ phiên đăng nhập.
+ * GreenFruit Eco - Authentication Logic (Enterprise Zero-Cache Mode)
+ * Xử lý đăng nhập, đăng ký tài khoản, chuyển đổi tài khoản thử nghiệm nhanh và bảo mật phiên.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+  checkLogoutQueryParam();
   setupLoginForm();
   setupRegisterForm();
-  setupDemoLogin();
+  setupQuickTestUsers();
   handleAuthHash();
 });
 
-// ==================== ĐĂNG NHẬP ====================
+// ==================== KIỂM TRA TRẠNG THÁI VỪA ĐĂNG XUẤT ====================
+function checkLogoutQueryParam() {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('logged_out') === '1') {
+    const banner = document.getElementById('logout-alert-banner');
+    if (banner) {
+      banner.classList.remove('d-none');
+      banner.classList.add('d-flex');
+    }
+  }
+}
+
+// ==================== ĐĂNG NHẬP CHUYÊN NGHIỆP ====================
 function setupLoginForm() {
   const form = document.getElementById('login-form');
   if (!form) return;
@@ -20,50 +33,66 @@ function setupLoginForm() {
 
     const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
+    const btnSubmit = document.getElementById('btn-submit-login');
 
-    // 1. Try Django Backend API
-    if (window.EcoFruitAPI) {
-      try {
+    if (btnSubmit) {
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang xác thực...';
+    }
+
+    try {
+      // 1. Authenticate against Django REST MySQL API
+      if (window.EcoFruitAPI) {
         const res = await window.EcoFruitAPI.login(email, password);
         if (res && res.data && res.data.user) {
           const u = res.data.user;
-          const localUser = {
-            id: u.id,
-            fullName: u.full_name,
-            email: u.email,
-            phone: u.phone_number || '',
-            avatar: u.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
-            address: u.addresses?.[0]?.detail_address || 'Hà Nội',
-            membership: 'Khách hàng VIP EcoFruit',
-            points: u.loyalty_points || 100,
-            walletBalance: parseInt(u.balance) || 0,
-            joinedDate: new Date().toLocaleDateString('vi-VN')
-          };
-          setCurrentUser(localUser);
-          showToast('Đăng nhập thành công!', `Chào mừng ${u.full_name} quay trở lại! (MySQL Auth)`, 'success');
+          showToast('Đăng nhập thành công!', `Chào mừng ${u.full_name} (${u.email})!`, 'success');
+          
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirectUrl = urlParams.get('redirect') || 'profile.html';
+
           setTimeout(() => {
-            window.location.href = 'profile.html';
+            window.location.href = redirectUrl;
           }, 600);
           return;
         }
-      } catch (err) {
-        // Fallback to local authentication
+      }
+      throw new Error('Không thể kết nối đến máy chủ xác thực.');
+    } catch (err) {
+      showToast('Đăng nhập thất bại', err.message || 'Email hoặc mật khẩu không chính xác.', 'error');
+    } finally {
+      if (btnSubmit) {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket me-2"></i> Đăng Nhập Ngay';
       }
     }
+  });
+}
 
-    // 2. Local Fallback
-    const users = getUsers();
-    const user = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+// ==================== TÀI KHOẢN TEST NHANH (1-CLICK) ====================
+function setupQuickTestUsers() {
+  const quickBtns = document.querySelectorAll('.quick-user-btn');
+  quickBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const email = btn.dataset.email;
+      const pass = btn.dataset.pass;
 
-    if (user) {
-      setCurrentUser(user);
-      showToast('Đăng nhập thành công!', `Chào mừng ${user.fullName} quay trở lại!`, 'success');
-      setTimeout(() => {
-        window.location.href = 'profile.html';
-      }, 800);
-    } else {
-      showToast('Đăng nhập thất bại', 'Email hoặc mật khẩu không chính xác.', 'error');
-    }
+      const emailInput = document.getElementById('login-email');
+      const passInput = document.getElementById('login-password');
+      const form = document.getElementById('login-form');
+
+      if (emailInput && passInput && form) {
+        emailInput.value = email;
+        passInput.value = pass;
+        
+        // Highlight inputs briefly
+        emailInput.classList.add('is-valid');
+        passInput.classList.add('is-valid');
+
+        // Automatically trigger submit
+        form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit', { cancelable: true }));
+      }
+    });
   });
 }
 
@@ -86,9 +115,8 @@ function setupRegisterForm() {
       return;
     }
 
-    // 1. Try Django Backend API
-    if (window.EcoFruitAPI) {
-      try {
+    try {
+      if (window.EcoFruitAPI) {
         const res = await window.EcoFruitAPI.register({
           full_name: fullName,
           email: email,
@@ -98,79 +126,26 @@ function setupRegisterForm() {
         });
         if (res && res.data && res.data.user) {
           const u = res.data.user;
-          const localUser = {
-            id: u.id,
-            fullName: u.full_name,
-            email: u.email,
-            phone: u.phone_number || phone,
-            avatar: u.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
-            address: 'Hà Nội',
-            membership: 'Thành viên Mới',
-            points: 100,
-            walletBalance: 0,
-            joinedDate: new Date().toLocaleDateString('vi-VN')
-          };
-          setCurrentUser(localUser);
-          showToast('Tạo tài khoản thành công!', `Chào mừng ${u.full_name} gia nhập EcoFruit! (Đã lưu DB)`, 'success');
+          showToast('Tạo tài khoản thành công!', `Chào mừng ${u.full_name} gia nhập EcoFruit!`, 'success');
           setTimeout(() => {
             window.location.href = 'profile.html';
-          }, 800);
+          }, 700);
           return;
         }
-      } catch (err) {
-        // Fallback to local registration
       }
+    } catch (err) {
+      showToast('Đăng ký thất bại', err.message || 'Không thể đăng ký tài khoản. Vui lòng thử lại.', 'error');
     }
-
-    // 2. Local Fallback
-    const users = getUsers();
-    const existing = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-    if (existing) {
-      showToast('Email đã tồn tại', 'Địa chỉ email này đã được đăng ký tài khoản.', 'error');
-      return;
-    }
-
-    const newUser = {
-      id: `usr_${Date.now()}`,
-      fullName: fullName,
-      email: email,
-      phone: phone,
-      password: password,
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
-      address: 'Chưa cập nhật địa chỉ',
-      membership: 'Thành viên Mới',
-      points: 50,
-      walletBalance: 0,
-      joinedDate: new Date().toLocaleDateString('vi-VN')
-    };
-
-    setCurrentUser(newUser);
-    showToast('Tạo tài khoản thành công!', `Chào mừng ${newUser.fullName} gia nhập GreenFruit Eco!`, 'success');
-
-    setTimeout(() => {
-      window.location.href = 'profile.html';
-    }, 1000);
   });
-}
-
-// ==================== NÚT ĐĂNG NHẬP NHANH DEMO ====================
-function setupDemoLogin() {
-  const btnDemo = document.getElementById('btn-demo-login');
-  if (btnDemo) {
-    btnDemo.addEventListener('click', () => {
-      setCurrentUser(DEFAULT_USER);
-      showToast('Đăng nhập Demo thành công!', `Đang đăng nhập với tài khoản: ${DEFAULT_USER.fullName}`, 'success');
-      setTimeout(() => {
-        window.location.href = 'profile.html';
-      }, 600);
-    });
-  }
 }
 
 // Kiểm tra Hash #register
 function handleAuthHash() {
   if (window.location.hash === '#register') {
     const regTab = document.getElementById('tab-register');
-    if (regTab) bootstrap.Tab.getInstance(regTab)?.show() || new bootstrap.Tab(regTab).show();
+    if (regTab) {
+      bootstrap.Tab.getInstance(regTab)?.show() || new bootstrap.Tab(regTab).show();
+    }
   }
 }
+
