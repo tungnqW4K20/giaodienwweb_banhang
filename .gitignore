@@ -28,3 +28,15 @@ yarn-error.log*
 .system_generated/
 tmp/
 temp/
+
+# Python & Django ignores
+__pycache__/
+*.py[cod]
+*$py.class
+*.sqlite3
+.venv/
+env/
+venv/
+.env
+staticfiles/
+
