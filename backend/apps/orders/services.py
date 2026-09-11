@@ -1,11 +1,12 @@
 import random
 import time
+from typing import Any
 from datetime import datetime
 from django.db import transaction
 from django.utils import timezone
 from apps.products.models import Product
 from apps.vouchers.models import Voucher
-from apps.cart.models import Cart
+from apps.cart.models import Cart, CartItem
 from apps.common.redis_helper import RedisService
 from .models import Order, OrderItem, OrderStatusLog
 
@@ -16,9 +17,9 @@ class CheckoutService:
         rand_suffix = "".join(random.choices("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", k=6))
         return f"ECO-{date_str}-{rand_suffix}"
 
-    @classmethod
-    @transaction.atomic
-    def process_checkout(cls, user, data: dict, ip_address: str = None, user_agent: str = None) -> Order:
+    @staticmethod
+    @transaction.atomic()
+    def process_checkout(user, data: dict, ip_address: str | None = None, user_agent: str | None = None) -> Order:
         """
         Processes checkout with ACID Concurrency Locking (select_for_update)
         and supports all purchase situations (Guest / Member / Wallet / VNPay / COD).
@@ -34,7 +35,7 @@ class CheckoutService:
         }
 
         # Validate existence & stock availability
-        order_items_to_create = []
+        order_items_to_create: list[dict[str, Any]] = []
         subtotal = 0.0
 
         for item in items_data:
@@ -68,15 +69,14 @@ class CheckoutService:
         discount_amount = 0.0
 
         if voucher_code:
-            try:
-                voucher_obj = Voucher.objects.select_for_update().get(code=voucher_code)
+            voucher_obj = Voucher.objects.select_for_update().filter(code=voucher_code).first()
+            if voucher_obj:
                 is_valid, msg, calculated_discount = voucher_obj.is_valid_for_order(subtotal)
                 if is_valid:
                     discount_amount = calculated_discount
                     voucher_obj.used_count += 1
                     voucher_obj.save()
-            except Voucher.DoesNotExist:
-                pass
+
 
         # 3. Loyalty Points Deduction (Member only)
         points_to_use = int(data.get('loyalty_points_used', 0))
@@ -108,7 +108,7 @@ class CheckoutService:
             payment_status = Order.PaymentStatus.PAID
 
         # 6. Create Order in Database
-        order_code = cls.generate_order_code()
+        order_code = CheckoutService.generate_order_code()
         is_guest = not (user and user.is_authenticated)
 
         order = Order.objects.create(
@@ -140,21 +140,25 @@ class CheckoutService:
 
         # 7. Create Order Items & Deduct Product Stock in DB
         for item_info in order_items_to_create:
+            product_obj: Any = item_info['product']
+            item_qty = int(item_info['quantity'])
+
             OrderItem.objects.create(
                 order=order,
-                product=item_info['product'],
+                product=product_obj,
                 product_name=item_info['name'],
                 product_sku=item_info['sku'],
                 product_image=item_info['image'],
                 unit_price=item_info['unit_price'],
-                quantity=item_info['quantity'],
+                quantity=item_qty,
                 subtotal=item_info['subtotal']
             )
             # Deduct stock and increment sold count
-            p = item_info['product']
-            p.stock = max(0, p.stock - item_info['quantity'])
-            p.sold_count += item_info['quantity']
-            p.save()
+            curr_stock = int(getattr(product_obj, 'stock', 0))
+            curr_sold = int(getattr(product_obj, 'sold_count', 0))
+            product_obj.stock = max(0, curr_stock - item_qty)
+            product_obj.sold_count = curr_sold + item_qty
+            product_obj.save()
 
         # 8. Log Initial Order Status
         OrderStatusLog.objects.create(
@@ -169,7 +173,7 @@ class CheckoutService:
         if user and user.is_authenticated:
             user_cart = Cart.objects.filter(user=user).first()
             if user_cart:
-                user_cart.items.filter(product_id__in=product_ids).delete()
+                CartItem.objects.filter(cart=user_cart, product_id__in=product_ids).delete()
 
         # 10. Publish Realtime Notification via Redis Pub/Sub
         notification_payload = {

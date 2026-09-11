@@ -1,8 +1,10 @@
+import io
 import sys
 import requests
 import json
 
-sys.stdout.reconfigure(encoding='utf-8')
+if isinstance(sys.stdout, io.TextIOWrapper):
+    sys.stdout.reconfigure(encoding='utf-8')
 
 BASE = 'http://127.0.0.1:8000/api/v1'
 

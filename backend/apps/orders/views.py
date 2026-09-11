@@ -29,16 +29,16 @@ class CheckoutView(views.APIView):
                 user_agent=user_agent
             )
 
-            response_data = {
-                "order": OrderDetailSerializer(order).data,
-                "payment_url": None
-            }
-
+            payment_url = None
             # If VNPay chosen, generate sandbox payment URL
             if order.payment_method == Order.PaymentMethod.VNPAY:
                 from apps.payments.services import VNPayService
                 payment_url = VNPayService.generate_payment_url(order, request)
-                response_data["payment_url"] = payment_url
+
+            response_data = {
+                "order": OrderDetailSerializer(order).data,
+                "payment_url": payment_url
+            }
 
             return api_response(
                 data=response_data,
@@ -92,7 +92,7 @@ class OrderDetailView(views.APIView):
 class CancelOrderView(views.APIView):
     permission_classes = [AllowAny]
 
-    @transaction.atomic
+    @transaction.atomic()
     def post(self, request, order_code):
         try:
             order = Order.objects.select_for_update().get(order_code=order_code)

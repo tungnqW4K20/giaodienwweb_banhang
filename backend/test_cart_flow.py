@@ -1,15 +1,18 @@
+import io
 import os
 import sys
 import json
 import urllib.request
 import urllib.error
 
-if sys.platform == "win32":
+from typing import Any, Dict, Optional
+
+if isinstance(sys.stdout, io.TextIOWrapper):
     sys.stdout.reconfigure(encoding="utf-8")
 
 BASE_URL = "http://127.0.0.1:8000/api/v1"
 
-def api_request(endpoint, method="GET", data=None, token=None):
+def api_request(endpoint: str, method: str = "GET", data: Optional[Dict[str, Any]] = None, token: Optional[str] = None) -> Any:
     url = f"{BASE_URL}{endpoint}"
     headers = {"Content-Type": "application/json"}
     if token:
@@ -26,8 +29,10 @@ def api_request(endpoint, method="GET", data=None, token=None):
         err_body = e.read().decode("utf-8")
         try:
             return json.loads(err_body)
-        except:
+        except Exception:
             return {"error": err_body, "status_code": e.code}
+    except Exception as e:
+        return {"error": str(e)}
 
 def main():
     print("=" * 70)

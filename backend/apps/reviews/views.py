@@ -1,3 +1,4 @@
+from decimal import Decimal
 from rest_framework import views, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.db.models import Avg, Count
@@ -14,9 +15,8 @@ class ReviewEligibilityView(views.APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, product_id):
-        try:
-            product = Product.objects.get(id=product_id)
-        except Product.DoesNotExist:
+        product = Product.objects.filter(id=product_id).first()
+        if not product:
             return api_error(message="Không tìm thấy sản phẩm.", status_code=status.HTTP_404_NOT_FOUND)
 
         if not request.user or not request.user.is_authenticated:
@@ -61,12 +61,11 @@ class ProductReviewListView(views.APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, product_id):
-        try:
-            product = Product.objects.get(id=product_id)
-        except Product.DoesNotExist:
+        product = Product.objects.filter(id=product_id).first()
+        if not product:
             return api_error(message="Không tìm thấy sản phẩm.", status_code=status.HTTP_404_NOT_FOUND)
 
-        reviews = product.reviews.all().order_by('-created_at')
+        reviews = ProductReview.objects.filter(product=product).order_by('-created_at')
         total_count = reviews.count()
         avg_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 5.0
 
@@ -94,9 +93,8 @@ class ProductReviewListView(views.APIView):
         )
 
     def post(self, request, product_id):
-        try:
-            product = Product.objects.get(id=product_id)
-        except Product.DoesNotExist:
+        product = Product.objects.filter(id=product_id).first()
+        if not product:
             return api_error(message="Không tìm thấy sản phẩm.", status_code=status.HTTP_404_NOT_FOUND)
 
         # 1. Require Authentication
@@ -135,9 +133,10 @@ class ProductReviewListView(views.APIView):
         )
 
         # Recompute product average rating & review count
-        avg_rating = product.reviews.aggregate(Avg('rating'))['rating__avg'] or 5.0
-        product.rating = round(avg_rating, 1)
-        product.review_count = product.reviews.count()
+        all_product_reviews = ProductReview.objects.filter(product=product)
+        avg_rating = all_product_reviews.aggregate(Avg('rating'))['rating__avg'] or 5.0
+        product.rating = Decimal(str(round(float(avg_rating), 1)))
+        product.review_count = all_product_reviews.count()
         product.save()
 
         return api_response(

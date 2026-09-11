@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+from decimal import Decimal
 import uuid
 from django.db import models
 from django.conf import settings
@@ -6,6 +8,8 @@ from apps.products.models import Product
 from apps.vouchers.models import Voucher
 
 class Order(TimeStampedModel):
+    if TYPE_CHECKING:
+        items: models.Manager['OrderItem']
     class PaymentMethod(models.TextChoices):
         COD = 'COD', 'Thanh toán khi nhận hàng (COD)'
         VNPAY = 'VNPAY', 'Cổng thanh toán VNPay Sandbox (ATM / QR / Thẻ)'

@@ -1,9 +1,16 @@
+from typing import TYPE_CHECKING
+from decimal import Decimal
 from django.db import models
 from django.conf import settings
 from apps.common.models import TimeStampedModel
 from apps.products.models import Product
 
 class Cart(TimeStampedModel):
+    if TYPE_CHECKING:
+        id: int
+        pk: int
+        items: models.Manager['CartItem']
+
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -31,6 +38,12 @@ class Cart(TimeStampedModel):
         return sum(item.subtotal for item in self.items.all())
 
 class CartItem(TimeStampedModel):
+    if TYPE_CHECKING:
+        id: int
+        pk: int
+        cart_id: int
+        product_id: int
+
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items', verbose_name="Giỏ hàng")
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='cart_items', verbose_name="Sản phẩm")
     quantity = models.PositiveIntegerField(default=1, verbose_name="Số lượng")
@@ -46,8 +59,10 @@ class CartItem(TimeStampedModel):
         return f"{self.product.name} x {self.quantity}"
 
     @property
-    def subtotal(self):
-        return self.quantity * self.unit_price
+    def subtotal(self) -> Decimal:
+        if self.unit_price is not None:
+            return self.unit_price * self.quantity
+        return Decimal('0')
 
     def save(self, *args, **kwargs):
         if not self.unit_price and self.product:

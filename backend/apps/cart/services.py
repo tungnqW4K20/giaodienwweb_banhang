@@ -36,7 +36,7 @@ class CartService:
         return item
 
     @staticmethod
-    def update_cart_item(cart: Cart, item_id: int, quantity: int) -> CartItem:
+    def update_cart_item(cart: Cart, item_id: int, quantity: int) -> CartItem | None:
         try:
             item = CartItem.objects.get(id=item_id, cart=cart)
         except CartItem.DoesNotExist:
@@ -60,10 +60,10 @@ class CartService:
 
     @staticmethod
     def clear_cart(cart: Cart):
-        cart.items.all().delete()
+        CartItem.objects.filter(cart=cart).delete()
 
     @staticmethod
-    @transaction.atomic
+    @transaction.atomic()
     def merge_local_cart_items(user, local_items: list) -> Cart:
         """
         Merges guest cart items stored in browser localStorage into member's DB cart.
