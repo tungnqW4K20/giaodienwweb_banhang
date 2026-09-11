@@ -221,28 +221,6 @@ async function renderOrderHistory() {
 
   let html = '';
   orders.forEach(order => {
-    let itemsHTML = '';
-    (order.items || []).forEach(item => {
-      const targetId = item.id || item.product_id || item.product || 'sp-01';
-      const itemImg = item.image || item.product_image || 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=100&q=80';
-      const itemName = item.name || item.product_name || 'Hoa quả sạch';
-
-      itemsHTML += `
-        <div class="order-item-row">
-          <a href="product-detail.html?id=${encodeURIComponent(targetId)}" class="order-item-thumb-link" title="Xem chi tiết ${itemName}">
-            <img src="${itemImg}" alt="${itemName}" class="order-item-thumb">
-          </a>
-          <div class="flex-grow-1">
-            <a href="product-detail.html?id=${encodeURIComponent(targetId)}" class="order-item-title-link" title="Xem chi tiết ${itemName}">
-              ${itemName}
-            </a>
-            <div class="text-muted small mt-1">SL: <strong>${item.qty || item.quantity || 1}</strong> ${item.unit || 'kg'} x ${formatCurrency(item.price || item.unit_price || 0)}</div>
-          </div>
-          <strong class="text-dark small font-heading">${formatCurrency((item.price || item.unit_price || 0) * (item.qty || item.quantity || 1))}</strong>
-        </div>
-      `;
-    });
-
     html += `
       <div class="order-card">
         <div class="order-header">
@@ -258,14 +236,10 @@ async function renderOrderHistory() {
           </div>
         </div>
 
-        <div class="order-body">
-          ${itemsHTML}
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-3 mt-3 border-top">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-3 mt-1">
           <div>
             <small class="text-muted d-block">Hình thức: <strong>${order.paymentMethod}</strong> (${order.paymentStatus})</small>
-            <small class="text-muted d-block">Vận đơn: <code>${order.trackingCode}</code></small>
+            <small class="text-muted d-block mt-1">Vận đơn: <code class="text-danger-emphasis">${order.trackingCode}</code></small>
           </div>
           <div class="text-end">
             <span class="text-muted small">Tổng tiền: </span>
