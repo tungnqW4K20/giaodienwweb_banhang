@@ -5,8 +5,7 @@
  */
 
 let appliedVoucher = null;
-let selectedItemIds = new Set();
-let isInitialSelectionDone = false;
+let deselectedItemIds = new Set();
 
 document.addEventListener('DOMContentLoaded', async () => {
   loadAppliedVoucher();
@@ -39,25 +38,26 @@ function loadAppliedVoucher() {
   }
 }
 
-// Nạp trạng thái tích chọn sản phẩm
+// Nạp trạng thái bỏ tích chọn sản phẩm (Mặc định tất cả được chọn)
 function loadSavedSelectionState() {
   try {
-    const saved = localStorage.getItem('gf_selected_cart_ids');
-    if (saved) {
+    const saved = localStorage.getItem('gf_deselected_cart_ids');
+    if (saved !== null) {
       const arr = JSON.parse(saved);
-      if (Array.isArray(arr) && arr.length > 0) {
-        selectedItemIds = new Set(arr.map(id => String(id).toLowerCase()));
-        isInitialSelectionDone = true;
+      if (Array.isArray(arr)) {
+        deselectedItemIds = new Set(arr.map(id => String(id).toLowerCase()));
       }
+    } else {
+      deselectedItemIds = new Set();
     }
   } catch (e) {
-    selectedItemIds = new Set();
+    deselectedItemIds = new Set();
   }
 }
 
 function saveSelectionState() {
   try {
-    localStorage.setItem('gf_selected_cart_ids', JSON.stringify(Array.from(selectedItemIds)));
+    localStorage.setItem('gf_deselected_cart_ids', JSON.stringify(Array.from(deselectedItemIds)));
   } catch (e) {
     // Ignore storage issues
   }
@@ -71,7 +71,7 @@ function renderCartPage() {
   if (!cartContainer) return;
 
   if (cart.length === 0) {
-    selectedItemIds.clear();
+    deselectedItemIds.clear();
     saveSelectionState();
     cartContainer.innerHTML = `
       <div class="col-12 text-center py-5">
@@ -90,27 +90,14 @@ function renderCartPage() {
     return;
   }
 
-  // Khởi tạo mặc định: tích chọn tất cả sản phẩm nếu chưa từng bỏ chọn
+  // Dọn sạch các ID không còn tồn tại trong giỏ khỏi deselectedItemIds
   const currentCartIdSet = new Set(cart.map(item => String(item.id || item.product_id).toLowerCase()));
-  if (!isInitialSelectionDone || selectedItemIds.size === 0) {
-    currentCartIdSet.forEach(id => selectedItemIds.add(id));
-    isInitialSelectionDone = true;
-    saveSelectionState();
-  } else {
-    // Xóa các ID không còn tồn tại trong giỏ
-    selectedItemIds.forEach(id => {
-      if (!currentCartIdSet.has(id)) {
-        selectedItemIds.delete(id);
-      }
-    });
-    // Nếu vẫn còn sản phẩm mới thêm vào giỏ chưa có trong set, mặc định tích chọn luôn
-    currentCartIdSet.forEach(id => {
-      if (!selectedItemIds.has(id) && selectedItemIds.size === cart.length - 1) {
-        selectedItemIds.add(id);
-      }
-    });
-    saveSelectionState();
-  }
+  deselectedItemIds.forEach(id => {
+    if (!currentCartIdSet.has(id)) {
+      deselectedItemIds.delete(id);
+    }
+  });
+  saveSelectionState();
 
   let tableRowsHTML = '';
   let subtotal = 0;
@@ -120,7 +107,7 @@ function renderCartPage() {
   cart.forEach(item => {
     const targetId = String(item.id || item.product_id);
     const targetIdLower = targetId.toLowerCase();
-    const isSelected = selectedItemIds.has(targetIdLower);
+    const isSelected = !deselectedItemIds.has(targetIdLower);
 
     if (isSelected) {
       selectedCount++;
@@ -235,7 +222,6 @@ function renderCartPage() {
   const allVouchers = getVouchers();
   const voucherSuggestionsHTML = allVouchers.map(v => {
     const isCurrent = appliedVoucher && appliedVoucher.code === v.code;
-    const isEligible = subtotal >= v.minOrder;
     return `
       <div class="voucher-preset-card ${isCurrent ? 'border-success bg-success-subtle' : ''}">
         <div>
@@ -272,14 +258,14 @@ function renderCartPage() {
             <label class="form-check-label fw-bold small cursor-pointer" for="cart-select-all">
               Chọn tất cả (${totalItemCount} sản phẩm)
             </label>
-            <span class="badge bg-success font-heading ms-2">Đã chọn: ${selectedCount}/${totalItemCount} món</span>
+            <span class="badge ${selectedCount > 0 ? 'bg-success' : 'bg-secondary'} font-heading ms-2">Đã chọn: ${selectedCount}/${totalItemCount} món</span>
           </div>
           ${selectedCount > 0 ? `
             <button type="button" class="btn btn-sm btn-outline-danger py-1 px-2" onclick="removeSelectedCartItems()" title="Xóa các sản phẩm đã chọn">
               <i class="fa-solid fa-trash-can me-1"></i> Xóa ${selectedCount} món đã chọn
             </button>
           ` : `
-            <small class="text-muted fst-italic">Vui lòng chọn sản phẩm để thanh toán</small>
+            <small class="text-danger fst-italic"><i class="fa-solid fa-circle-exclamation me-1"></i>Vui lòng tích chọn sản phẩm để thanh toán</small>
           `}
         </div>
 
@@ -288,7 +274,7 @@ function renderCartPage() {
             <thead>
               <tr>
                 <th style="width: 45px; text-align: center;">
-                  <input type="checkbox" class="form-check-input cart-header-checkbox" ${isAllSelected ? 'checked' : ''} onchange="toggleSelectAllCartItems(this.checked)" title="Chọn tất cả">
+                  <input type="checkbox" class="form-check-input cart-header-checkbox" ${isAllSelected ? 'checked' : ''} onchange="toggleSelectAllCartItems(this.checked)" title="Chọn / Bỏ chọn tất cả">
                 </th>
                 <th style="min-width: 250px;">Sản phẩm (Bấm ảnh để xem chi tiết)</th>
                 <th style="min-width: 110px;">Đơn giá</th>
@@ -404,9 +390,9 @@ function renderCartPage() {
 function toggleCartItemSelection(productId, isChecked) {
   const targetIdLower = String(productId).toLowerCase();
   if (isChecked) {
-    selectedItemIds.add(targetIdLower);
+    deselectedItemIds.delete(targetIdLower);
   } else {
-    selectedItemIds.delete(targetIdLower);
+    deselectedItemIds.add(targetIdLower);
   }
   saveSelectionState();
   renderCartPage();
@@ -416,9 +402,9 @@ window.toggleCartItemSelection = toggleCartItemSelection;
 function toggleSelectAllCartItems(isChecked) {
   const cart = getCart();
   if (isChecked) {
-    cart.forEach(item => selectedItemIds.add(String(item.id || item.product_id).toLowerCase()));
+    deselectedItemIds.clear();
   } else {
-    selectedItemIds.clear();
+    cart.forEach(item => deselectedItemIds.add(String(item.id || item.product_id).toLowerCase()));
   }
   saveSelectionState();
   renderCartPage();
@@ -427,15 +413,15 @@ window.toggleSelectAllCartItems = toggleSelectAllCartItems;
 
 function removeSelectedCartItems() {
   const cart = getCart();
-  const selectedCart = cart.filter(item => selectedItemIds.has(String(item.id || item.product_id).toLowerCase()));
+  const selectedCart = cart.filter(item => !deselectedItemIds.has(String(item.id || item.product_id).toLowerCase()));
   
   if (selectedCart.length === 0) return;
 
   if (confirm(`Quý khách có chắc chắn muốn xóa ${selectedCart.length} sản phẩm đã chọn khỏi giỏ hàng?`)) {
     selectedCart.forEach(item => {
       removeFromCart(item.id || item.product_id);
-      selectedItemIds.delete(String(item.id || item.product_id).toLowerCase());
     });
+    deselectedItemIds.clear();
     saveSelectionState();
     showToast('Đã xóa', `Đã loại bỏ ${selectedCart.length} sản phẩm khỏi giỏ hàng.`, 'info');
     renderCartPage();
@@ -446,7 +432,7 @@ window.removeSelectedCartItems = removeSelectedCartItems;
 // Tiến hành đặt hàng với các sản phẩm đã tích chọn
 function proceedToCheckout() {
   const cart = getCart();
-  const selectedCart = cart.filter(item => selectedItemIds.has(String(item.id || item.product_id).toLowerCase()));
+  const selectedCart = cart.filter(item => !deselectedItemIds.has(String(item.id || item.product_id).toLowerCase()));
 
   if (selectedCart.length === 0) {
     showToast('Chưa chọn sản phẩm', 'Vui lòng tích chọn ít nhất 1 sản phẩm trong giỏ hàng để tiến hành thanh toán.', 'warning');
@@ -479,7 +465,7 @@ window.changeCartItemQty = changeCartItemQty;
 // Xóa item
 function removeCartItem(productId) {
   removeFromCart(productId);
-  selectedItemIds.delete(String(productId).toLowerCase());
+  deselectedItemIds.delete(String(productId).toLowerCase());
   saveSelectionState();
   showToast('Đã xóa món', 'Đã loại bỏ sản phẩm khỏi giỏ hàng.', 'info');
   renderCartPage();
@@ -490,7 +476,7 @@ window.removeCartItem = removeCartItem;
 function clearEntireCart() {
   if (confirm('Quý khách có chắc chắn muốn xóa toàn bộ sản phẩm trong giỏ hàng?')) {
     clearCart();
-    selectedItemIds.clear();
+    deselectedItemIds.clear();
     saveSelectionState();
     localStorage.removeItem('gf_applied_voucher');
     localStorage.removeItem('gf_selected_checkout_items');
@@ -527,7 +513,7 @@ async function applyVoucherCode(code) {
   }
 
   const cart = getCart();
-  const selectedCart = cart.filter(item => selectedItemIds.has(String(item.id || item.product_id).toLowerCase()));
+  const selectedCart = cart.filter(item => !deselectedItemIds.has(String(item.id || item.product_id).toLowerCase()));
   
   if (selectedCart.length === 0) {
     showToast('Chưa chọn sản phẩm', 'Vui lòng tích chọn sản phẩm trước khi áp dụng mã voucher.', 'warning');

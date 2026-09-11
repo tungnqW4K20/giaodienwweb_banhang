@@ -374,9 +374,17 @@ class ApiClient {
     return res.data;
   }
 
-  static async cancelOrder(orderCode) {
+  static async cancelOrder(orderCode, reason = '') {
     return this.request(`/orders/${orderCode}/cancel/`, {
       method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  }
+
+  static async updateOrderAddress(orderCode, addressData) {
+    return this.request(`/orders/${orderCode}/address/`, {
+      method: 'POST',
+      body: JSON.stringify(addressData),
     });
   }
 

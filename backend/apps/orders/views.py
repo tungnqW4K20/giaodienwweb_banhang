@@ -102,6 +102,8 @@ class CancelOrderView(views.APIView):
         if order.order_status not in [Order.OrderStatus.PENDING, Order.OrderStatus.PROCESSING]:
             return api_error(message="Đơn hàng đang giao hoặc đã hoàn thành, không thể hủy.")
 
+        reason = request.data.get('reason', '').strip() or "Khách hàng yêu cầu hủy đơn"
+
         prev_status = order.order_status
         order.order_status = Order.OrderStatus.CANCELLED
         order.save()
@@ -126,11 +128,53 @@ class CancelOrderView(views.APIView):
             order=order,
             previous_status=prev_status,
             new_status=Order.OrderStatus.CANCELLED,
-            note="Khách hàng yêu cầu hủy đơn",
+            note=f"Lý do hủy: {reason}",
             created_by=str(request.user) if request.user.is_authenticated else "GUEST"
         )
 
         return api_response(
             data=OrderDetailSerializer(order).data,
             message=f"Đã hủy thành công đơn hàng #{order.order_code}."
+        )
+
+class UpdateOrderAddressView(views.APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, order_code):
+        try:
+            order = Order.objects.get(order_code=order_code)
+        except Order.DoesNotExist:
+            return api_error(message="Không tìm thấy đơn hàng.", status_code=status.HTTP_404_NOT_FOUND)
+
+        if order.order_status not in [Order.OrderStatus.PENDING, Order.OrderStatus.PROCESSING]:
+            return api_error(message="Đơn hàng đang giao hoặc đã hoàn thành, không thể thay đổi địa chỉ.")
+
+        new_address = request.data.get('delivery_address', '').strip()
+        new_phone = request.data.get('customer_phone', '').strip()
+        new_name = request.data.get('customer_name', '').strip()
+        new_note = request.data.get('delivery_note', '').strip()
+
+        if not new_address:
+            return api_error(message="Địa chỉ nhận hàng không được để trống.")
+
+        order.delivery_address = new_address
+        if new_phone:
+            order.customer_phone = new_phone
+        if new_name:
+            order.customer_name = new_name
+        if new_note:
+            order.delivery_note = new_note
+        order.save()
+
+        OrderStatusLog.objects.create(
+            order=order,
+            previous_status=order.order_status,
+            new_status=order.order_status,
+            note=f"Cập nhật địa chỉ nhận hàng: {new_address}",
+            created_by=str(request.user) if request.user.is_authenticated else "GUEST"
+        )
+
+        return api_response(
+            data=OrderDetailSerializer(order).data,
+            message="Cập nhật địa chỉ nhận hàng thành công!"
         )
