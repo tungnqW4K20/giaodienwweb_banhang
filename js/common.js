@@ -199,20 +199,25 @@ function checkAuthState() {
   const token = window.EcoFruitAPI ? window.EcoFruitAPI.getToken() : null;
 
   if (currentUser && (token || currentUser.email)) {
-    const displayName = currentUser.fullName ? currentUser.fullName.split(' ').pop() : 'Tài khoản';
+    // Làm sạch tên hiển thị (bỏ các chú thích trong ngoặc nếu có)
+    const rawFullName = (currentUser.fullName || '').trim();
+    const cleanName = rawFullName.replace(/\s*\([^)]*\)/g, '').trim() || rawFullName || 'Tài khoản';
+    const nameParts = cleanName.split(/\s+/).filter(Boolean);
+    const shortDisplayName = nameParts.length > 2 ? nameParts.slice(-2).join(' ') : (nameParts.length > 0 ? nameParts.join(' ') : 'Tài khoản');
+
     const membershipBadge = currentUser.role === 'ADMIN' 
       ? '<span class="badge bg-danger">Quản trị viên</span>' 
       : (currentUser.role === 'STAFF' ? '<span class="badge bg-info text-dark">Nhân viên</span>' : `<span class="badge bg-success">${currentUser.membership || 'Thành viên VIP'}</span>`);
 
     authContainer.innerHTML = `
       <div class="dropdown">
-        <a href="#" class="header-action-btn dropdown-toggle text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false" id="headerUserDropdown">
-          <img src="${currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80'}" alt="${currentUser.fullName}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 2px solid #28a745;">
-          <span class="d-none d-md-inline fw-semibold">${displayName}</span>
+        <a href="#" class="header-action-btn header-user-btn dropdown-toggle text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false" id="headerUserDropdown" title="${cleanName}">
+          <img src="${currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80'}" alt="${cleanName}" class="header-user-avatar">
+          <span class="d-none d-md-inline fw-semibold header-user-name">${shortDisplayName}</span>
         </a>
         <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2 py-2" style="min-width: 240px;">
           <li class="px-3 py-2 border-bottom mb-1">
-            <div class="fw-bold text-dark text-truncate">${currentUser.fullName}</div>
+            <div class="fw-bold text-dark text-truncate">${cleanName}</div>
             <div class="text-muted small text-truncate">${currentUser.email}</div>
             <div class="mt-1 d-flex justify-content-between align-items-center">
               ${membershipBadge}

@@ -44,6 +44,11 @@
   cursor: pointer;
 }
 
+.profile-user-card h2 {
+  word-break: break-word;
+  line-height: 1.35;
+}
+
 .profile-nav-card {
   background: #ffffff;
   border-radius: var(--radius-lg);
@@ -74,6 +79,82 @@
   background: var(--primary-subtle);
   color: var(--primary-dark);
   border-left: 4px solid var(--primary);
+}
+
+/* Order Status Navigation Pills */
+.order-status-nav {
+  display: inline-flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.order-status-pill {
+  border: none !important;
+  background: transparent;
+  color: #475569;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.order-status-pill:hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.7);
+}
+.order-status-pill.active {
+  background: #15803d !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(21, 128, 61, 0.25);
+}
+
+/* Order Filter Toolbar */
+.order-filter-toolbar {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+}
+.filter-input-wrap .input-group-text {
+  border-color: #cbd5e1;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+}
+.filter-input-wrap .form-control {
+  border-color: #cbd5e1;
+  font-size: 13px;
+  padding: 6px 10px;
+}
+.filter-input-wrap .form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-subtle);
+}
+.quick-date-chip {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 12px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.quick-date-chip:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+.quick-date-chip.active {
+  background: #15803d !important;
+  color: #ffffff !important;
+  border-color: #15803d !important;
+  box-shadow: 0 2px 6px rgba(21, 128, 61, 0.25);
 }
 
 /* Order History Card */

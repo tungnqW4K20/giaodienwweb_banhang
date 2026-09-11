@@ -120,7 +120,7 @@ class Command(BaseCommand):
                 {
                     'email': 'khachhang@gmail.com',
                     'password': 'Customer@123456',
-                    'full_name': 'Nguyễn Văn An (Khách hàng Thân thiết)',
+                    'full_name': 'Nguyễn Văn An',
                     'phone_number': '0988776655',
                     'avatar': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200',
                     'role': User.Role.CUSTOMER,

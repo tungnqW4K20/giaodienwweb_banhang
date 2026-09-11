@@ -11,7 +11,7 @@ BASE = 'http://127.0.0.1:8000/api/v1'
 users_to_test = [
     ('admin@ecofruit.vn', 'Admin@123456', 'Quản Trị Viên EcoFruit (Admin)', 10000000, 5000),
     ('vip@ecofruit.vn', 'Vip@123456', 'Phạm Hoàng Long (Khách hàng Kim Cương)', 5000000, 8800),
-    ('khachhang@gmail.com', 'Customer@123456', 'Nguyễn Văn An (Khách hàng Thân thiết)', 500000, 350),
+    ('khachhang@gmail.com', 'Customer@123456', 'Nguyễn Văn An', 500000, 350),
     ('lan.tran@gmail.com', 'Password@123', 'Trần Mai Lan (Mẹ Bầu & Hữu Cơ)', 850000, 620),
 ]
 

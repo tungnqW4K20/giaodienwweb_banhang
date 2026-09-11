@@ -232,6 +232,26 @@ img {
   color: var(--primary-dark);
   border-color: #bbf7d0;
 }
+.header-user-btn {
+  max-width: 220px;
+  padding: 5px 12px;
+}
+.header-user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #28a745;
+  flex-shrink: 0;
+}
+.header-user-name {
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: middle;
+}
 .header-action-btn .icon-wrap {
   position: relative;
   font-size: 18px;

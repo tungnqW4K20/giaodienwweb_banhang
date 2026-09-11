@@ -84,10 +84,12 @@ async function loadUserProfile() {
   if (window.EcoFruitAPI && token) {
     try {
       const liveProfile = await EcoFruitAPI.getProfile();
-      if (liveProfile) {
+        const rawName = (liveProfile.full_name || '').trim();
+        const cleanName = rawName.replace(/\s*\([^)]*\)/g, '').trim() || rawName || 'Thành viên EcoFruit';
+
         currentUser = {
           id: liveProfile.id,
-          fullName: liveProfile.full_name || 'Thành viên EcoFruit',
+          fullName: cleanName,
           email: liveProfile.email,
           phone: liveProfile.phone_number || '',
           avatar: liveProfile.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
@@ -105,6 +107,11 @@ async function loadUserProfile() {
   }
 
   if (!currentUser) return;
+
+  // Clean local user name if it had extra parentheses
+  if (currentUser.fullName) {
+    currentUser.fullName = currentUser.fullName.replace(/\s*\([^)]*\)/g, '').trim() || currentUser.fullName;
+  }
 
   // Sidebar info
   const sidebarName = document.getElementById('user-sidebar-name');

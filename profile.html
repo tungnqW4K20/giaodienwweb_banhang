@@ -198,56 +198,59 @@
             <!-- TAB 2: LỊCH SỬ ĐƠN HÀNG -->
             <div class="tab-pane fade" id="pills-orders" role="tabpanel">
               <div class="bg-white p-4 rounded-4 border shadow-sm mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom flex-wrap gap-2">
-                  <h3 class="h5 fw-bold mb-0 text-dark"><i class="fa-solid fa-box-open text-success me-2"></i> Đơn Hàng Của Tôi</h3>
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom flex-wrap gap-3">
+                  <div>
+                    <h3 class="h5 fw-bold mb-1 text-dark"><i class="fa-solid fa-box-open text-success me-2"></i> Đơn Hàng Của Tôi</h3>
+                    <small class="text-muted">Theo dõi và quản lý các đơn hàng bạn đã đặt</small>
+                  </div>
                   
-                  <!-- Filter Status Buttons -->
-                  <div class="btn-group btn-group-sm flex-wrap">
-                    <button type="button" class="btn btn-outline-secondary order-filter-btn active" data-status="all">Tất cả</button>
-                    <button type="button" class="btn btn-outline-secondary order-filter-btn" data-status="pending">Chờ xác nhận</button>
-                    <button type="button" class="btn btn-outline-secondary order-filter-btn" data-status="shipping">Đang giao</button>
-                    <button type="button" class="btn btn-outline-secondary order-filter-btn" data-status="completed">Hoàn thành</button>
-                    <button type="button" class="btn btn-outline-secondary order-filter-btn" data-status="cancelled">Đã hủy</button>
+                  <!-- Filter Status Navigation Tabs -->
+                  <div class="order-status-nav" role="tablist">
+                    <button type="button" class="order-status-pill order-filter-btn active" data-status="all">Tất cả</button>
+                    <button type="button" class="order-status-pill order-filter-btn" data-status="pending">Chờ xác nhận</button>
+                    <button type="button" class="order-status-pill order-filter-btn" data-status="shipping">Đang giao</button>
+                    <button type="button" class="order-status-pill order-filter-btn" data-status="completed">Hoàn thành</button>
+                    <button type="button" class="order-status-pill order-filter-btn" data-status="cancelled">Đã hủy</button>
                   </div>
                 </div>
 
                 <!-- Date & Keyword Filter Toolbar -->
-                <div class="order-filter-toolbar p-3 bg-light rounded-3 border mb-3">
+                <div class="order-filter-toolbar p-3 bg-light rounded-4 border mb-4">
                   <div class="row g-2 align-items-center">
-                    <div class="col-md-4">
-                      <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-                        <input type="text" class="form-control" id="order-search-code" placeholder="Tìm theo mã đơn (#GF-..., #ECO-...)">
+                    <div class="col-lg-4 col-md-12">
+                      <div class="input-group input-group-sm filter-input-wrap">
+                        <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                        <input type="text" class="form-control border-start-0" id="order-search-code" placeholder="Tìm theo mã đơn (#GF-...)">
                       </div>
                     </div>
-                    <div class="col-md-3 col-6">
-                      <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-white text-muted small">Từ</span>
+                    <div class="col-lg-3 col-sm-6">
+                      <div class="input-group input-group-sm filter-input-wrap">
+                        <span class="input-group-text bg-white text-muted small"><i class="fa-regular fa-calendar text-success me-1"></i>Từ</span>
                         <input type="date" class="form-control" id="order-date-from">
                       </div>
                     </div>
-                    <div class="col-md-3 col-6">
-                      <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-white text-muted small">Đến</span>
+                    <div class="col-lg-3 col-sm-6">
+                      <div class="input-group input-group-sm filter-input-wrap">
+                        <span class="input-group-text bg-white text-muted small"><i class="fa-regular fa-calendar text-success me-1"></i>Đến</span>
                         <input type="date" class="form-control" id="order-date-to">
                       </div>
                     </div>
-                    <div class="col-md-2 col-12 d-flex gap-1">
-                      <button type="button" class="btn btn-primary-gf btn-sm w-100" id="btn-apply-order-filters">
+                    <div class="col-lg-2 col-12 d-flex gap-1">
+                      <button type="button" class="btn btn-primary-gf btn-sm flex-grow-1 fw-semibold" id="btn-apply-order-filters">
                         <i class="fa-solid fa-filter me-1"></i> Lọc
                       </button>
-                      <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-reset-order-filters" title="Đặt lại bộ lọc">
+                      <button type="button" class="btn btn-outline-secondary btn-sm px-2" id="btn-reset-order-filters" title="Đặt lại bộ lọc">
                         <i class="fa-solid fa-rotate-left"></i>
                       </button>
                     </div>
                   </div>
                   <!-- Quick Date Range Pills -->
-                  <div class="d-flex align-items-center gap-2 mt-2 flex-wrap small">
-                    <span class="text-muted"><i class="fa-regular fa-calendar-days me-1"></i>Xem nhanh:</span>
-                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 quick-date-btn" data-days="0">Hôm nay</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 quick-date-btn" data-days="7">7 ngày qua</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 quick-date-btn" data-days="30">30 ngày qua</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 quick-date-btn active" data-days="all">Tất cả</button>
+                  <div class="d-flex align-items-center gap-2 mt-3 pt-2 border-top flex-wrap small">
+                    <span class="text-muted fw-medium"><i class="fa-regular fa-calendar-days text-success me-1"></i>Xem nhanh:</span>
+                    <button type="button" class="quick-date-chip quick-date-btn" data-days="0">Hôm nay</button>
+                    <button type="button" class="quick-date-chip quick-date-btn" data-days="7">7 ngày qua</button>
+                    <button type="button" class="quick-date-chip quick-date-btn" data-days="30">30 ngày qua</button>
+                    <button type="button" class="quick-date-chip quick-date-btn active" data-days="all">Tất cả</button>
                   </div>
                 </div>
 
