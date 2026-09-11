@@ -1,0 +1,336 @@
+/* ==========================================================================
+   CSS RIÊNG CHO TRANG CHI TIẾT SẢN PHẨM (product-detail.css)
+   ========================================================================== */
+
+.product-detail-gallery {
+  position: sticky;
+  top: 90px;
+}
+
+.gallery-main-wrap {
+  position: relative;
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.gallery-main-img {
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  transition: transform 0.3s ease;
+}
+.gallery-main-wrap:hover .gallery-main-img {
+  transform: scale(1.03);
+}
+
+.gallery-thumbs-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+.gallery-thumb-item {
+  width: 80px;
+  height: 80px;
+  min-width: 80px;
+  border-radius: var(--radius-md);
+  border: 2px solid transparent;
+  overflow: hidden;
+  cursor: pointer;
+  background: #ffffff;
+  padding: 3px;
+  box-shadow: var(--shadow-xs);
+  transition: var(--transition-bounce);
+}
+.gallery-thumb-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.gallery-thumb-item:hover,
+.gallery-thumb-item.active {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+/* Product Info Meta */
+.product-detail-title {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 12px;
+  line-height: 1.25;
+}
+
+.product-detail-price-box {
+  background: #f8fafc;
+  border-radius: var(--radius-md);
+  padding: 18px 22px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 24px;
+}
+.detail-current-price {
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--primary-dark);
+}
+.detail-original-price {
+  font-size: 18px;
+  color: var(--text-light);
+  text-decoration: line-through;
+  margin-left: 10px;
+}
+
+/* Nutrition & Spec Badges Table */
+.spec-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.spec-item {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.spec-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--primary-subtle);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+/* Quantity Control Box */
+.quantity-control {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid var(--border-color);
+  border-radius: 12px;
+  background: #ffffff;
+  overflow: hidden;
+}
+.btn-qty {
+  width: 42px;
+  height: 42px;
+  background: #f8fafc;
+  border: none;
+  font-size: 18px;
+  color: var(--dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-qty:hover {
+  background: var(--primary-subtle);
+  color: var(--primary-dark);
+}
+.input-qty {
+  width: 60px;
+  height: 42px;
+  border: none;
+  text-align: center;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  font-size: 16px;
+}
+.input-qty:focus {
+  outline: none;
+}
+
+/* Assurance Box */
+.assurance-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 24px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.assurance-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.assurance-list li i {
+  color: var(--primary);
+  font-size: 16px;
+}
+
+/* Product Tabs */
+.product-tabs .nav-link {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--text-muted);
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 14px 20px;
+  background: transparent;
+}
+.product-tabs .nav-link.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  background: transparent;
+}
+
+/* ==========================================================================
+   SIMILARITY BADGE & RECOMMENDATIONS (GỢI Ý ĐỘ TƯƠNG ĐỒNG)
+   ========================================================================== */
+
+.similarity-badge-pill {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  font-family: var(--font-heading);
+  padding: 4px 10px;
+  border-radius: 50px;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 3;
+}
+
+/* ==========================================================================
+   RATING BREAKDOWN SUMMARY & CUSTOMER REVIEWS
+   ========================================================================== */
+
+.rating-overview-card {
+  background: #f8fafc;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 24px;
+}
+
+.rating-big-score {
+  font-size: 48px;
+  font-weight: 800;
+  font-family: var(--font-heading);
+  color: var(--dark);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.star-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.star-progress-label {
+  min-width: 50px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.star-progress-bar-wrap {
+  flex-grow: 1;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.star-progress-fill {
+  background: var(--accent-gold);
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.6s ease;
+}
+.star-progress-percent {
+  min-width: 38px;
+  text-align: right;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Review Filter Pills */
+.review-filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+.review-filter-btn {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 50px;
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition-bounce);
+}
+.review-filter-btn:hover,
+.review-filter-btn.active {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+/* Review Item Card */
+.review-item-card {
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: var(--transition);
+}
+.review-item-card:hover {
+  border-color: #86efac;
+}
+
+.review-author-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary-subtle);
+}
+
+.verified-buyer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+

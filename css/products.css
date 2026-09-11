@@ -1,0 +1,176 @@
+/* ==========================================================================
+   CSS RIÊNG CHO TRANG SẢN PHẨM & BỘ LỌC (products.css)
+   ========================================================================== */
+
+/* Filter Sidebar Card */
+.filter-sidebar-card {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 24px;
+  position: sticky;
+  top: 90px;
+}
+
+.filter-group {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+.filter-group:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.filter-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Category Checkbox & Radio lists */
+.filter-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.filter-item:hover {
+  color: var(--primary);
+}
+.filter-item input[type="radio"],
+.filter-item input[type="checkbox"] {
+  accent-color: var(--primary);
+  width: 17px;
+  height: 17px;
+  cursor: pointer;
+}
+.filter-item .count-badge {
+  background: #f1f5f9;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* Price range quick pills */
+.price-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.price-pill-btn {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  background: #f8fafc;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.price-pill-btn:hover,
+.price-pill-btn.active {
+  background: var(--primary-subtle);
+  color: var(--primary-dark);
+  border-color: #86efac;
+}
+
+/* Top Toolbar */
+.shop-toolbar {
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  padding: 14px 20px;
+  margin-bottom: 24px;
+}
+
+.view-mode-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  cursor: pointer;
+}
+.view-mode-btn:hover,
+.view-mode-btn.active {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+/* List View layout for products */
+.product-list-view .col-6,
+.product-list-view .col-md-4,
+.product-list-view .col-lg-3 {
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: 0 0 100% !important;
+}
+
+.product-list-view .product-card {
+  flex-direction: row;
+  height: auto;
+}
+.product-list-view .product-card-img-wrap {
+  width: 240px;
+  min-width: 240px;
+  padding-top: 0;
+  height: 200px;
+}
+.product-list-view .product-title {
+  height: auto;
+  -webkit-line-clamp: 1;
+}
+
+/* Active Filter Tag Pills */
+.active-filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.active-filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid #bae6fd;
+}
+.active-filter-tag .btn-remove-filter {
+  background: transparent;
+  border: none;
+  color: #0369a1;
+  cursor: pointer;
+  font-size: 13px;
+}

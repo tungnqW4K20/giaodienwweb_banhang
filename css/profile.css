@@ -1,0 +1,143 @@
+/* ==========================================================================
+   CSS RIÊNG CHO TRANG CÁ NHÂN & TEST VNPAY (profile.css)
+   ========================================================================== */
+
+/* Profile Sidebar Card */
+.profile-user-card {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 30px 24px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 24px;
+}
+
+.profile-avatar-wrap {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 16px;
+}
+.profile-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--primary-light);
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+.btn-change-avatar {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.profile-nav-card {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.profile-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  color: var(--text-main);
+  font-weight: 600;
+  border-bottom: 1px solid #f1f5f9;
+  transition: var(--transition);
+  cursor: pointer;
+  text-decoration: none;
+}
+.profile-nav-link:hover,
+.profile-nav-link.active {
+  background: var(--primary-subtle);
+  color: var(--primary-dark);
+  border-left: 4px solid var(--primary);
+}
+
+/* Order History Card */
+.order-card {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+.order-card:hover {
+  border-color: #86efac;
+  box-shadow: var(--shadow-md);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+}
+
+.order-item-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f8fafc;
+}
+.order-item-row:last-child {
+  border-bottom: none;
+}
+.order-item-thumb {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+}
+
+/* Wallet & VNPay Simulator Section */
+.wallet-balance-card {
+  background: linear-gradient(135deg, #005baa 0%, #15803d 100%);
+  color: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 30px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 91, 170, 0.3);
+  margin-bottom: 25px;
+}
+.wallet-balance-card::after {
+  content: 'VNPAY';
+  position: absolute;
+  right: -20px;
+  bottom: -30px;
+  font-size: 110px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thanh Toán Đơn Hàng Hoa Quả Sạch - GreenFruit Eco</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Thanh toán đơn hàng hoa quả sạch tại GreenFruit Eco, hỗ trợ COD, chuyển khoản VietQR và môi trường test VNPay Sandbox an toàn.">
+  <meta name="robots" content="noindex, follow">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍏</text></svg>">
+
+  <!-- Bootstrap 5 CSS & Font Awesome 6 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/checkout.css">
+</head>
+<body>
+
+  <!-- Main Header & Navbar -->
+  <header class="main-header">
+    <div class="container py-2">
+      <div class="d-flex align-items-center justify-content-between gap-3">
+        <!-- Brand Logo -->
+        <a href="index.html" class="brand-logo text-decoration-none">
+          <div class="logo-icon"><i class="fa-solid fa-apple-whole"></i></div>
+          <span>Green<span class="brand-highlight">Fruit</span></span>
+        </a>
+
+        <!-- Header Action Controls -->
+        <div class="d-flex align-items-center gap-2">
+          <a href="cart.html" class="header-action-btn text-decoration-none" title="Xem giỏ hàng">
+            <div class="icon-wrap">
+              <i class="fa-solid fa-basket-shopping"></i>
+              <span class="cart-badge-count">0</span>
+            </div>
+            <span class="d-none d-lg-inline">Giỏ hàng</span>
+          </a>
+
+          <div id="header-auth-container">
+            <a href="auth.html" class="header-action-btn">
+              <div class="icon-wrap"><i class="fa-regular fa-user"></i></div>
+              <span class="d-none d-md-inline">Tài khoản</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Menu Bar -->
+    <nav class="main-nav-bar d-none d-lg-block">
+      <div class="container">
+        <ul class="site-nav-menu">
+          <li class="nav-item"><a class="nav-link" href="index.html"><i class="fa-solid fa-house"></i> Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link" href="products.html"><i class="fa-solid fa-store"></i> Tất cả sản phẩm</a></li>
+          <li class="nav-item"><a class="nav-link" href="products.html?season=dung-mua"><i class="fa-solid fa-leaf text-success"></i> Đúng Mùa Thu Hoạch <span class="hot-badge">HOT</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="cart.html"><i class="fa-solid fa-basket-shopping text-warning"></i> Giỏ hàng</a></li>
+          <li class="nav-item"><a class="nav-link active" href="checkout.html"><i class="fa-solid fa-credit-card"></i> Thanh toán</a></li>
+          <li class="nav-item"><a class="nav-link" href="profile.html#vnpay-test"><i class="fa-solid fa-wallet text-warning"></i> Sandbox VNPay</a></li>
+        </ul>
+        <a href="tel:19006868" class="nav-hotline-pill">
+          <i class="fa-solid fa-phone-volume text-danger"></i> 1900 6868 <small class="text-muted fw-normal ms-1">(Miễn phí)</small>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="py-4">
+    <div class="container">
+      
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb custom-breadcrumb">
+          <li class="breadcrumb-item"><a href="index.html"><i class="fa-solid fa-house me-1"></i> Trang chủ</a></li>
+          <li class="breadcrumb-item"><a href="cart.html">Giỏ hàng</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Thanh toán & Đặt hàng</li>
+        </ol>
+      </nav>
+
+      <form id="checkout-form">
+        <div class="row g-4">
+          
+          <!-- Cột Thông Tin Giao Hàng & Phương Thức Thanh Toán (Trái) -->
+          <div class="col-lg-7">
+            
+            <!-- 1. Thông tin giao hàng -->
+            <div class="checkout-card">
+              <h2 class="checkout-card-title">
+                <i class="fa-solid fa-truck-fast text-success"></i> 1. Thông Tin Nhận Hàng
+              </h2>
+              
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-bold">Họ và tên người nhận <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="checkout-name" placeholder="Nguyễn Văn A" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-bold">Số điện thoại liên hệ <span class="text-danger">*</span></label>
+                  <input type="tel" class="form-control" id="checkout-phone" placeholder="0909 123 456" required>
+                </div>
+                <div class="col-12">
+                  <label class="form-label small fw-bold">Email nhận hóa đơn điện tử</label>
+                  <input type="email" class="form-control" id="checkout-email" placeholder="email@domain.com">
+                </div>
+                <div class="col-12">
+                  <label class="form-label small fw-bold">Địa chỉ giao hàng chi tiết (Số nhà, Tên đường, Phường/Xã, Quận/Huyện) <span class="text-danger">*</span></label>
+                  <textarea class="form-control" id="checkout-address" rows="2" placeholder="Ví dụ: 72 Lê Thánh Tôn, P. Bến Nghé, Quận 1, TP.HCM" required></textarea>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-bold">Khung giờ giao hàng ưu tiên</label>
+                  <select class="form-select" id="checkout-time-slot">
+                    <option value="Giao hỏa tốc trong 2h (Nội thành)" selected>🚀 Giao hỏa tốc trong 2h (Nội thành)</option>
+                    <option value="Sáng mai (08:00 - 11:30)">☀️ Sáng mai (08:00 - 11:30)</option>
+                    <option value="Chiều mai (14:00 - 18:00)">⛅ Chiều mai (14:00 - 18:00)</option>
+                    <option value="Giao theo giờ hẹn riêng">⏰ Giao theo giờ hẹn riêng</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-bold">Ghi chú thêm cho cửa hàng</label>
+                  <input type="text" class="form-control" id="checkout-note" placeholder="Ví dụ: chọn quả ngọt vừa, kèm thiệp...">
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Phương thức thanh toán -->
+            <div class="checkout-card">
+              <h2 class="checkout-card-title">
+                <i class="fa-solid fa-credit-card text-success"></i> 2. Chọn Phương Thức Thanh Toán
+              </h2>
+
+              <!-- Option 1: COD -->
+              <label class="payment-method-card selected w-100">
+                <input type="radio" name="paymentOption" value="COD" class="form-check-input mt-0" checked>
+                <div class="payment-icon-wrap text-success"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                <div class="flex-grow-1">
+                  <strong class="d-block text-dark font-heading">Thanh toán khi nhận hàng (COD)</strong>
+                  <small class="text-muted">Nhận hàng, kiểm tra độ tươi giòn của hoa quả rồi mới thanh toán tiền mặt cho shipper.</small>
+                </div>
+              </label>
+
+              <!-- Option 2: VietQR -->
+              <label class="payment-method-card w-100">
+                <input type="radio" name="paymentOption" value="VIETQR" class="form-check-input mt-0">
+                <div class="payment-icon-wrap text-primary"><i class="fa-solid fa-qrcode"></i></div>
+                <div class="flex-grow-1">
+                  <strong class="d-block text-dark font-heading">Chuyển khoản Ngân hàng (VietQR Miễn Phí)</strong>
+                  <small class="text-muted">Quét mã QR tự động điền số tiền và nội dung chuyển khoản bằng App Ngân hàng bất kỳ.</small>
+                </div>
+              </label>
+
+              <!-- Option 3: VNPAY SANDBOX -->
+              <label class="payment-method-card w-100">
+                <input type="radio" name="paymentOption" value="VNPAY" class="form-check-input mt-0">
+                <div class="payment-icon-wrap text-danger"><i class="fa-solid fa-wallet"></i></div>
+                <div class="flex-grow-1">
+                  <div class="d-flex align-items-center gap-2">
+                    <strong class="text-dark font-heading">Cổng Thanh Toán VNPAY</strong>
+                    <span class="badge bg-warning text-dark font-heading">Sandbox Test</span>
+                  </div>
+                  <small class="text-muted">Mô phỏng thanh toán trực tuyến qua Thẻ ATM nội địa (NCB, VCB...), Thẻ Quốc tế hoặc VNPAY-QR.</small>
+                </div>
+              </label>
+
+            </div>
+
+          </div>
+
+          <!-- Cột Đơn Hàng Tóm Tắt (Phải) -->
+          <div class="col-lg-5">
+            <div class="checkout-card position-sticky" style="top: 90px;">
+              <h3 class="checkout-card-title">
+                <i class="fa-solid fa-receipt text-success"></i> Đơn Hàng Của Bạn
+              </h3>
+
+              <!-- Mini list products -->
+              <div id="checkout-items-list" class="mb-3 max-h-300 overflow-y-auto">
+                <!-- Rendered by JS -->
+              </div>
+
+              <!-- Price calculations -->
+              <div class="summary-row">
+                <span>Tạm tính:</span>
+                <strong class="text-dark" id="checkout-subtotal">0 đ</strong>
+              </div>
+              <div class="summary-row">
+                <span>Phí vận chuyển:</span>
+                <span id="checkout-shipping">0 đ</span>
+              </div>
+              <div class="summary-row text-danger d-none" id="checkout-discount-row">
+                <span>Voucher giảm giá:</span>
+                <strong id="checkout-discount">-0 đ</strong>
+              </div>
+
+              <div class="summary-row total-row">
+                <span>Tổng thanh toán:</span>
+                <span class="total-price text-danger" id="checkout-total">0 đ</span>
+              </div>
+
+              <div class="mt-4">
+                <button type="submit" class="btn btn-primary-gf w-100 py-3 font-heading fs-5">
+                  <i class="fa-solid fa-shield-check me-2"></i> Xác nhận Đặt Hàng
+                </button>
+              </div>
+
+              <div class="mt-3 text-center">
+                <small class="text-muted"><i class="fa-solid fa-rotate-left text-success me-1"></i> Đổi trả miễn phí 24h nếu hoa quả không đạt chuẩn</small>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </form>
+
+    </div>
+  </main>
+
+  <!-- MAIN FOOTER -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <a href="index.html" class="footer-logo text-decoration-none">
+            <div class="logo-icon"><i class="fa-solid fa-apple-whole"></i></div>
+            <span>Green<span class="text-warning">Fruit</span></span>
+          </a>
+          <p class="footer-desc">
+            Hệ thống phân phối hoa quả sạch, trái cây hữu cơ VietGAP và nhập khẩu cao cấp hàng đầu Việt Nam.
+          </p>
+        </div>
+        <div class="col-lg-2 col-md-6">
+          <h4 class="footer-title">Về GreenFruit</h4>
+          <ul class="footer-links">
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="products.html">Cửa hàng hoa quả</a></li>
+            <li><a href="profile.html">Tài khoản cá nhân</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <h4 class="footer-title">Hỗ Trợ</h4>
+          <ul class="footer-links">
+            <li><a href="contact.html">Bao ăn 1 đổi 1 trong 24h</a></li>
+            <li><a href="contact.html">Giao hàng hỏa tốc 2h</a></li>
+            <li><a href="profile.html#vnpay-test">Môi trường test VNPay</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <h4 class="footer-title">Liên Hệ</h4>
+          <div class="footer-contact-item">
+            <i class="fa-solid fa-phone"></i>
+            <div>Hotline: 1900 6868</div>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fa-solid fa-envelope"></i>
+            <div>Email: cskh@greenfruit.vn</div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>© 2026 <strong>GreenFruit Eco</strong>. All rights reserved.</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MOBILE BOTTOM NAVIGATION -->
+  <div class="mobile-bottom-nav">
+    <a href="index.html" class="mobile-nav-item text-decoration-none">
+      <i class="fa-solid fa-house"></i>
+      <span>Trang chủ</span>
+    </a>
+    <a href="products.html" class="mobile-nav-item text-decoration-none">
+      <i class="fa-solid fa-store"></i>
+      <span>Sản phẩm</span>
+    </a>
+    <a href="cart.html" class="mobile-nav-item text-decoration-none">
+      <i class="fa-solid fa-basket-shopping"></i>
+      <span>Giỏ hàng</span>
+      <span class="cart-badge-count" style="top: -2px; right: 8px;">0</span>
+    </a>
+    <a href="profile.html" class="mobile-nav-item text-decoration-none">
+      <i class="fa-regular fa-user"></i>
+      <span>Cá nhân</span>
+    </a>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/vnpay-simulator.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/chatbot.js"></script>
+  <script src="js/checkout.js"></script>
+
+</body>
+</html>

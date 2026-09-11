@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi Tiết Hoa Quả Sạch - GreenFruit Eco</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Chi tiết hoa quả sạch hữu cơ VietGAP/GlobalGAP, độ ngọt Brix tự nhiên, nguồn gốc xuất xứ rõ ràng, bao ăn 1 đổi 1 trong 24h.">
+  <meta name="robots" content="index, follow">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍏</text></svg>">
+
+  <!-- Bootstrap 5 CSS & Font Awesome 6 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/product-detail.css">
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="top-announcement-bar">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div class="d-none d-md-flex align-items-center gap-3">
+        <span><i class="fa-solid fa-phone-volume me-1"></i> Hotline: <strong>1900 6868</strong></span>
+        <span><i class="fa-solid fa-truck-fast me-1"></i> Giao hỏa tốc 2h nội thành</span>
+      </div>
+      <div class="mx-auto mx-md-0 text-center">
+        <span>🎉 Giảm ngay 10% cho đơn đầu tiên với mã <strong class="text-warning">FRESH2026</strong></span>
+      </div>
+      <div class="social-icons d-none d-lg-flex">
+        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#"><i class="fa-brands fa-instagram"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Header & Navbar -->
+  <header class="main-header">
+    <div class="container py-2">
+      <div class="d-flex align-items-center justify-content-between gap-3">
+        
+        <!-- Mobile Toggle Button -->
+        <button class="btn btn-light-gf d-lg-none p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
+          <i class="fa-solid fa-bars fs-5"></i>
+        </button>
+
+        <!-- Brand Logo -->
+        <a href="index.html" class="brand-logo text-decoration-none">
+          <div class="logo-icon"><i class="fa-solid fa-apple-whole"></i></div>
+          <span>Green<span class="brand-highlight">Fruit</span></span>
+        </a>
+
+        <!-- Header Search Box -->
+        <div class="header-search-box d-none d-md-block">
+          <input type="text" class="global-search-input" placeholder="Tìm kiếm sản phẩm...">
+          <button type="button" class="search-btn btn-search-trigger" title="Tìm kiếm">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+        </div>
+
+        <!-- Header Action Controls -->
+        <div class="d-flex align-items-center gap-2">
+          <!-- Giỏ hàng -->
+          <a href="cart.html" class="header-action-btn text-decoration-none" title="Xem giỏ hàng">
+            <div class="icon-wrap">
+              <i class="fa-solid fa-basket-shopping"></i>
+              <span class="cart-badge-count">0</span>
+            </div>
+            <span class="d-none d-lg-inline">Giỏ hàng</span>
+          </a>
+
+          <!-- User Auth Container -->
+          <div id="header-auth-container">
+            <a href="auth.html" class="header-action-btn">
+              <div class="icon-wrap"><i class="fa-regular fa-user"></i></div>
+              <span class="d-none d-md-inline">Tài khoản</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Menu Bar -->
+    <nav class="main-nav-bar d-none d-lg-block">
+      <div class="container">
+        <ul class="site-nav-menu">
+          <li class="nav-item"><a class="nav-link" href="index.html"><i class="fa-solid fa-house"></i> Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link" href="products.html"><i class="fa-solid fa-store"></i> Tất cả sản phẩm</a></li>
+          <li class="nav-item"><a class="nav-link" href="products.html?season=dung-mua"><i class="fa-solid fa-leaf text-success"></i> Đúng Mùa Thu Hoạch <span class="hot-badge">HOT</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="products.html?category=nhap-khau"><i class="fa-solid fa-plane-departure text-primary"></i> Trái Cây Nhập Khẩu</a></li>
+          <li class="nav-item"><a class="nav-link" href="products.html?category=hop-qua"><i class="fa-solid fa-gift text-danger"></i> Giỏ Quà Biếu Tặng</a></li>
+          <li class="nav-item"><a class="nav-link" href="profile.html#vnpay-test"><i class="fa-solid fa-wallet text-warning"></i> Sandbox VNPay</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html"><i class="fa-solid fa-headset text-secondary"></i> Liên hệ</a></li>
+        </ul>
+        <a href="tel:19006868" class="nav-hotline-pill">
+          <i class="fa-solid fa-phone-volume text-danger"></i> 1900 6868 <small class="text-muted fw-normal ms-1">(Miễn phí)</small>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Mobile Offcanvas Menu Drawer -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu">
+    <div class="offcanvas-header border-bottom">
+      <a href="index.html" class="brand-logo text-decoration-none">
+        <div class="logo-icon"><i class="fa-solid fa-apple-whole"></i></div>
+        <span>Green<span class="brand-highlight">Fruit</span></span>
+      </a>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <ul class="nav flex-column gap-2 font-heading fw-bold">
+        <li class="nav-item"><a class="nav-link text-dark py-2" href="index.html"><i class="fa-solid fa-house text-success me-2"></i> Trang chủ</a></li>
+        <li class="nav-item"><a class="nav-link text-dark py-2" href="products.html"><i class="fa-solid fa-store text-success me-2"></i> Tất cả sản phẩm</a></li>
+        <li class="nav-item"><a class="nav-link text-dark py-2" href="cart.html"><i class="fa-solid fa-basket-shopping text-warning me-2"></i> Giỏ hàng</a></li>
+        <li class="nav-item"><a class="nav-link text-dark py-2" href="profile.html"><i class="fa-regular fa-user text-info me-2"></i> Trang cá nhân</a></li>
+        <li class="nav-item"><a class="nav-link text-dark py-2" href="contact.html"><i class="fa-solid fa-headset text-secondary me-2"></i> Liên hệ</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main class="py-4">
+    <div class="container">
+      
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb custom-breadcrumb">
+          <li class="breadcrumb-item"><a href="index.html"><i class="fa-solid fa-house me-1"></i> Trang chủ</a></li>
+          <li class="breadcrumb-item"><a href="products.html">Cửa hàng hoa quả</a></li>
+          <li class="breadcrumb-item active" id="breadcrumb-product-name" aria-current="page">Chi tiết sản phẩm</li>
+        </ol>
+      </nav>
+
+      <!-- Main Product Details Box -->
+      <div class="row g-5" id="product-detail-container">
+        
+        <!-- Left: Interactive Gallery -->
+        <div class="col-lg-6">
+          <div class="product-detail-gallery">
+            <div class="gallery-main-wrap">
+              <img id="gallery-main-img" src="" alt="Hoa quả sạch" class="gallery-main-img" loading="eager">
+            </div>
+            <div class="gallery-thumbs-row" id="gallery-thumbs-container">
+              <!-- Thumbnails rendered by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Product Purchase & Specs Info -->
+        <div class="col-lg-6">
+          <div>
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="product-category-tag" id="detail-category-tag">TRÁI CÂY NỘI ĐỊA</span>
+              <div id="detail-season-badge"></div>
+            </div>
+
+            <h1 class="product-detail-title" id="detail-title">Tên sản phẩm hoa quả</h1>
+
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="stars text-warning">
+                <i class="fa-solid fa-star"></i>
+                <strong class="text-dark ms-1" id="detail-rating">5.0</strong>
+              </div>
+              <span class="text-muted small" id="detail-reviews-count">(0 đánh giá)</span>
+              <span class="badge bg-light text-secondary border" id="detail-sales-count">Đã bán 0</span>
+            </div>
+
+            <!-- Price Box -->
+            <div class="product-detail-price-box">
+              <div class="d-flex align-items-baseline flex-wrap gap-2">
+                <span class="detail-current-price" id="detail-current-price">0 đ</span>
+                <span class="detail-original-price" id="detail-original-price"></span>
+                <span class="text-muted fw-bold" id="detail-unit">/kg</span>
+                <span id="detail-discount-pill" class="ms-2"></span>
+              </div>
+            </div>
+
+            <!-- Short Description -->
+            <p class="text-muted mb-4 fs-6" id="detail-short-desc">Mô tả ngắn...</p>
+
+            <!-- Key Specs Grid -->
+            <div class="spec-grid">
+              <div class="spec-item">
+                <div class="spec-icon"><i class="fa-solid fa-location-dot"></i></div>
+                <div>
+                  <small class="text-muted d-block">Xuất xứ:</small>
+                  <strong class="text-dark small" id="spec-origin">--</strong>
+                </div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-icon"><i class="fa-solid fa-shield-check"></i></div>
+                <div>
+                  <small class="text-muted d-block">Tiêu chuẩn:</small>
+                  <strong class="text-dark small" id="spec-cert">--</strong>
+                </div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-icon"><i class="fa-solid fa-cube"></i></div>
+                <div>
+                  <small class="text-muted d-block">Độ ngọt (Brix):</small>
+                  <strong class="text-dark small" id="spec-brix">--</strong>
+                </div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-icon"><i class="fa-solid fa-snowflake"></i></div>
+                <div>
+                  <small class="text-muted d-block">Bảo quản:</small>
+                  <strong class="text-dark small" id="spec-shelflife">--</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quantity & Purchase Actions -->
+            <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+              <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold small text-dark">Số lượng:</span>
+                <div class="quantity-control">
+                  <button type="button" class="btn-qty" id="btn-qty-minus"><i class="fa-solid fa-minus"></i></button>
+                  <input type="number" class="input-qty" id="input-qty" value="1" min="1">
+                  <button type="button" class="btn-qty" id="btn-qty-plus"><i class="fa-solid fa-plus"></i></button>
+                </div>
+              </div>
+
+              <div class="d-flex gap-2 flex-grow-1">
+                <button type="button" class="btn btn-outline-gf flex-grow-1 py-3" id="btn-add-to-cart">
+                  <i class="fa-solid fa-cart-plus me-2"></i> Thêm vào giỏ
+                </button>
+                <button type="button" class="btn btn-primary-gf flex-grow-1 py-3" id="btn-buy-now">
+                  <i class="fa-solid fa-bolt me-2"></i> Mua ngay
+                </button>
+              </div>
+            </div>
+
+            <!-- Assurance Checkpoints -->
+            <ul class="assurance-list">
+              <li><i class="fa-solid fa-circle-check"></i> Cam kết 100% hoa quả sạch, không chất bảo quản hay ủ chín ép.</li>
+              <li><i class="fa-solid fa-circle-check"></i> Bao ăn 1 đổi 1 trong vòng 24h nếu múi sượng, nhạt hoặc dập vỡ.</li>
+              <li><i class="fa-solid fa-circle-check"></i> Giao hỏa tốc 2h nội thành, đóng thùng xốp mát rượi nguyên hương vị.</li>
+            </ul>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TABS: DESCRIPTION, NUTRITION, REVIEWS -->
+      <div class="mt-5 pt-4 border-top">
+        <ul class="nav nav-tabs product-tabs border-bottom mb-4" id="detailTabs" role="tablist">
+          <li class="nav-item">
+            <button class="nav-link active" id="desc-tab" data-bs-toggle="tab" data-bs-target="#desc-pane" type="button" role="tab">
+              <i class="fa-solid fa-align-left me-2"></i> Mô Tả & Đặc Điểm
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" id="nutrition-tab" data-bs-toggle="tab" data-bs-target="#nutrition-pane" type="button" role="tab">
+              <i class="fa-solid fa-heart-pulse me-2 text-danger"></i> Dinh Dưỡng & Sức Khỏe
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews-pane" type="button" role="tab">
+              <i class="fa-solid fa-star me-2 text-warning"></i> Đánh Giá Khách Hàng
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content" id="detailTabContent">
+          <!-- Tab 1: Full Desc -->
+          <div class="tab-pane fade show active bg-white p-4 rounded-4 border" id="desc-pane" role="tabpanel">
+            <div id="tab-desc-content" class="lh-lg">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Tab 2: Nutrition -->
+          <div class="tab-pane fade bg-white p-4 rounded-4 border" id="nutrition-pane" role="tabpanel">
+            <div id="tab-nutrition-content">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Tab 3: Reviews -->
+          <div class="tab-pane fade bg-white p-4 p-md-5 rounded-4 border" id="reviews-pane" role="tabpanel">
+            
+            <!-- Rating Overview Breakdown Container -->
+            <div id="reviews-overview-container">
+              <!-- Rendered by JS -->
+            </div>
+
+            <div class="row g-4 mt-2">
+              <!-- Reviews List -->
+              <div class="col-lg-7">
+                <h4 class="fw-bold fs-5 mb-3 text-dark"><i class="fa-solid fa-comments text-success me-2"></i> Nhận xét từ khách hàng thực tế</h4>
+                <div id="product-reviews-list">
+                  <!-- Rendered by js/product-detail.js -->
+                </div>
+              </div>
+
+              <!-- Submit Review Form -->
+              <div class="col-lg-5">
+                <div class="p-4 bg-light rounded-4 border sticky-top" style="top: 100px;">
+                  <h5 class="fw-bold mb-2 text-dark"><i class="fa-solid fa-pen-to-square text-success me-2"></i> Gửi đánh giá của bạn</h5>
+                  <p class="text-muted small mb-3">Chia sẻ trải nghiệm thưởng thức hoa quả cùng cộng đồng GreenFruit Eco.</p>
+                  
+                  <form id="product-review-form">
+                    <div class="mb-3">
+                      <label class="form-label small fw-bold">Họ và tên của bạn <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="review-author-name" placeholder="Ví dụ: Nguyễn Thị Hoa" required>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label small fw-bold">Chấm điểm chất lượng hoa quả</label>
+                      <select class="form-select" id="review-star-select">
+                        <option value="5" selected>⭐⭐⭐⭐⭐ Tuyệt vời - Rất ngọt & tươi (5 sao)</option>
+                        <option value="4">⭐⭐⭐⭐ Rất tốt - Đạt chuẩn (4 sao)</option>
+                        <option value="3">⭐⭐⭐ Bình thường (3 sao)</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label small fw-bold">Cảm nhận chi tiết <span class="text-danger">*</span></label>
+                      <textarea class="form-control" id="review-comment-text" rows="3" placeholder="Chia sẻ về độ tươi giòn, độ ngọt brix, chất lượng đóng gói..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary-gf w-100 py-2">
+                      <i class="fa-solid fa-paper-plane me-1"></i> Gửi Đánh Giá Ngay
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RELATED & SIMILAR PRODUCTS SECTION -->
+      <div class="mt-5 pt-4">
+        <div class="section-header text-center mb-4">
+          <span class="section-subtitle-badge"><i class="fa-solid fa-bullseye"></i> Gợi Ý Thông Minh</span>
+          <h2 class="section-title fs-3">Sản Phẩm Tương Tự (Độ Phù Hợp Cao Nhất)</h2>
+          <p class="section-desc mx-auto">Được tính toán tự động dựa trên cùng mùa vụ thu hoạch, phân khúc độ ngọt và danh mục.</p>
+        </div>
+        <div class="row" id="related-products-container">
+          <!-- Rendered by js/product-detail.js -->
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- MAIN FOOTER -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <a href="index.html" class="footer-logo text-decoration-none">
+            <div class="logo-icon"><i class="fa-solid fa-apple-whole"></i></div>
+            <span>Green<span class="text-warning">Fruit</span></span>
+          </a>
+          <p class="footer-desc">
+            Hệ thống phân phối hoa quả sạch, trái cây hữu cơ VietGAP và nhập khẩu cao cấp hàng đầu Việt Nam.
+          </p>
+        </div>
+        <div class="col-lg-2 col-md-6">
+          <h4 class="footer-title">Về GreenFruit</h4>
+          <ul class="footer-links">
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="products.html">Cửa hàng hoa quả</a></li>
+            <li><a href="products.html?season=dung-mua">Hoa quả đúng mùa</a></li>
+            <li><a href="profile.html">Tài khoản cá nhân</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <h4 class="footer-title">Hỗ Trợ</h4>
+          <ul class="footer-links">
+            <li><a href="contact.html">Bao ăn 1 đổi 1 trong 24h</a></li>
+            <li><a href="contact.html">Giao hàng hỏa tốc 2h</a></li>
+            <li><a href="profile.html#vnpay-test">Môi trường test VNPay</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <h4 class="footer-title">Liên Hệ</h4>
+          <div class="footer-contact-item">
+            <i class="fa-solid fa-phone"></i>
+            <div>Hotline: 1900 6868 (8:00 - 21:30)</div>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fa-solid fa-envelope"></i>
+            <div>Email: cskh@greenfruit.vn</div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>© 2026 <strong>GreenFruit Eco</strong>. All rights reserved.</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MOBILE BOTTOM NAVIGATION -->
+  <div class="mobile-bottom-nav">
+    <a href="index.html" class="mobile-nav-item text-decoration-none">
+      <i class="fa-solid fa-house"></i>
+      <span>Trang chủ</span>
+    </a>
+    <a href="products.html" class="mobile-nav-item active text-decoration-none">
+      <i class="fa-solid fa-store"></i>
+      <span>Sản phẩm</span>
+    </a>
+    <a href="cart.html" class="mobile-nav-item text-decoration-none">
+      <i class="fa-solid fa-basket-shopping"></i>
+      <span>Giỏ hàng</span>
+      <span class="cart-badge-count" style="top: -2px; right: 8px;">0</span>
+    </a>
+    <a href="profile.html" class="mobile-nav-item text-decoration-none">
+      <i class="fa-regular fa-user"></i>
+      <span>Cá nhân</span>
+    </a>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/vnpay-simulator.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/chatbot.js"></script>
+  <script src="js/product-detail.js"></script>
+
+</body>
+</html>

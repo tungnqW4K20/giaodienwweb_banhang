@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GreenFruit Eco - Siêu Thị Hoa Quả Sạch & Trái Cây Hữu Cơ VietGAP, Nhập Khẩu VIP</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Chuyên cung cấp sỉ và lẻ hoa quả sạch, trái cây hữu cơ VietGAP/GlobalGAP, sầu riêng Ri6, nho mẫu đơn, táo Envy, cherry Mỹ, cam sành, giỏ quà trái cây VIP giao nhanh 2h.">
+  <meta name="keywords" content="hoa quả sạch, trái cây hữu cơ, trái cây nhập khẩu, sầu riêng ri6, nho mẫu đơn, giỏ quà trái cây, vietgap, globalgap, giao hoa quả 2h">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="http://localhost:3000/index.html">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://localhost:3000/index.html">
+  <meta property="og:title" content="GreenFruit Eco - Siêu Thị Hoa Quả Sạch Hữu Cơ VietGAP">
+  <meta property="og:description" content="100% hoa quả tươi mới thu hái trong ngày, bao ăn 1 đổi 1 trong 24h, miễn phí vận chuyển cho đơn từ 500k.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=1200&q=80">
+
+  <!-- Schema.org JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Store",
+    "name": "GreenFruit Eco - Hoa Quả Sạch & Trái Cây Hữu Cơ",
+    "image": "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=1200&q=80",
+    "telephone": "1900 6868",
+    "email": "cskh@greenfruit.vn",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "72 Lê Thánh Tôn, Phường Bến Nghé",
+      "addressLocality": "Quận 1",
+      "addressRegion": "TP. Hồ Chí Minh",
+      "addressCountry": "VN"
+    },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      "opens": "07:00",
+      "closes": "21:30"
+    },
+    "priceRange": "$$"
+  }
+  </script>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍏</text></svg>">
+
+  <!-- Bootstrap 5 CSS & Font Awesome 6 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/home.css">
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="top-announcement-bar">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div class="d-none d-md-flex align-items-center gap-3">
+        <span><i class="fa-solid fa-phone-volume me-1"></i> Hotline: <strong>1900 6868</strong></span>
+        <span><i class="fa-solid fa-truck-fast me-1"></i> Giao hỏa tốc 2h nội thành</span>
+      </div>
+      <div class="mx-auto mx-md-0 text-center">
+        <span>🎉 Nhập mã <strong class="text-warning">FRESH2026</strong> giảm ngay 10% cho đơn đầu tiên! <a href="products.html">Mua Ngay</a></span>
+      </div>
+      <div class="social-icons d-none d-lg-flex">
+        <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" aria-label="Tiktok"><i class="fa-brands fa-tiktok"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Header & Navbar -->
+  <header class="main-header">
+    <div class="container py-2">
+      <div class="d-flex align-items-center justify-content-between gap-3">
+        
+        <!-- Mobile Toggle Button -->
+        <button class="btn btn-light-gf d-lg-none p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
+          <i class="fa-solid fa-bars fs-5"></i>
+        </button>
+
+        <!-- Brand Logo -->
+        <a href="index.html" class="brand-logo text-decoration-none">
+          <div class="logo-icon"><i class="fa-solid fa-apple-whole"></i></div>
+          <span>Green<span class="brand-highlight">Fruit</span></span>
+        </a>
+
+        <!-- Header Search Box -->
+        <div class="header-search-box d-none d-md-block">
+          <input type="text" class="global-search-input" placeholder="Tìm sầu riêng, nho mẫu đơn, táo envy, bưởi da xanh...">
+          <button type="button" class="search-btn btn-search-trigger" title="Tìm kiếm">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+        </div>
+
+        <!-- Header Action Controls -->
+        <div class="d-flex align-items-center gap-2">
+          
+          <!-- Giỏ hàng -->
+          <a href="cart.html" class="header-action-btn text-decoration-none" title="Xem giỏ hàng">
+            <div class="icon-wrap">
+              <i class="fa-solid fa-basket-shopping"></i>
+              <span class="cart-badge-count">0</span>
+            </div>
+            <span class="d-none d-lg-inline">Giỏ hàng</span>
+          </a>
+
+          <!-- User Auth Container -->
+          <div id="header-auth-container">
+            <a href="auth.html" class="header-action-btn">
+              <div class="icon-wrap"><i class="fa-regular fa-user"></i></div>
+              <span class="d-none d-md-inline">Tài khoản</span>
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Menu Bar -->
+    <nav class="main-nav-bar d-none d-lg-block">
+      <div class="container">
+        <ul class="site-nav-menu">
+          <li class="nav-item"><a class="nav-link active" href="index.html"><i class="fa-solid fa-house"></i> Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link" href="products.html"><i class="fa-solid fa-store"></i> Tất cả sản phẩm</a></li>
+          <li class="nav-item"><a class="nav-link" href="products.html?season=dung-mua"><i class="fa-solid fa-leaf text-success"></i> Đúng Mùa Thu Hoạch <span class="hot-badge">HOT</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="products.html?category=nhap-khau"><i class="fa-solid fa-plane-departure text-primary"></i> Trái Cây Nhập Khẩu</a></li>
+          <li class="nav-item"><a class="nav-link" href="products.html?category=hop-qua"><i class="fa-solid fa-gift text-danger"></i> Giỏ Quà Biếu Tặng</a></li>
+          <li class="nav-item"><a class="nav-link" href="profile.html#vnpay-test"><i class="fa-solid fa-wallet text-warning"></i> Sandbox VNPay</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html"><i class="fa-solid fa-headset text-secondary"></i> Liên hệ</a></li>
+        </ul>
+        <a href="tel:19006868" class="nav-hotline-pill">
+          <i class="fa-solid fa-phone-volume text-danger"></i> 1900 6868 <small class="text-muted fw-normal ms-1">(Miễn phí)</small>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Mobile Offcanvas Menu Drawer -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu">
+    <div class="offcanvas-header border-bottom">
+      <a href="index.html" class="brand-logo text-decoration-none">
+        <div class="logo-icon"><i class="fa-solid fa-apple-whole"></i></div>
+        <span>Green<span class="brand-highlight">Fruit</span></span>
+      </a>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <!-- Mobile Search -->
+      <div class="header-search-box mb-4">
+        <input type="text" class="global-search-input" placeholder="Tìm kiếm hoa quả...">
+        <button type="button" class="search-btn btn-search-trigger"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
+
+      <ul class="nav flex-column gap-2 font-heading fw-bold">
+        <li class="nav-item"><a class="nav-link text-dark py-2" href="index.html"><i class="fa-solid fa-house text-success me-2"></i> Trang chủ</a></li>
+        <li class="nav-item"><a class="nav-link text-dark py-2" href="products.html"><i class="fa-solid fa-store text-success me-2"></i> Tất cả sản phẩm</a></li>
+        <li class="nav-item"><a class="nav-link text-dark py-2" href="products.html?season=dung-mua"><i class="fa-solid fa-leaf text-success me-2"></i> Đúng Mùa Thu Hoạch</a></li>
+        <li class="nav-item"><a class="nav-link text-dark py-2" href="products.html?category=nhap-khau"><i class="fa-solid fa-plane-departure text-primary me-2"></i> Trái Cây Nhập Khẩu</a></li>
+        <li class="nav-item"><a class="nav-link text-dark py-2" href="products.html?category=hop-qua"><i class="fa-solid fa-gift text-danger me-2"></i> Giỏ Quà Biếu Tặng</a></li>
+        <li class="nav-item"><a class="nav-link text-dark py-2" href="cart.html"><i class="fa-solid fa-basket-shopping text-warning me-2"></i> Giỏ hàng</a></li>
+        <li class="nav-item"><a class="nav-link text-dark py-2" href="profile.html"><i class="fa-regular fa-user text-info me-2"></i> Trang cá nhân & Đơn hàng</a></li>
+        <li class="nav-item"><a class="nav-link text-dark py-2" href="profile.html#vnpay-test"><i class="fa-solid fa-wallet text-warning me-2"></i> Sandbox VNPay Test</a></li>
+        <li class="nav-item"><a class="nav-link text-dark py-2" href="contact.html"><i class="fa-solid fa-headset text-secondary me-2"></i> Liên hệ & Cửa hàng</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <main>
+    <!-- HERO SECTION -->
+    <section class="hero-section">
+      <div class="container">
+        <div class="row align-items-center g-5">
+          <div class="col-lg-6">
+            <div class="hero-badge">
+              <i class="fa-solid fa-seedling text-success"></i> 100% Nông Trại Hữu Cơ & VietGAP
+            </div>
+            <h1 class="hero-title">
+              Hoa Quả Sạch Tươi Mát <br>
+              <span class="highlight-text">Trọn Vị Ngọt Thiên Nhiên</span>
+            </h1>
+            <p class="hero-desc">
+              Thu hoạch tươi mới mỗi sáng sớm, kiểm định dư lượng hóa chất 0%, cam kết bao ăn 1 đổi 1 trong 24h và giao hỏa tốc giữ lạnh trong 2 giờ.
+            </p>
+            <div class="hero-cta-group">
+              <a href="products.html" class="btn btn-primary-gf btn-lg">
+                <i class="fa-solid fa-basket-shopping"></i> Mua sắm ngay
+              </a>
+              <a href="products.html?season=dung-mua" class="btn btn-outline-gf btn-lg">
+                <i class="fa-solid fa-leaf"></i> Hoa quả đúng mùa
+              </a>
+            </div>
+            
+            <div class="hero-stats-row">
+              <div class="hero-stat-item">
+                <strong>100%</strong>
+                <span>Chuẩn VietGAP & GlobalGAP</span>
+              </div>
+              <div class="hero-stat-item">
+                <strong>2 Giờ</strong>
+                <span>Giao hàng giữ lạnh</span>
+              </div>
+              <div class="hero-stat-item">
+                <strong>50,000+</strong>
+                <span>Khách hàng tin chọn</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="hero-image-wrapper">
+              <img src="https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=1000&q=80" alt="Hoa quả sạch tươi ngon GreenFruit Eco" class="img-fluid hero-main-img" loading="eager">
+              
+              <!-- Floating Widget 1 -->
+              <div class="hero-floating-card card-1 d-none d-sm-flex align-items-center gap-3">
+                <div class="rounded-circle bg-success text-white p-3 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                  <i class="fa-solid fa-shield-check fs-5"></i>
+                </div>
+                <div>
+                  <strong class="d-block text-dark font-heading">Bao Ăn 1 Đổi 1</strong>
+                  <small class="text-muted">Đổi trả ngay nếu quả sượng</small>
+                </div>
+              </div>
+
+              <!-- Floating Widget 2 -->
+              <div class="hero-floating-card card-2 d-none d-sm-flex align-items-center gap-3">
+                <div class="rounded-circle bg-warning text-dark p-3 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                  <i class="fa-solid fa-bolt fs-5"></i>
+                </div>
+                <div>
+                  <strong class="d-block text-dark font-heading">Thu Hái Trong Ngày</strong>
+                  <small class="text-muted">Độ tươi giòn 100%</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURED CATEGORIES -->
+    <section class="py-5">
+      <div class="container">
+        <div class="section-header text-center">
+          <span class="section-subtitle-badge"><i class="fa-solid fa-layer-group"></i> Danh Mục Tuyển Chọn</span>
+          <h2 class="section-title">Khám Phá Hương Vị Trái Cây Tươi</h2>
+          <p class="section-desc mx-auto">Được chọn lọc khắt khe từ các vùng trồng đặc sản trứ danh trong và ngoài nước.</p>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-6 col-md-4 col-lg">
+            <a href="products.html?category=noi-dia" class="category-card text-decoration-none">
+              <div class="category-icon-box"><i class="fa-solid fa-leaf"></i></div>
+              <h3 class="category-title">Trái Cây Nội Địa</h3>
+              <span class="category-count">Sầu riêng, bưởi, xoài, dâu</span>
+            </a>
+          </div>
+          <div class="col-6 col-md-4 col-lg">
+            <a href="products.html?category=nhap-khau" class="category-card text-decoration-none">
+              <div class="category-icon-box"><i class="fa-solid fa-plane-departure"></i></div>
+              <h3 class="category-title">Trái Cây Nhập Khẩu</h3>
+              <span class="category-count">Nho mẫu đơn, cherry, táo Envy</span>
+            </a>
+          </div>
+          <div class="col-6 col-md-4 col-lg">
+            <a href="products.html?category=hop-qua" class="category-card text-decoration-none">
+              <div class="category-icon-box"><i class="fa-solid fa-gift"></i></div>
+              <h3 class="category-title">Giỏ Quà Biếu Tặng</h3>
+              <span class="category-count">Hộp quà VIP, lễ tết sang trọng</span>
+            </a>
+          </div>
+          <div class="col-6 col-md-4 col-lg">
+            <a href="products.html?category=say-nuoc-ep" class="category-card text-decoration-none">
+              <div class="category-icon-box"><i class="fa-solid fa-bottle-water"></i></div>
+              <h3 class="category-title">Sấy Dẻo & Nước Ép</h3>
+              <span class="category-count">100% nguyên chất, không đường</span>
+            </a>
+          </div>
+          <div class="col-6 col-md-4 col-lg">
+            <a href="products.html?season=dung-mua" class="category-card text-decoration-none">
+              <div class="category-icon-box" style="background: #fef08a; color: #ca8a04;"><i class="fa-solid fa-sun"></i></div>
+              <h3 class="category-title">Vào Mùa Thu Hoạch</h3>
+              <span class="category-count">Chín rộ tự nhiên, giá tốt nhất</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FLASH SALE SECTION WITH COUNTDOWN -->
+    <section class="py-4">
+      <div class="container">
+        <div class="flash-sale-wrapper">
+          <div class="flash-sale-header">
+            <div class="d-flex align-items-center gap-3">
+              <div class="bg-danger text-white px-3 py-2 rounded-3 font-heading fw-bold fs-5">
+                <i class="fa-solid fa-bolt"></i> FLASH SALE TRONG NGÀY
+              </div>
+              <span class="text-muted small d-none d-sm-inline">Số lượng có hạn, nhanh tay kẻo lỡ!</span>
+            </div>
+
+            <!-- Countdown Timer -->
+            <div class="flash-sale-timer">
+              <span class="fw-bold text-dark me-2 small">Kết thúc sau:</span>
+              <div class="timer-block" id="fs-hours">00</div>
+              <span class="timer-colon">:</span>
+              <div class="timer-block" id="fs-minutes">00</div>
+              <span class="timer-colon">:</span>
+              <div class="timer-block" id="fs-seconds">00</div>
+            </div>
+          </div>
+
+          <!-- Flash sale product cards container -->
+          <div class="row" id="flash-sale-products-container">
+            <!-- Rendered by js/home.js -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEASONAL COLLECTION SHOWCASE -->
+    <section class="py-5 bg-white">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-end flex-wrap gap-3 mb-4">
+          <div>
+            <span class="section-subtitle-badge"><i class="fa-solid fa-calendar-check"></i> Phân Loại Mùa Vụ</span>
+            <h2 class="section-title">Hoa Quả Theo Vụ Thu Hoạch</h2>
+            <p class="section-desc">Ăn trái cây đúng mùa để tận hưởng độ ngọt tự nhiên đậm đà nhất và tiết kiệm chi phí.</p>
+          </div>
+
+          <!-- Seasonal Filter Tabs -->
+          <ul class="nav seasonal-filter-tabs">
+            <li class="nav-item">
+              <button class="nav-link seasonal-tab-btn active" data-season="dung-mua">
+                <i class="fa-solid fa-leaf text-success me-1"></i> Đúng Mùa Thu Hoạch (Rộ Vụ)
+              </button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link seasonal-tab-btn" data-season="trai-mua">
+                <i class="fa-solid fa-cloud-sun text-warning me-1"></i> Trái Mùa (Công Nghệ Cao)
+              </button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link seasonal-tab-btn" data-season="quanh-nam">
+                <i class="fa-solid fa-earth-americas text-primary me-1"></i> Quanh Năm / Nhập Khẩu
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <div class="row" id="seasonal-products-container">
+          <!-- Rendered by js/home.js -->
+        </div>
+
+        <div class="text-center mt-4">
+          <a href="products.html" class="btn btn-outline-gf px-5 py-3">
+            Xem tất cả hoa quả sạch <i class="fa-solid fa-arrow-right ms-2"></i>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- VALUE PROPOSITIONS & QUALITY CERTIFICATIONS -->
+    <section class="py-5">
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-md-6 col-lg-3">
+            <div class="feature-box">
+              <div class="feature-icon-wrapper feature-1"><i class="fa-solid fa-award"></i></div>
+              <h4 class="fw-bold fs-5 mb-2">100% Chuẩn VietGAP</h4>
+              <p class="text-muted small mb-0">Canh tác hữu cơ, kiểm nghiệm dư lượng thuốc BVTV đạt 0%, an toàn tuyệt đối cho trẻ nhỏ.</p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3">
+            <div class="feature-box">
+              <div class="feature-icon-wrapper feature-2"><i class="fa-solid fa-rotate-left"></i></div>
+              <h4 class="fw-bold fs-5 mb-2">Bao Ăn 1 Đổi 1 Trong 24h</h4>
+              <p class="text-muted small mb-0">Nếu múi bị sượng, nhạt hoặc dập vỡ khi giao, đổi mới hoàn toàn miễn phí ngay tại nhà.</p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3">
+            <div class="feature-box">
+              <div class="feature-icon-wrapper feature-3"><i class="fa-solid fa-truck-fast"></i></div>
+              <h4 class="fw-bold fs-5 mb-2">Giao Nhanh 2 Giờ Giữ Lạnh</h4>
+              <p class="text-muted small mb-0">Đóng thùng xốp cách nhiệt kèm đá gel giữ quả luôn mát rượi, cuống tươi giòn như vừa hái.</p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3">
+            <div class="feature-box">
+              <div class="feature-icon-wrapper feature-4"><i class="fa-solid fa-credit-card"></i></div>
+              <h4 class="fw-bold fs-5 mb-2">Thanh Toán Linh Hoạt</h4>
+              <p class="text-muted small mb-0">Hỗ trợ COD, VietQR, và cổng thanh toán VNPay Sandbox an toàn, bảo mật cao cấp.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOP SELLING & RECOMMENDATIONS -->
+    <section class="py-5 bg-white">
+      <div class="container">
+        <div class="section-header text-center">
+          <span class="section-subtitle-badge"><i class="fa-solid fa-star"></i> Bán Chạy Nhất</span>
+          <h2 class="section-title">Khách Hàng Yêu Thích & Đánh Giá 5 Sao</h2>
+          <p class="section-desc mx-auto">Những loại quả ngọt đậm đà, được đặt hàng nhiều nhất trong tuần qua.</p>
+        </div>
+
+        <div class="row" id="featured-products-container">
+          <!-- Rendered by js/home.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- NUTRITION TIPS & BLOG -->
+    <section class="py-5">
+      <div class="container">
+        <div class="section-header text-center">
+          <span class="section-subtitle-badge"><i class="fa-solid fa-book-open"></i> Góc Sức Khỏe</span>
+          <h2 class="section-title">Bí Quyết Ăn Trái Cây Khỏe Đẹp Mỗi Ngày</h2>
+          <p class="section-desc mx-auto">Kiến thức dinh dưỡng chuẩn y khoa được tư vấn bởi các chuyên gia dinh dưỡng.</p>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden h-100">
+              <img src="https://images.unsplash.com/photo-1546548970-71785318a17b?auto=format&fit=crop&w=600&q=80" alt="Cách bảo quản trái cây trong tủ lạnh" class="card-img-top" style="height: 220px; object-fit: cover;">
+              <div class="card-body p-4">
+                <span class="badge bg-success-subtle text-success mb-2">Mẹo Bảo Quản</span>
+                <h3 class="card-title fw-bold fs-5 mb-2"><a href="#" class="text-dark">Cách bảo quản nho mẫu đơn và cherry giòn ngọt 2 tuần</a></h3>
+                <p class="card-text text-muted small">Mẹo giữ lớp phấn trắng tự nhiên và cuống xanh tươi rói không bị ủng úa...</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden h-100">
+              <img src="https://images.unsplash.com/photo-1587393855524-087f83d95bc9?auto=format&fit=crop&w=600&q=80" alt="Top 5 loại quả chỉ số đường huyết thấp" class="card-img-top" style="height: 220px; object-fit: cover;">
+              <div class="card-body p-4">
+                <span class="badge bg-warning-subtle text-warning-emphasis mb-2">Dinh Dưỡng</span>
+                <h3 class="card-title fw-bold fs-5 mb-2"><a href="#" class="text-dark">5 loại hoa quả chỉ số GI thấp tốt cho người tiểu đường</a></h3>
+                <p class="card-text text-muted small">Bưởi da xanh, bơ sáp và táo hữu cơ giúp ổn định lượng đường huyết hiệu quả...</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden h-100">
+              <img src="https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=600&q=80" alt="Detox thanh lọc cơ thể với nước ép lạnh" class="card-img-top" style="height: 220px; object-fit: cover;">
+              <div class="card-body p-4">
+                <span class="badge bg-primary-subtle text-primary mb-2">Detox Sáng Da</span>
+                <h3 class="card-title fw-bold fs-5 mb-2"><a href="#" class="text-dark">Nước ép lạnh Cold-Pressed: Công thức thanh lọc 7 ngày</a></h3>
+                <p class="card-text text-muted small">Bổ sung enzyme sống tự nhiên giúp da sáng mịn, mờ thâm và giải nhiệt tức thì...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NEWSLETTER SUBSCRIPTION -->
+    <section class="py-5" style="background: linear-gradient(135deg, #14532d 0%, #15803d 100%); color: #ffffff;">
+      <div class="container text-center py-4">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill font-heading fw-bold mb-3">🎁 ƯU ĐÃI ĐỘC QUYỀN</span>
+            <h2 class="display-6 fw-bold text-white mb-3">Nhận Mã Giảm Giá 10% & Cập Nhật Mùa Vụ Mới</h2>
+            <p class="text-white-50 mb-4 fs-6">Đăng ký email để nhận tin tức khi có lô hoa quả đặc sản vừa hái và các mã voucher giảm giá hàng tuần.</p>
+            
+            <form id="newsletter-form" class="d-flex flex-column flex-sm-row gap-2 max-w-500 mx-auto justify-content-center" style="max-width: 520px;">
+              <input type="email" class="form-control form-control-lg rounded-pill px-4 border-0" placeholder="Nhập địa chỉ email của bạn..." required>
+              <button type="submit" class="btn btn-secondary-gf btn-lg rounded-pill px-4">
+                <i class="fa-solid fa-paper-plane me-1"></i> Đăng ký
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MAIN FOOTER -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="row g-4">
+        <!-- Col 1: Brand Info -->
+        <div class="col-lg-4 col-md-6">
+          <a href="index.html" class="footer-logo text-decoration-none">
+            <div class="logo-icon"><i class="fa-solid fa-apple-whole"></i></div>
+            <span>Green<span class="text-warning">Fruit</span></span>
+          </a>
+          <p class="footer-desc">
+            Hệ thống phân phối hoa quả sạch, trái cây hữu cơ VietGAP và nhập khẩu cao cấp hàng đầu Việt Nam. Cam kết 100% trái tươi ngon tự nhiên, an toàn sức khỏe cho mọi gia đình.
+          </p>
+          <div class="d-flex gap-2">
+            <span class="badge bg-success-subtle text-success p-2"><i class="fa-solid fa-shield-halved"></i> VietGAP Certified</span>
+            <span class="badge bg-info-subtle text-info p-2"><i class="fa-solid fa-globe"></i> GlobalGAP</span>
+          </div>
+        </div>
+
+        <!-- Col 2: Quick Links -->
+        <div class="col-lg-2 col-md-6">
+          <h4 class="footer-title">Về GreenFruit</h4>
+          <ul class="footer-links">
+            <li><a href="index.html"><i class="fa-solid fa-angle-right"></i> Trang chủ</a></li>
+            <li><a href="products.html"><i class="fa-solid fa-angle-right"></i> Cửa hàng hoa quả</a></li>
+            <li><a href="products.html?season=dung-mua"><i class="fa-solid fa-angle-right"></i> Hoa quả đúng mùa</a></li>
+            <li><a href="profile.html"><i class="fa-solid fa-angle-right"></i> Tài khoản cá nhân</a></li>
+            <li><a href="contact.html"><i class="fa-solid fa-angle-right"></i> Hệ thống chi nhánh</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Policy Links -->
+        <div class="col-lg-3 col-md-6">
+          <h4 class="footer-title">Chính Sách & Hỗ Trợ</h4>
+          <ul class="footer-links">
+            <li><a href="contact.html"><i class="fa-solid fa-angle-right"></i> Chính sách bao ăn 1 đổi 1</a></li>
+            <li><a href="contact.html"><i class="fa-solid fa-angle-right"></i> Giao hàng lạnh hỏa tốc 2h</a></li>
+            <li><a href="profile.html#vnpay-test"><i class="fa-solid fa-angle-right"></i> Môi trường test VNPay</a></li>
+            <li><a href="contact.html"><i class="fa-solid fa-angle-right"></i> Hướng dẫn đặt giỏ quà VIP</a></li>
+            <li><a href="contact.html"><i class="fa-solid fa-angle-right"></i> Câu hỏi thường gặp (FAQ)</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Contact & Showrooms -->
+        <div class="col-lg-3 col-md-6">
+          <h4 class="footer-title">Liên Hệ Trực Tiếp</h4>
+          <div class="footer-contact-item">
+            <i class="fa-solid fa-location-dot"></i>
+            <div>
+              <strong>Showroom 1:</strong> 72 Lê Thánh Tôn, Bến Nghé, Quận 1, TP.HCM
+            </div>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fa-solid fa-location-dot"></i>
+            <div>
+              <strong>Showroom 2:</strong> 180 Trần Duy Hưng, Cầu Giấy, Hà Nội
+            </div>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fa-solid fa-phone"></i>
+            <div>
+              <strong>Hotline:</strong> 1900 6868 - 0909 123 456
+            </div>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fa-solid fa-envelope"></i>
+            <div>
+              <strong>Email:</strong> cskh@greenfruit.vn
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Bottom -->
+      <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          © 2026 <strong>GreenFruit Eco</strong>. All rights reserved. Hệ thống bán lẻ hoa quả sạch hàng đầu.
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <span class="small text-muted">Phương thức thanh toán:</span>
+          <span class="badge bg-light text-dark fw-bold">COD</span>
+          <span class="badge bg-light text-primary fw-bold">VietQR</span>
+          <span class="badge bg-danger text-white fw-bold">VNPAY (Sandbox)</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MOBILE BOTTOM NAVIGATION -->
+  <div class="mobile-bottom-nav">
+    <a href="index.html" class="mobile-nav-item active text-decoration-none">
+      <i class="fa-solid fa-house"></i>
+      <span>Trang chủ</span>
+    </a>
+    <a href="products.html" class="mobile-nav-item text-decoration-none">
+      <i class="fa-solid fa-store"></i>
+      <span>Sản phẩm</span>
+    </a>
+    <a href="cart.html" class="mobile-nav-item text-decoration-none">
+      <i class="fa-solid fa-basket-shopping"></i>
+      <span>Giỏ hàng</span>
+      <span class="cart-badge-count" style="top: -2px; right: 8px;">0</span>
+    </a>
+    <a href="profile.html" class="mobile-nav-item text-decoration-none">
+      <i class="fa-regular fa-user"></i>
+      <span>Cá nhân</span>
+    </a>
+  </div>
+
+  <!-- SCRIPTS -->
+  <!-- Bootstrap 5 Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Core Data Layer & LocalStorage -->
+  <script src="js/data.js"></script>
+  <!-- VNPay Sandbox Simulator -->
+  <script src="js/vnpay-simulator.js"></script>
+  <!-- Common Utilities, Auth & Cart Badges -->
+  <script src="js/common.js"></script>
+  <!-- Chatbot AI Widget -->
+  <script src="js/chatbot.js"></script>
+  <!-- Page Specific Script -->
+  <script src="js/home.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giỏ Hàng Hoa Quả Sạch - GreenFruit Eco</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Xem giỏ hàng hoa quả sạch, áp dụng mã voucher giảm giá, kiểm tra phí vận chuyển và tiến hành thanh toán an toàn tại GreenFruit Eco.">
+  <meta name="robots" content="noindex, follow">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍏</text></svg>">
+
+  <!-- Bootstrap 5 CSS & Font Awesome 6 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/cart.css">
+</head>
+<body>
+
+  <!-- Main Header & Navbar -->
+  <header class="main-header">
+    <div class="container py-2">
+      <div class="d-flex align-items-center justify-content-between gap-3">
+        <!-- Mobile Toggle Button -->
+        <button class="btn btn-light-gf d-lg-none p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
+          <i class="fa-solid fa-bars fs-5"></i>
+        </button>
+
+        <!-- Brand Logo -->
+        <a href="index.html" class="brand-logo text-decoration-none">
+          <div class="logo-icon"><i class="fa-solid fa-apple-whole"></i></div>
+          <span>Green<span class="brand-highlight">Fruit</span></span>
+        </a>
+
+        <!-- Header Search Box -->
+        <div class="header-search-box d-none d-md-block">
+          <input type="text" class="global-search-input" placeholder="Tìm kiếm sản phẩm...">
+          <button type="button" class="search-btn btn-search-trigger" title="Tìm kiếm">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+        </div>
+
+        <!-- Header Action Controls -->
+        <div class="d-flex align-items-center gap-2">
+          <a href="cart.html" class="header-action-btn active text-decoration-none" title="Xem giỏ hàng">
+            <div class="icon-wrap">
+              <i class="fa-solid fa-basket-shopping"></i>
+              <span class="cart-badge-count">0</span>
+            </div>
+            <span class="d-none d-lg-inline">Giỏ hàng</span>
+          </a>
+
+          <div id="header-auth-container">
+            <a href="auth.html" class="header-action-btn">
+              <div class="icon-wrap"><i class="fa-regular fa-user"></i></div>
+              <span class="d-none d-md-inline">Tài khoản</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Menu Bar -->
+    <nav class="main-nav-bar d-none d-lg-block">
+      <div class="container">
+        <ul class="site-nav-menu">
+          <li class="nav-item"><a class="nav-link" href="index.html"><i class="fa-solid fa-house"></i> Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link" href="products.html"><i class="fa-solid fa-store"></i> Tất cả sản phẩm</a></li>
+          <li class="nav-item"><a class="nav-link" href="products.html?season=dung-mua"><i class="fa-solid fa-leaf text-success"></i> Đúng Mùa Thu Hoạch <span class="hot-badge">HOT</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="products.html?category=nhap-khau"><i class="fa-solid fa-plane-departure text-primary"></i> Trái Cây Nhập Khẩu</a></li>
+          <li class="nav-item"><a class="nav-link" href="products.html?category=hop-qua"><i class="fa-solid fa-gift text-danger"></i> Giỏ Quà Biếu Tặng</a></li>
+          <li class="nav-item"><a class="nav-link" href="profile.html#vnpay-test"><i class="fa-solid fa-wallet text-warning"></i> Sandbox VNPay</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html"><i class="fa-solid fa-headset text-secondary"></i> Liên hệ</a></li>
+        </ul>
+        <a href="tel:19006868" class="nav-hotline-pill">
+          <i class="fa-solid fa-phone-volume text-danger"></i> 1900 6868 <small class="text-muted fw-normal ms-1">(Miễn phí)</small>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Mobile Offcanvas Menu Drawer -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu">
+    <div class="offcanvas-header border-bottom">
+      <a href="index.html" class="brand-logo text-decoration-none">
+        <div class="logo-icon"><i class="fa-solid fa-apple-whole"></i></div>
+        <span>Green<span class="brand-highlight">Fruit</span></span>
+      </a>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <ul class="nav flex-column gap-2 font-heading fw-bold">
+        <li class="nav-item"><a class="nav-link text-dark py-2" href="index.html"><i class="fa-solid fa-house text-success me-2"></i> Trang chủ</a></li>
+        <li class="nav-item"><a class="nav-link text-dark py-2" href="products.html"><i class="fa-solid fa-store text-success me-2"></i> Tất cả sản phẩm</a></li>
+        <li class="nav-item"><a class="nav-link text-dark py-2" href="cart.html"><i class="fa-solid fa-basket-shopping text-warning me-2"></i> Giỏ hàng</a></li>
+        <li class="nav-item"><a class="nav-link text-dark py-2" href="profile.html"><i class="fa-regular fa-user text-info me-2"></i> Trang cá nhân</a></li>
+        <li class="nav-item"><a class="nav-link text-dark py-2" href="contact.html"><i class="fa-solid fa-headset text-secondary me-2"></i> Liên hệ</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main class="py-4">
+    <div class="container">
+      
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb custom-breadcrumb">
+          <li class="breadcrumb-item"><a href="index.html"><i class="fa-solid fa-house me-1"></i> Trang chủ</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Giỏ hàng của bạn</li>
+        </ol>
+      </nav>
+
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 class="h3 fw-bold mb-1 text-dark"><i class="fa-solid fa-basket-shopping text-success me-2"></i> Giỏ Hàng Mua Sắm</h1>
+          <p class="text-muted small mb-0">Quý khách có thể kiểm tra lại số lượng hoặc áp dụng mã voucher giảm giá trước khi thanh toán.</p>
+        </div>
+      </div>
+
+      <!-- Checkout Steps Progress Bar -->
+      <div class="cart-steps-bar">
+        <div class="cart-step-item active">
+          <div class="cart-step-num">1</div>
+          <span>Giỏ hàng</span>
+        </div>
+        <i class="fa-solid fa-chevron-right cart-step-arrow"></i>
+        <div class="cart-step-item">
+          <div class="cart-step-num">2</div>
+          <span>Thanh toán</span>
+        </div>
+        <i class="fa-solid fa-chevron-right cart-step-arrow"></i>
+        <div class="cart-step-item">
+          <div class="cart-step-num">3</div>
+          <span>Hoàn tất</span>
+        </div>
+      </div>
+
+      <!-- Main Cart Content Row -->
+      <div class="row g-4" id="cart-page-content">
+        <!-- Rendered by js/cart.js -->
+      </div>
+
+    </div>
+  </main>
+
+  <!-- MAIN FOOTER -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <a href="index.html" class="footer-logo text-decoration-none">
+            <div class="logo-icon"><i class="fa-solid fa-apple-whole"></i></div>
+            <span>Green<span class="text-warning">Fruit</span></span>
+          </a>
+          <p class="footer-desc">
+            Hệ thống phân phối hoa quả sạch, trái cây hữu cơ VietGAP và nhập khẩu cao cấp hàng đầu Việt Nam.
+          </p>
+        </div>
+        <div class="col-lg-2 col-md-6">
+          <h4 class="footer-title">Về GreenFruit</h4>
+          <ul class="footer-links">
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="products.html">Cửa hàng hoa quả</a></li>
+            <li><a href="profile.html">Tài khoản cá nhân</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <h4 class="footer-title">Hỗ Trợ</h4>
+          <ul class="footer-links">
+            <li><a href="contact.html">Bao ăn 1 đổi 1 trong 24h</a></li>
+            <li><a href="contact.html">Giao hàng hỏa tốc 2h</a></li>
+            <li><a href="profile.html#vnpay-test">Môi trường test VNPay</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <h4 class="footer-title">Liên Hệ</h4>
+          <div class="footer-contact-item">
+            <i class="fa-solid fa-phone"></i>
+            <div>Hotline: 1900 6868</div>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fa-solid fa-envelope"></i>
+            <div>Email: cskh@greenfruit.vn</div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>© 2026 <strong>GreenFruit Eco</strong>. All rights reserved.</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MOBILE BOTTOM NAVIGATION -->
+  <div class="mobile-bottom-nav">
+    <a href="index.html" class="mobile-nav-item text-decoration-none">
+      <i class="fa-solid fa-house"></i>
+      <span>Trang chủ</span>
+    </a>
+    <a href="products.html" class="mobile-nav-item text-decoration-none">
+      <i class="fa-solid fa-store"></i>
+      <span>Sản phẩm</span>
+    </a>
+    <a href="cart.html" class="mobile-nav-item active text-decoration-none">
+      <i class="fa-solid fa-basket-shopping"></i>
+      <span>Giỏ hàng</span>
+      <span class="cart-badge-count" style="top: -2px; right: 8px;">0</span>
+    </a>
+    <a href="profile.html" class="mobile-nav-item text-decoration-none">
+      <i class="fa-regular fa-user"></i>
+      <span>Cá nhân</span>
+    </a>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/vnpay-simulator.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/chatbot.js"></script>
+  <script src="js/cart.js"></script>
+
+</body>
+</html>

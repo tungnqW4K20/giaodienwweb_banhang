@@ -1,0 +1,252 @@
+/* ==========================================================================
+   CSS RIÊNG CHO TRANG GIỎ HÀNG (cart.css) - REDESIGNED LUXURY E-COMMERCE
+   ========================================================================== */
+
+/* Cart Checkout Steps Bar */
+.cart-steps-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 35px;
+  flex-wrap: wrap;
+}
+.cart-step-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 15px;
+  color: #94a3b8;
+}
+.cart-step-item.active {
+  color: var(--primary-dark);
+}
+.cart-step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+}
+.cart-step-item.active .cart-step-num {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px var(--primary-glow);
+}
+.cart-step-arrow {
+  color: #cbd5e1;
+  font-size: 16px;
+}
+
+/* Cart Item Card Container */
+.cart-card {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+/* Cart Table Styling */
+.cart-table {
+  width: 100%;
+  margin-bottom: 0;
+  vertical-align: middle;
+}
+.cart-table th {
+  background: #f8fafc;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+.cart-table td {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.cart-table tr:last-child td {
+  border-bottom: none;
+}
+
+.cart-product-thumb {
+  width: 85px;
+  height: 85px;
+  min-width: 85px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.cart-product-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--dark);
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+.cart-product-title a {
+  color: inherit;
+}
+.cart-product-title a:hover {
+  color: var(--primary);
+}
+
+.cart-unit-price {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.cart-line-total {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--primary-dark);
+}
+
+.btn-remove-cart-item {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-bounce);
+}
+.btn-remove-cart-item:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+  transform: scale(1.1);
+}
+
+/* Order Summary Box */
+.cart-summary-card {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 28px;
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 90px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.summary-row.total-row {
+  border-top: 2px dashed var(--border-color);
+  padding-top: 18px;
+  margin-top: 18px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--dark);
+}
+.summary-row.total-row .total-price {
+  color: var(--secondary);
+  font-size: 26px;
+  font-family: var(--font-heading);
+  font-weight: 800;
+}
+
+/* Free Shipping Goal Box */
+.freeship-goal-box {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1.5px solid #86efac;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 24px;
+  position: relative;
+}
+.freeship-goal-progress {
+  height: 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+  margin-top: 8px;
+  border: 1px solid #bbf7d0;
+}
+.freeship-goal-fill {
+  background: linear-gradient(90deg, #16a34a 0%, #22c55e 100%);
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Voucher Preset Cards */
+.voucher-preset-card {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: var(--transition);
+}
+.voucher-preset-card:hover {
+  border-color: var(--primary);
+  background: #f0fdf4;
+}
+.voucher-preset-code {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  color: var(--primary-dark);
+  font-size: 13px;
+  background: #ffffff;
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid #86efac;
+}
+
+/* Mobile Responsive Cart Cards */
+@media (max-width: 767.98px) {
+  .cart-table thead {
+    display: none;
+  }
+  .cart-table, .cart-table tbody, .cart-table tr, .cart-table td {
+    display: block;
+    width: 100%;
+  }
+  .cart-table tr {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+  }
+  .cart-table td {
+    padding: 6px 0;
+    border-bottom: none;
+  }
+  .btn-remove-cart-item {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  }
+  .cart-summary-card {
+    padding: 20px;
+  }
+}
