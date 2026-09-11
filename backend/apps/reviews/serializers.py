@@ -15,6 +15,6 @@ class ProductReviewSerializer(serializers.ModelSerializer):
         return obj.created_at.strftime("%d/%m/%Y")
 
 class CreateReviewSerializer(serializers.Serializer):
-    reviewer_name = serializers.CharField(required=True, max_length=255)
+    reviewer_name = serializers.CharField(required=False, allow_blank=True, max_length=255, default='')
     rating = serializers.IntegerField(required=True, min_value=1, max_value=5)
-    comment = serializers.CharField(required=True, min_length=5)
+    comment = serializers.CharField(required=True, min_length=3)

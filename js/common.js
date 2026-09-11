@@ -11,19 +11,75 @@ document.addEventListener('DOMContentLoaded', () => {
   setupBackToTopButton();
 });
 
+// Lắng nghe sự kiện thay đổi xác thực & giỏ hàng toàn trang
+window.addEventListener('ecofruit:auth-changed', () => {
+  updateCartBadge();
+  checkAuthState();
+});
+
+window.addEventListener('ecofruit:cart-updated', () => {
+  updateCartBadge();
+});
+
+window.addEventListener('ecofruit:data-synced', () => {
+  updateCartBadge();
+});
+
 // ==================== CẬP NHẬT BADGE GIỎ HÀNG ====================
-function updateCartBadge() {
-  const cart = getCart();
-  const totalCount = cart.reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
-  const badgeElements = document.querySelectorAll('.cart-badge-count');
-  badgeElements.forEach(badge => {
-    badge.textContent = totalCount;
-    if (totalCount > 0) {
-      badge.style.display = 'inline-block';
-    } else {
-      badge.style.display = 'none';
+async function updateCartBadge() {
+  const token = window.EcoFruitAPI ? window.EcoFruitAPI.getToken() : null;
+  const currentUser = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+
+  // 1. Render nhanh từ local cache để UI mượt mà tức thì
+  const localCart = typeof getCart === 'function' ? getCart() : [];
+  let totalCount = localCart.reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
+
+  const applyBadgeDOM = (count) => {
+    const badgeElements = document.querySelectorAll('.cart-badge-count');
+    badgeElements.forEach(badge => {
+      badge.textContent = count;
+      if (count > 0) {
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+    });
+  };
+
+  applyBadgeDOM(totalCount);
+
+  // 2. Nếu đã đăng nhập: Lấy chính xác số lượng sản phẩm từ DB MySQL của tài khoản đó
+  if (token && currentUser && window.EcoFruitAPI) {
+    try {
+      const cartData = await window.EcoFruitAPI.getCart();
+      if (cartData && typeof cartData.total_quantity !== 'undefined') {
+        totalCount = cartData.total_quantity;
+        applyBadgeDOM(totalCount);
+
+        // Đồng bộ các mục giỏ hàng từ MySQL về localStorage của phiên làm việc hiện tại
+        if (Array.isArray(cartData.items)) {
+          const syncedItems = cartData.items.map(it => {
+            const p = it.product || {};
+            return {
+              id: String(p.id || it.id),
+              product_id: p.id || it.id,
+              name: p.name || '',
+              price: Number(it.unit_price || p.price || 0),
+              qty: Number(it.quantity || 1),
+              unit: p.unit || 'kg',
+              image: p.image || '',
+              cart_item_id: it.id
+            };
+          });
+          localStorage.setItem(DB_KEYS.CART, JSON.stringify(syncedItems));
+        }
+      }
+    } catch (err) {
+      console.warn('[CartBadge] Backend live sync fallback:', err.message);
     }
-  });
+  }
+
+  return totalCount;
 }
 window.updateCartBadge = updateCartBadge;
 

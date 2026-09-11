@@ -1,4 +1,4 @@
-from rest_framework import views, status
+from rest_framework import views
 from rest_framework.permissions import AllowAny
 from apps.common.response import api_response, api_error
 from .services import AIAssistantService
@@ -12,13 +12,15 @@ class AIChatView(views.APIView):
             return api_error(message="Vui lòng nhập nội dung câu hỏi.")
 
         history = request.data.get('history', [])
-        reply, provider = AIAssistantService.get_ai_reply(message, history)
+        reply, provider, suggested_products, suggested_actions = AIAssistantService.get_ai_reply(message, history)
 
         return api_response(
             data={
                 "reply": reply,
                 "provider": provider,
-                "user_message": message
+                "user_message": message,
+                "suggested_products": suggested_products,
+                "suggested_actions": suggested_actions
             },
             message="Tư vấn AI thành công."
         )

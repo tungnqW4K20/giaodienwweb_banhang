@@ -165,9 +165,11 @@ class CheckoutService:
             created_by="CUSTOMER" if not is_guest else "GUEST"
         )
 
-        # 9. Clear Database Cart for Member
+        # 9. Remove purchased products from Database Cart for Member
         if user and user.is_authenticated:
-            Cart.objects.filter(user=user).delete()
+            user_cart = Cart.objects.filter(user=user).first()
+            if user_cart:
+                user_cart.items.filter(product_id__in=product_ids).delete()
 
         # 10. Publish Realtime Notification via Redis Pub/Sub
         notification_payload = {

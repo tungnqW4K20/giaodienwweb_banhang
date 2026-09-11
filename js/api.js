@@ -221,14 +221,27 @@ class ApiClient {
         console.debug('Profile fetch sync:', e);
       }
 
-      // Auto merge local storage cart items into DB
+      // Fetch fresh member DB cart immediately to populate badge & local session
       try {
-        const localCart = JSON.parse(localStorage.getItem('gf_cart') || '[]');
-        if (localCart.length > 0) {
-          await this.mergeCart(localCart.map(i => ({ product_id: parseInt(i.id) || 1, quantity: i.qty || 1 })));
+        const cartData = await this.getCart();
+        if (cartData && Array.isArray(cartData.items)) {
+          const syncedItems = cartData.items.map(it => {
+            const p = it.product || {};
+            return {
+              id: String(p.id || it.id),
+              product_id: p.id || it.id,
+              name: p.name || '',
+              price: Number(it.unit_price || p.price || 0),
+              qty: Number(it.quantity || 1),
+              unit: p.unit || 'kg',
+              image: p.image || '',
+              cart_item_id: it.id
+            };
+          });
+          localStorage.setItem('gf_cart', JSON.stringify(syncedItems));
         }
       } catch (e) {
-        console.debug('Cart merge optional step:', e);
+        console.debug('Member cart fetch:', e);
       }
 
       window.dispatchEvent(new CustomEvent('ecofruit:auth-changed', { detail: { action: 'login', user: res.data.user } }));
@@ -246,7 +259,7 @@ class ApiClient {
       // Non-blocking logout
     }
 
-    // 2. Completely eradicate all user tokens, credentials, caches, orders & wallets
+    // 2. Completely eradicate all user tokens, credentials, caches, carts, orders & wallets
     this.purgeLocalUserCache();
 
     // 3. Dispatch global auth state change
@@ -262,8 +275,10 @@ class ApiClient {
     this.setToken(null);
     this.setUser(null);
     localStorage.removeItem('ecofruit_refresh_token');
+    localStorage.removeItem('gf_cart');
     localStorage.removeItem('gf_orders');
     localStorage.removeItem('gf_vnpay_wallets');
+    localStorage.removeItem('gf_applied_voucher');
     sessionStorage.clear();
   }
 
@@ -419,6 +434,34 @@ class ApiClient {
   }
 
   // =========================================================================
+  // REVIEWS & RATINGS
+  // =========================================================================
+  static async getReviews(productId) {
+    try {
+      const res = await this.request(`/reviews/products/${productId}/`);
+      return res.data;
+    } catch {
+      return null;
+    }
+  }
+
+  static async checkReviewEligibility(productId) {
+    try {
+      const res = await this.request(`/reviews/products/${productId}/eligibility/`);
+      return res.data;
+    } catch {
+      return { eligible: false, reason: 'Chưa xác thực' };
+    }
+  }
+
+  static async postReview(productId, reviewData) {
+    return this.request(`/reviews/products/${productId}/`, {
+      method: 'POST',
+      body: JSON.stringify(reviewData)
+    });
+  }
+
+  // =========================================================================
   // AUTOMATIC BACKEND HYDRATION BRIDGE (LIVE DATA SYNC)
   // =========================================================================
   static async syncFromBackend() {
@@ -438,6 +481,12 @@ class ApiClient {
           if (p.season === 'OFF_SEASON') seasonKey = 'trai-mua';
           else if (p.season === 'ALL_YEAR') seasonKey = 'quanh-nam';
 
+          const descText = p.description || p.short_description || `${p.name} - Hoa quả tươi sạch thượng hạng tuyển chọn tại EcoFruit, cam kết độ tươi giòn và ngọt tự nhiên.`;
+          const shortDescText = p.short_description || p.name;
+          const nutritionSummary = p.vitamins 
+            ? `${p.vitamins} (${p.calories || '52 kcal / 100g'})` 
+            : 'Bổ sung dồi dào Vitamin C, chất xơ tự nhiên, thanh lọc cơ thể và tăng đề kháng.';
+
           return {
             id: String(p.id),
             sku: p.sku || `SKU-${p.id}`,
@@ -455,18 +504,24 @@ class ApiClient {
             salesCount: Number(p.sold_count || 50),
             rating: Number(p.rating || 5.0),
             reviewsCount: Number(p.review_count || 10),
+            reviewCount: Number(p.review_count || 10),
             origin: p.origin || 'Việt Nam',
             cert: p.certification || 'VietGAP',
             certType: 'vietgap',
-            images: [p.image],
-            shortDesc: p.short_description || p.name,
-            description: p.description || p.short_description || p.name,
-            nutrition: {
+            brix: p.brix || '12° - 16° Brix (Ngọt thanh mát)',
+            shelfLife: p.shelf_life || '5 - 7 ngày bảo quản ngăn mát 4-8°C',
+            images: [p.image || 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=800&q=80'],
+            shortDesc: shortDescText,
+            description: descText,
+            fullDesc: descText.startsWith('<') ? descText : `<p>${descText}</p>`,
+            nutrition: nutritionSummary,
+            nutritionDetails: {
               calories: p.calories || '52 kcal / 100g',
               vitamins: p.vitamins || 'Vitamin C, A, Chất xơ',
               storage: p.storage_guide || 'Bảo quản ngăn mát tủ lạnh 4-8 độ C',
               shelfLife: p.shelf_life || '5 - 7 ngày'
             },
+            tags: p.tags || '',
             isFlashSale: (p.discount_percent > 15) || p.is_bestseller,
             isFeatured: p.is_featured,
             isBestSeller: p.is_bestseller

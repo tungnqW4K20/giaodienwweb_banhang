@@ -1,0 +1,9 @@
+python-interpreter = ".venv/Scripts/python.exe"
+
+search-path = [
+    "backend"
+]
+
+project-excludes = [
+    "**/.venv/**"
+]

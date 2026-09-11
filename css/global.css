@@ -1142,6 +1142,134 @@ img {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: var(--transition);
+}
+.chatbot-footer button:hover {
+  background: var(--primary-dark);
+  transform: scale(1.05);
+}
+
+/* Chatbot Interactive Product Cards */
+.chat-products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  margin-bottom: 6px;
+}
+.chat-product-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px;
+  transition: all 0.2s ease;
+}
+.chat-product-item:hover {
+  border-color: #86efac;
+  background: #f0fdf4;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.1);
+}
+.chat-product-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid #e2e8f0;
+}
+.chat-product-info {
+  flex-grow: 1;
+  min-width: 0;
+}
+.chat-product-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+.chat-product-price {
+  font-size: 12px;
+  font-weight: 700;
+  color: #16a34a;
+}
+.chat-product-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.btn-chat-view-detail {
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.15s;
+}
+.btn-chat-view-detail:hover {
+  background: #16a34a;
+  color: #ffffff;
+  border-color: #16a34a;
+}
+.btn-chat-add-cart {
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+  background: #16a34a;
+  border: 1px solid #16a34a;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.15s;
+}
+.btn-chat-add-cart:hover {
+  background: #15803d;
+  transform: scale(1.04);
+}
+
+/* Chatbot Action Pill Buttons */
+.chat-action-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.chat-action-pill-btn {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #86efac;
+  color: #166534;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+.chat-action-pill-btn:hover {
+  background: #16a34a;
+  color: #ffffff;
+  border-color: #16a34a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(22, 163, 74, 0.2);
 }
 
 /* ==========================================================================

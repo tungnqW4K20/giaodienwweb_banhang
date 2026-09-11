@@ -867,51 +867,109 @@ function saveCart(cart) {
   }
 }
 
-// Thêm sản phẩm vào giỏ
+// Thêm sản phẩm vào giỏ hàng (Chỉ thêm vào giỏ, không tự ý tạo đơn hay thanh toán)
 function addToCart(productId, qty = 1, unit = null) {
   const cart = getCart();
   const product = getProductById(productId);
   if (!product) return false;
 
-  const existingItemIndex = cart.findIndex(item => item.id === productId);
+  const targetIdStr = String(productId).toLowerCase();
+  const existingItemIndex = cart.findIndex(item => String(item.id).toLowerCase() === targetIdStr || String(item.product_id).toLowerCase() === targetIdStr);
+  
   if (existingItemIndex > -1) {
     cart[existingItemIndex].qty += Number(qty);
   } else {
     cart.push({
-      id: productId,
+      id: String(productId),
+      product_id: parseInt(product.id) || parseInt(product.numeric_id) || 1,
+      name: product.name,
+      price: product.price,
       qty: Number(qty),
-      unit: unit || product.unit
+      unit: unit || product.unit,
+      image: (product.images && product.images[0]) || product.image || ''
     });
   }
 
   saveCart(cart);
+
+  // Nếu người dùng đã đăng nhập: Đồng bộ lưu vào database MySQL
+  const token = window.EcoFruitAPI ? window.EcoFruitAPI.getToken() : null;
+  const currentUser = getCurrentUser();
+  if (token && currentUser && window.EcoFruitAPI) {
+    const dbProductId = parseInt(product.id) || parseInt(product.numeric_id) || 1;
+    window.EcoFruitAPI.addToCart(dbProductId, Number(qty)).then(() => {
+      if (window.updateCartBadge) window.updateCartBadge();
+    }).catch(err => {
+      console.warn('[Cart Sync] Backend add warning:', err.message);
+    });
+  }
+
+  window.dispatchEvent(new CustomEvent('ecofruit:cart-updated', { detail: { productId, qty } }));
   return true;
 }
 
 // Cập nhật số lượng trong giỏ
 function updateCartQty(productId, qty) {
   let cart = getCart();
+  const targetIdStr = String(productId).toLowerCase();
+  const existingItem = cart.find(item => String(item.id).toLowerCase() === targetIdStr || String(item.product_id).toLowerCase() === targetIdStr);
+
   if (qty <= 0) {
-    cart = cart.filter(item => item.id !== productId);
-  } else {
-    const item = cart.find(item => item.id === productId);
-    if (item) {
-      item.qty = Number(qty);
-    }
+    cart = cart.filter(item => String(item.id).toLowerCase() !== targetIdStr && String(item.product_id).toLowerCase() !== targetIdStr);
+  } else if (existingItem) {
+    existingItem.qty = Number(qty);
   }
   saveCart(cart);
+
+  // Nếu đã đăng nhập: Đồng bộ lên database MySQL
+  const token = window.EcoFruitAPI ? window.EcoFruitAPI.getToken() : null;
+  if (token && window.EcoFruitAPI && existingItem && existingItem.cart_item_id) {
+    window.EcoFruitAPI.updateCartItem(existingItem.cart_item_id, qty).then(() => {
+      if (window.updateCartBadge) window.updateCartBadge();
+    }).catch(err => {
+      console.warn('[Cart Sync] Backend update quantity warning:', err.message);
+    });
+  }
+
+  window.dispatchEvent(new CustomEvent('ecofruit:cart-updated'));
 }
 
 // Xóa sản phẩm khỏi giỏ
 function removeFromCart(productId) {
   let cart = getCart();
-  cart = cart.filter(item => item.id !== productId);
+  const targetIdStr = String(productId).toLowerCase();
+  const existingItem = cart.find(item => String(item.id).toLowerCase() === targetIdStr || String(item.product_id).toLowerCase() === targetIdStr);
+
+  cart = cart.filter(item => String(item.id).toLowerCase() !== targetIdStr && String(item.product_id).toLowerCase() !== targetIdStr);
   saveCart(cart);
+
+  // Nếu đã đăng nhập: Xóa trên database MySQL
+  const token = window.EcoFruitAPI ? window.EcoFruitAPI.getToken() : null;
+  if (token && window.EcoFruitAPI && existingItem && existingItem.cart_item_id) {
+    window.EcoFruitAPI.removeCartItem(existingItem.cart_item_id).then(() => {
+      if (window.updateCartBadge) window.updateCartBadge();
+    }).catch(err => {
+      console.warn('[Cart Sync] Backend remove item warning:', err.message);
+    });
+  }
+
+  window.dispatchEvent(new CustomEvent('ecofruit:cart-updated'));
 }
 
 // Xóa trắng giỏ hàng
 function clearCart() {
   saveCart([]);
+
+  const token = window.EcoFruitAPI ? window.EcoFruitAPI.getToken() : null;
+  if (token && window.EcoFruitAPI) {
+    window.EcoFruitAPI.request('/cart/', { method: 'DELETE' }).then(() => {
+      if (window.updateCartBadge) window.updateCartBadge();
+    }).catch(err => {
+      console.warn('[Cart Sync] Backend clear cart warning:', err.message);
+    });
+  }
+
+  window.dispatchEvent(new CustomEvent('ecofruit:cart-updated'));
 }
 
 // Lấy thông tin user hiện tại

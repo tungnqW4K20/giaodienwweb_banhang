@@ -5,14 +5,21 @@
 
 let appliedVoucher = null;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   loadAppliedVoucher();
+  if (window.EcoFruitAPI && window.EcoFruitAPI.getToken()) {
+    await updateCartBadge();
+  }
   renderCartPage();
 });
 
-// Lắng nghe sự kiện đồng bộ dữ liệu từ Django API
+// Lắng nghe sự kiện đồng bộ dữ liệu từ Django API & cập nhật giỏ hàng
 window.addEventListener('ecofruit:data-synced', () => {
   console.log('[Cart] Cập nhật giỏ hàng từ API Backend');
+  renderCartPage();
+});
+
+window.addEventListener('ecofruit:cart-updated', () => {
   renderCartPage();
 });
 
@@ -58,36 +65,47 @@ function renderCartPage() {
   let subtotal = 0;
 
   cart.forEach(item => {
-    const product = getProductById(item.id);
-    if (!product) return;
+    const targetId = item.id || item.product_id;
+    const product = (typeof getProductById === 'function' ? getProductById(targetId) : null) || {
+      id: targetId,
+      name: item.name || 'Hoa quả sạch EcoFruit',
+      price: Number(item.price || 0),
+      images: [item.image || 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=600'],
+      cert: 'VietGAP',
+      origin: 'Việt Nam',
+      unit: item.unit || 'kg'
+    };
 
-    const itemTotal = product.price * item.qty;
+    const itemPrice = Number(product.price || item.price || 0);
+    const itemTotal = itemPrice * item.qty;
     subtotal += itemTotal;
+
+    const thumbImg = (product.images && product.images[0]) || product.image || item.image || 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=600';
 
     tableRowsHTML += `
       <tr>
         <td>
           <div class="d-flex align-items-center gap-3">
-            <img src="${product.images[0]}" alt="${product.name}" class="cart-product-thumb" loading="lazy">
+            <img src="${thumbImg}" alt="${product.name}" class="cart-product-thumb" loading="lazy">
             <div>
               <div class="cart-product-title">
                 <a href="product-detail.html?id=${product.id}">${product.name}</a>
               </div>
               <div class="d-flex align-items-center gap-2 flex-wrap mt-1">
                 <span class="badge bg-success-subtle text-success border border-success-subtle small px-2 py-1">
-                  <i class="fa-solid fa-shield-halved me-1"></i>${product.cert}
+                  <i class="fa-solid fa-shield-halved me-1"></i>${product.cert || 'VietGAP'}
                 </span>
-                <span class="small text-muted">Xuất xứ: ${product.origin}</span>
+                <span class="small text-muted">Xuất xứ: ${product.origin || 'Việt Nam'}</span>
               </div>
               <div class="small text-danger fw-bold d-md-none mt-2">
-                ${formatCurrency(product.price)} / ${item.unit || product.unit}
+                ${formatCurrency(itemPrice)} / ${item.unit || product.unit || 'kg'}
               </div>
             </div>
           </div>
         </td>
         <td>
-          <div class="cart-unit-price">${formatCurrency(product.price)}</div>
-          <small class="text-muted">/${item.unit || product.unit}</small>
+          <div class="cart-unit-price">${formatCurrency(itemPrice)}</div>
+          <small class="text-muted">/${item.unit || product.unit || 'kg'}</small>
         </td>
         <td>
           <div class="quantity-control">

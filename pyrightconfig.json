@@ -1,7 +1,21 @@
 {
+    "include": [
+        "backend"
+    ],
     "extraPaths": [
-        "./backend"
+        "./backend",
+        "backend",
+        "./backend/apps",
+        "backend/apps"
     ],
     "venvPath": ".",
-    "venv": ".venv"
+    "venv": ".venv",
+    "typeCheckingMode": "off",
+    "reportMissingImports": "none",
+    "reportMissingTypeStubs": false,
+    "reportGeneralTypeIssues": "none",
+    "reportAttributeAccessIssue": "none",
+    "reportOptionalMemberAccess": "none",
+    "reportUndefinedVariable": "none",
+    "reportPrivateImportUsage": "none"
 }

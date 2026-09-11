@@ -277,10 +277,13 @@ async function finalizeOrder(orderPayload) {
   // 1. Gửi request lưu vào Backend Django / MySQL
   try {
     if (window.EcoFruitAPI) {
-      const apiItems = (orderPayload.items || []).map(i => ({
-        product_id: parseInt(i.id) || 1,
-        quantity: parseInt(i.qty) || 1
-      }));
+      const apiItems = (orderPayload.items || []).map(i => {
+        const p = typeof getProductById === 'function' ? getProductById(i.id) : null;
+        return {
+          product_id: parseInt(p ? (p.id || p.numeric_id) : i.id) || 1,
+          quantity: parseInt(i.qty) || 1
+        };
+      });
 
       const dbPayload = {
         customer_name: orderPayload.customerName || 'Khách hàng',
@@ -288,7 +291,7 @@ async function finalizeOrder(orderPayload) {
         customer_email: orderPayload.customerEmail || '',
         delivery_address: orderPayload.shippingAddress || 'Hà Nội',
         delivery_note: orderPayload.note || '',
-        payment_method: orderPayload.paymentMethod?.includes('VNPay') ? 'VNPAY' : (orderPayload.paymentMethod?.includes('VietQR') ? 'BANKING' : 'COD'),
+        payment_method: orderPayload.paymentMethod?.includes('VNPay') ? 'VNPAY' : (orderPayload.paymentMethod?.includes('VietQR') ? 'BANKING' : (orderPayload.paymentMethod?.includes('Ví') ? 'WALLET' : 'COD')),
         voucher_code: orderPayload.voucherCode || '',
         items: apiItems
       };
@@ -300,13 +303,26 @@ async function finalizeOrder(orderPayload) {
       }
     }
   } catch (err) {
-    // Graceful offline fallback
+    console.warn('[Checkout] Backend sync warning:', err.message);
   }
 
   // 2. Lưu vào local storage để đồng bộ UI
   createOrder(orderPayload);
-  clearCart();
+
+  // 3. XÓA CHÍNH XÁC CÁC SẢN PHẨM VỪA ĐẶT MUA KHỎI GIỎ HÀNG
+  const purchasedIds = (orderPayload.items || []).map(i => String(i.id || i.product_id).toLowerCase());
+  let currentCart = getCart();
+  currentCart = currentCart.filter(item => {
+    const itemIdStr = String(item.id || item.product_id).toLowerCase();
+    return !purchasedIds.includes(itemIdStr);
+  });
+  saveCart(currentCart);
   localStorage.removeItem('gf_applied_voucher');
+
+  if (window.updateCartBadge) {
+    await window.updateCartBadge();
+  }
+  window.dispatchEvent(new CustomEvent('ecofruit:cart-updated'));
 
   showOrderSuccessReceipt(orderPayload);
 }

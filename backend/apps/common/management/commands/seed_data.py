@@ -1,9 +1,15 @@
 from datetime import timedelta
-from django.apps import apps
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.db.models import Avg, Count
 from django.utils import timezone
+
+from apps.authentication.models import User, UserAddress
+from apps.products.models import Category, Product, ProductImage
+from apps.vouchers.models import Voucher
+from apps.reviews.models import ProductReview
+from apps.cart.models import Cart, CartItem
+from apps.orders.models import Order, OrderItem, OrderStatusLog
 
 
 class Command(BaseCommand):
@@ -17,18 +23,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        # Resolve models dynamically via Django apps registry (100% linter warning-free & portable)
-        User = apps.get_model('authentication', 'User')
-        UserAddress = apps.get_model('authentication', 'UserAddress')
-        Category = apps.get_model('products', 'Category')
-        Product = apps.get_model('products', 'Product')
-        ProductImage = apps.get_model('products', 'ProductImage')
-        Voucher = apps.get_model('vouchers', 'Voucher')
-        ProductReview = apps.get_model('reviews', 'ProductReview')
-        Order = apps.get_model('orders', 'Order')
-        OrderItem = apps.get_model('orders', 'OrderItem')
-        OrderStatusLog = apps.get_model('orders', 'OrderStatusLog')
-
         clean_mode = options.get('clean', False)
         self.stdout.write(self.style.NOTICE(f"[INFO] Starting database seeding for EcoFruit (Clean mode: {clean_mode})..."))
 
@@ -36,6 +30,8 @@ class Command(BaseCommand):
         with transaction.atomic():
             if clean_mode:
                 self.stdout.write(self.style.WARNING("[RESET] Cleaning existing database tables..."))
+                CartItem.objects.all().delete()
+                Cart.objects.all().delete()
                 OrderStatusLog.objects.all().delete()
                 OrderItem.objects.all().delete()
                 Order.objects.all().delete()
@@ -1305,21 +1301,30 @@ class Command(BaseCommand):
             # =========================================================================
             # 6. SEED REALISTIC ORDERS COVERING ALL STATUSES & CHECKOUT TYPES
             # =========================================================================
-            user_an = user_objects.get('khachhang@gmail.com')
+            user_admin = user_objects.get('admin@ecofruit.vn')
+            user_staff = user_objects.get('staff@ecofruit.vn')
             user_long = user_objects.get('vip@ecofruit.vn')
+            user_an = user_objects.get('khachhang@gmail.com')
             user_lan = user_objects.get('lan.tran@gmail.com')
             user_xanh = user_objects.get('demo@greenfruit.vn')
 
             p_apple = Product.objects.filter(sku='AP-ENVY-NZ').first()
             p_muscat = Product.objects.filter(sku='GR-SHINE-JP').first()
             p_cherry = Product.objects.filter(sku='CH-RED-US9').first()
+            p_kiwi = Product.objects.filter(sku='KW-GOLD-NZ').first()
+            p_blueberry = Product.objects.filter(sku='BL-DRISCOLL-US').first()
             p_durian = Product.objects.filter(sku='DU-RI6-VN').first()
             p_avocado = Product.objects.filter(sku='AV-034-DL').first()
+            p_strawberry = Product.objects.filter(sku='ST-WHITE-DL').first()
+            p_orange = Product.objects.filter(sku='OR-SANH-VN').first()
+            p_mango = Product.objects.filter(sku='MA-HOALOC-TG').first()
+            p_pomelo = Product.objects.filter(sku='PM-DAXANH-BT').first()
             p_gift = Product.objects.filter(sku='GIFT-PHUQUY-VIP').first()
+            p_gift_gold = Product.objects.filter(sku='GIFT-SUCKHOE-GOLD').first()
             p_combo = Product.objects.filter(sku='CB-FAMILY-WEEK').first()
 
             orders_to_seed = [
-                # 1. Đang giao hàng (Member VNPay)
+                # --- NGUYỄN VĂN AN (khachhang@gmail.com) ---
                 {
                     'order_code': 'ECO-20260911-0001',
                     'user': user_an,
@@ -1351,9 +1356,72 @@ class Command(BaseCommand):
                         (Order.OrderStatus.PROCESSING, Order.OrderStatus.SHIPPING, "Đang giao hàng hỏa tốc bởi EcoFruit Express", "STAFF")
                     ]
                 },
-                # 2. Hoàn thành (VIP Quà tặng Banking VietQR)
                 {
-                    'order_code': 'ECO-20260911-0002',
+                    'order_code': 'ECO-20260910-0002',
+                    'user': user_an,
+                    'is_guest': False,
+                    'customer_name': 'Nguyễn Văn An',
+                    'customer_phone': '0988776655',
+                    'customer_email': 'khachhang@gmail.com',
+                    'delivery_address': 'Số 15 ngõ 120 Hoàng Quốc Việt',
+                    'delivery_city': 'Hà Nội',
+                    'delivery_district': 'Cầu Giấy',
+                    'delivery_ward': 'Nghĩa Đô',
+                    'delivery_note': 'Giao sau 18h tối tại nhà riêng',
+                    'payment_method': Order.PaymentMethod.COD,
+                    'payment_status': Order.PaymentStatus.PAID,
+                    'order_status': Order.OrderStatus.COMPLETED,
+                    'voucher': voucher_map.get('CHAOBAN'),
+                    'voucher_code': 'CHAOBAN',
+                    'discount_amount': 15000,
+                    'shipping_fee': 20000,
+                    'loyalty_points_earned': 28,
+                    'loyalty_points_used': 0,
+                    'items': [
+                        {'product': p_strawberry, 'quantity': 2},
+                        {'product': p_orange, 'quantity': 3}
+                    ],
+                    'timeline': [
+                        (None, Order.OrderStatus.PENDING, "Đơn hàng COD khởi tạo thành công", "CUSTOMER"),
+                        (Order.OrderStatus.PENDING, Order.OrderStatus.PROCESSING, "EcoFruit đã liên hệ xác nhận đơn", "STAFF"),
+                        (Order.OrderStatus.PROCESSING, Order.OrderStatus.SHIPPING, "Shipper giao đến Nghĩa Đô", "STAFF"),
+                        (Order.OrderStatus.SHIPPING, Order.OrderStatus.COMPLETED, "Khách hàng đã nhận hàng và thanh toán COD thành công", "STAFF")
+                    ]
+                },
+                {
+                    'order_code': 'ECO-20260908-0003',
+                    'user': user_an,
+                    'is_guest': False,
+                    'customer_name': 'Nguyễn Văn An',
+                    'customer_phone': '0988776655',
+                    'customer_email': 'khachhang@gmail.com',
+                    'delivery_address': 'Tầng 8, Tòa nhà Keangnam Landmark 72',
+                    'delivery_city': 'Hà Nội',
+                    'delivery_district': 'Nam Từ Liêm',
+                    'delivery_ward': 'Mễ Trì',
+                    'delivery_note': 'Giao lên tầng 8',
+                    'payment_method': Order.PaymentMethod.BANKING,
+                    'payment_status': Order.PaymentStatus.PAID,
+                    'order_status': Order.OrderStatus.PROCESSING,
+                    'voucher': voucher_map.get('FREESHIP'),
+                    'voucher_code': 'FREESHIP',
+                    'discount_amount': 20000,
+                    'shipping_fee': 20000,
+                    'loyalty_points_earned': 45,
+                    'loyalty_points_used': 0,
+                    'items': [
+                        {'product': p_durian, 'quantity': 1},
+                        {'product': p_mango, 'quantity': 2}
+                    ],
+                    'timeline': [
+                        (None, Order.OrderStatus.PENDING, "Đã chuyển khoản VietQR thành công", "CUSTOMER"),
+                        (Order.OrderStatus.PENDING, Order.OrderStatus.PROCESSING, "Kế toán đã duyệt tiền, kho đang soạn hàng tươi", "STAFF")
+                    ]
+                },
+
+                # --- PHẠM HOÀNG LONG (vip@ecofruit.vn) ---
+                {
+                    'order_code': 'ECO-20260911-0004',
                     'user': user_long,
                     'is_guest': False,
                     'customer_name': 'Phạm Hoàng Long',
@@ -1384,9 +1452,100 @@ class Command(BaseCommand):
                         (Order.OrderStatus.SHIPPING, Order.OrderStatus.COMPLETED, "Khách hàng đã nhận và đánh giá 5 sao", "STAFF")
                     ]
                 },
-                # 3. Đang xử lý đóng gói (Member COD)
                 {
-                    'order_code': 'ECO-20260911-0003',
+                    'order_code': 'ECO-20260909-0005',
+                    'user': user_long,
+                    'is_guest': False,
+                    'customer_name': 'Phạm Hoàng Long',
+                    'customer_phone': '0933889977',
+                    'customer_email': 'vip@ecofruit.vn',
+                    'delivery_address': 'Biệt thự B6-12 Vinhomes Riverside, Long Biên',
+                    'delivery_city': 'Hà Nội',
+                    'delivery_district': 'Long Biên',
+                    'delivery_ward': 'Phúc Đồng',
+                    'delivery_note': 'Bảo quản thùng lạnh chuyên dụng',
+                    'payment_method': Order.PaymentMethod.WALLET,
+                    'payment_status': Order.PaymentStatus.PAID,
+                    'order_status': Order.OrderStatus.COMPLETED,
+                    'voucher': voucher_map.get('FREESHIP'),
+                    'voucher_code': 'FREESHIP',
+                    'discount_amount': 20000,
+                    'shipping_fee': 0,
+                    'loyalty_points_earned': 180,
+                    'loyalty_points_used': 0,
+                    'items': [
+                        {'product': p_cherry, 'quantity': 3},
+                        {'product': p_muscat, 'quantity': 2}
+                    ],
+                    'timeline': [
+                        (None, Order.OrderStatus.PENDING, "Thanh toán ví EcoPay thành công 2.040.000đ", "CUSTOMER"),
+                        (Order.OrderStatus.PENDING, Order.OrderStatus.PROCESSING, "Kho đóng gói thùng xốp giữ lạnh 0 độ C", "STAFF"),
+                        (Order.OrderStatus.PROCESSING, Order.OrderStatus.SHIPPING, "Đang giao hàng xe lạnh chuyên dụng", "STAFF"),
+                        (Order.OrderStatus.SHIPPING, Order.OrderStatus.COMPLETED, "Giao hoàn tất, trái cây tươi nguyên phấn", "STAFF")
+                    ]
+                },
+                {
+                    'order_code': 'ECO-20260907-0006',
+                    'user': user_long,
+                    'is_guest': False,
+                    'customer_name': 'Phạm Hoàng Long',
+                    'customer_phone': '0933889977',
+                    'customer_email': 'vip@ecofruit.vn',
+                    'delivery_address': 'Biệt thự B6-12 Vinhomes Riverside, Long Biên',
+                    'delivery_city': 'Hà Nội',
+                    'delivery_district': 'Long Biên',
+                    'delivery_ward': 'Phúc Đồng',
+                    'delivery_note': 'Gói quà tặng đối tác nước ngoài',
+                    'payment_method': Order.PaymentMethod.BANKING,
+                    'payment_status': Order.PaymentStatus.PAID,
+                    'order_status': Order.OrderStatus.SHIPPING,
+                    'voucher': voucher_map.get('VIP20'),
+                    'voucher_code': 'VIP20',
+                    'discount_amount': 100000,
+                    'shipping_fee': 0,
+                    'loyalty_points_earned': 85,
+                    'loyalty_points_used': 0,
+                    'items': [
+                        {'product': p_gift_gold, 'quantity': 1}
+                    ],
+                    'timeline': [
+                        (None, Order.OrderStatus.PENDING, "Khách hàng VIP đặt giỏ quà cao cấp", "CUSTOMER"),
+                        (Order.OrderStatus.PENDING, Order.OrderStatus.PROCESSING, "Nghệ nhân kết giỏ hoa quả nghệ thuật", "STAFF"),
+                        (Order.OrderStatus.PROCESSING, Order.OrderStatus.SHIPPING, "Đang giao vận chuyển hỏa tốc", "STAFF")
+                    ]
+                },
+                {
+                    'order_code': 'ECO-20260911-0007',
+                    'user': user_long,
+                    'is_guest': False,
+                    'customer_name': 'Phạm Hoàng Long',
+                    'customer_phone': '0933889977',
+                    'customer_email': 'vip@ecofruit.vn',
+                    'delivery_address': 'Biệt thự B6-12 Vinhomes Riverside, Long Biên',
+                    'delivery_city': 'Hà Nội',
+                    'delivery_district': 'Long Biên',
+                    'delivery_ward': 'Phúc Đồng',
+                    'delivery_note': 'Giao sớm trước 10h sáng',
+                    'payment_method': Order.PaymentMethod.COD,
+                    'payment_status': Order.PaymentStatus.PENDING,
+                    'order_status': Order.OrderStatus.PENDING,
+                    'voucher': voucher_map.get('HEALTHY'),
+                    'voucher_code': 'HEALTHY',
+                    'discount_amount': 30000,
+                    'shipping_fee': 0,
+                    'loyalty_points_earned': 45,
+                    'loyalty_points_used': 0,
+                    'items': [
+                        {'product': p_combo, 'quantity': 1}
+                    ],
+                    'timeline': [
+                        (None, Order.OrderStatus.PENDING, "Đơn hàng mới tạo, đang chờ kho chuẩn bị", "CUSTOMER")
+                    ]
+                },
+
+                # --- TRẦN MAI LAN (lan.tran@gmail.com) ---
+                {
+                    'order_code': 'ECO-20260911-0008',
                     'user': user_lan,
                     'is_guest': False,
                     'customer_name': 'Trần Mai Lan',
@@ -1414,39 +1573,74 @@ class Command(BaseCommand):
                         (Order.OrderStatus.PENDING, Order.OrderStatus.PROCESSING, "EcoFruit đã xác nhận qua điện thoại và đang soạn hàng", "STAFF")
                     ]
                 },
-                # 4. Mua không cần đăng nhập (Khách vãng lai Guest Checkout COD)
                 {
-                    'order_code': 'ECO-20260911-0004',
-                    'user': None,
-                    'is_guest': True,
-                    'customer_name': 'Lê Văn Khách (Khách vãng lai)',
-                    'customer_phone': '0918882233',
-                    'customer_email': 'khachvanglai@gmail.com',
-                    'delivery_address': 'Số 99 Nguyễn Chí Thanh, Láng Thượng',
+                    'order_code': 'ECO-20260906-0009',
+                    'user': user_lan,
+                    'is_guest': False,
+                    'customer_name': 'Trần Mai Lan',
+                    'customer_phone': '0977112233',
+                    'customer_email': 'lan.tran@gmail.com',
+                    'delivery_address': 'Căn hộ 12A-04 Chung cư Imperia Sky Garden, 423 Minh Khai',
                     'delivery_city': 'Hà Nội',
-                    'delivery_district': 'Đống Đa',
-                    'delivery_ward': 'Láng Thượng',
-                    'delivery_note': 'Giao trong buổi sáng, gọi trước 10 phút',
-                    'payment_method': Order.PaymentMethod.COD,
-                    'payment_status': Order.PaymentStatus.PENDING,
-                    'order_status': Order.OrderStatus.PENDING,
-                    'voucher': voucher_map.get('CHAOBAN'),
-                    'voucher_code': 'CHAOBAN',
-                    'discount_amount': 15000,
-                    'shipping_fee': 20000,
-                    'loyalty_points_earned': 0,
+                    'delivery_district': 'Hai Bà Trưng',
+                    'delivery_ward': 'Vĩnh Tuy',
+                    'delivery_note': 'Hoa quả hữu cơ cho mẹ bầu',
+                    'payment_method': Order.PaymentMethod.VNPAY,
+                    'payment_status': Order.PaymentStatus.PAID,
+                    'order_status': Order.OrderStatus.COMPLETED,
+                    'voucher': voucher_map.get('ORGANIC15'),
+                    'voucher_code': 'ORGANIC15',
+                    'discount_amount': 50000,
+                    'shipping_fee': 0,
+                    'loyalty_points_earned': 65,
                     'loyalty_points_used': 0,
                     'items': [
-                        {'product': p_durian, 'quantity': 1},
-                        {'product': p_apple, 'quantity': 1}
+                        {'product': p_kiwi, 'quantity': 4},
+                        {'product': p_blueberry, 'quantity': 3}
                     ],
                     'timeline': [
-                        (None, Order.OrderStatus.PENDING, "Khách vãng lai đặt hàng thành công qua Web", "CUSTOMER")
+                        (None, Order.OrderStatus.PENDING, "Đã thanh toán VNPay thành công", "CUSTOMER"),
+                        (Order.OrderStatus.PENDING, Order.OrderStatus.PROCESSING, "Soạn hoa quả hữu cơ sạch tươi", "STAFF"),
+                        (Order.OrderStatus.PROCESSING, Order.OrderStatus.SHIPPING, "Shipper mang lên tận phòng 12A-04", "STAFF"),
+                        (Order.OrderStatus.SHIPPING, Order.OrderStatus.COMPLETED, "Khách nhận hàng thành công, rất hài lòng", "STAFF")
                     ]
                 },
-                # 5. Thanh toán qua ví EcoPay (Demo Frontend)
                 {
-                    'order_code': 'ECO-20260911-0005',
+                    'order_code': 'ECO-20260902-0010',
+                    'user': user_lan,
+                    'is_guest': False,
+                    'customer_name': 'Trần Mai Lan',
+                    'customer_phone': '0977112233',
+                    'customer_email': 'lan.tran@gmail.com',
+                    'delivery_address': 'Căn hộ 12A-04 Chung cư Imperia Sky Garden, 423 Minh Khai',
+                    'delivery_city': 'Hà Nội',
+                    'delivery_district': 'Hai Bà Trưng',
+                    'delivery_ward': 'Vĩnh Tuy',
+                    'delivery_note': 'Dâu tây tươi mọng',
+                    'payment_method': Order.PaymentMethod.BANKING,
+                    'payment_status': Order.PaymentStatus.PAID,
+                    'order_status': Order.OrderStatus.COMPLETED,
+                    'voucher': voucher_map.get('ECO10'),
+                    'voucher_code': 'ECO10',
+                    'discount_amount': 20000,
+                    'shipping_fee': 0,
+                    'loyalty_points_earned': 55,
+                    'loyalty_points_used': 0,
+                    'items': [
+                        {'product': p_strawberry, 'quantity': 3},
+                        {'product': p_apple, 'quantity': 2}
+                    ],
+                    'timeline': [
+                        (None, Order.OrderStatus.PENDING, "Đã chuyển khoản thành công", "CUSTOMER"),
+                        (Order.OrderStatus.PENDING, Order.OrderStatus.PROCESSING, "Đóng hộp chống dập cẩn thận", "STAFF"),
+                        (Order.OrderStatus.PROCESSING, Order.OrderStatus.SHIPPING, "Đang giao hàng", "STAFF"),
+                        (Order.OrderStatus.SHIPPING, Order.OrderStatus.COMPLETED, "Hoàn tất đơn hàng", "STAFF")
+                    ]
+                },
+
+                # --- NGUYỄN VĂN XANH (demo@greenfruit.vn) ---
+                {
+                    'order_code': 'ECO-20260911-0011',
                     'user': user_xanh,
                     'is_guest': False,
                     'customer_name': 'Nguyễn Văn Xanh',
@@ -1475,6 +1669,226 @@ class Command(BaseCommand):
                         (Order.OrderStatus.PENDING, Order.OrderStatus.PROCESSING, "Chi nhánh TP.HCM đã nhận đơn", "STAFF"),
                         (Order.OrderStatus.PROCESSING, Order.OrderStatus.SHIPPING, "Shipper giao hàng", "STAFF"),
                         (Order.OrderStatus.SHIPPING, Order.OrderStatus.COMPLETED, "Đã giao hàng thành công", "STAFF")
+                    ]
+                },
+                {
+                    'order_code': 'ECO-20260910-0012',
+                    'user': user_xanh,
+                    'is_guest': False,
+                    'customer_name': 'Nguyễn Văn Xanh',
+                    'customer_phone': '0909123456',
+                    'customer_email': 'demo@greenfruit.vn',
+                    'delivery_address': '72 Lê Thánh Tôn, Phường Bến Nghé, Quận 1',
+                    'delivery_city': 'TP. Hồ Chí Minh',
+                    'delivery_district': 'Quận 1',
+                    'delivery_ward': 'Bến Nghé',
+                    'delivery_note': 'Gọi trước khi tới',
+                    'payment_method': Order.PaymentMethod.VNPAY,
+                    'payment_status': Order.PaymentStatus.PAID,
+                    'order_status': Order.OrderStatus.SHIPPING,
+                    'voucher': voucher_map.get('ECO10'),
+                    'voucher_code': 'ECO10',
+                    'discount_amount': 50000,
+                    'shipping_fee': 0,
+                    'loyalty_points_earned': 70,
+                    'loyalty_points_used': 0,
+                    'items': [
+                        {'product': p_durian, 'quantity': 1},
+                        {'product': p_muscat, 'quantity': 1}
+                    ],
+                    'timeline': [
+                        (None, Order.OrderStatus.PENDING, "Thanh toán VNPay thành công", "CUSTOMER"),
+                        (Order.OrderStatus.PENDING, Order.OrderStatus.PROCESSING, "Kho chuẩn bị sầu riêng và nho", "STAFF"),
+                        (Order.OrderStatus.PROCESSING, Order.OrderStatus.SHIPPING, "Đang trên đường giao", "STAFF")
+                    ]
+                },
+                {
+                    'order_code': 'ECO-20260909-0013',
+                    'user': user_xanh,
+                    'is_guest': False,
+                    'customer_name': 'Nguyễn Văn Xanh',
+                    'customer_phone': '0909123456',
+                    'customer_email': 'demo@greenfruit.vn',
+                    'delivery_address': '72 Lê Thánh Tôn, Phường Bến Nghé, Quận 1',
+                    'delivery_city': 'TP. Hồ Chí Minh',
+                    'delivery_district': 'Quận 1',
+                    'delivery_ward': 'Bến Nghé',
+                    'delivery_note': 'Cam tươi vắt nước',
+                    'payment_method': Order.PaymentMethod.COD,
+                    'payment_status': Order.PaymentStatus.PENDING,
+                    'order_status': Order.OrderStatus.PENDING,
+                    'voucher': voucher_map.get('CHAOBAN'),
+                    'voucher_code': 'CHAOBAN',
+                    'discount_amount': 15000,
+                    'shipping_fee': 20000,
+                    'loyalty_points_earned': 20,
+                    'loyalty_points_used': 0,
+                    'items': [
+                        {'product': p_orange, 'quantity': 5}
+                    ],
+                    'timeline': [
+                        (None, Order.OrderStatus.PENDING, "Đơn hàng COD chờ xác nhận", "CUSTOMER")
+                    ]
+                },
+
+                # --- QUẢN TRỊ VIÊN (admin@ecofruit.vn) ---
+                {
+                    'order_code': 'ECO-20260901-0014',
+                    'user': user_admin,
+                    'is_guest': False,
+                    'customer_name': 'Quản Trị Viên EcoFruit (Admin)',
+                    'customer_phone': '0901234567',
+                    'customer_email': 'admin@ecofruit.vn',
+                    'delivery_address': '72 Lê Thánh Tôn, Phường Bến Nghé, Quận 1',
+                    'delivery_city': 'TP. Hồ Chí Minh',
+                    'delivery_district': 'Quận 1',
+                    'delivery_ward': 'Bến Nghé',
+                    'delivery_note': 'Hộp quà tiếp khách đối tác công ty',
+                    'payment_method': Order.PaymentMethod.BANKING,
+                    'payment_status': Order.PaymentStatus.PAID,
+                    'order_status': Order.OrderStatus.COMPLETED,
+                    'voucher': voucher_map.get('VIP20'),
+                    'voucher_code': 'VIP20',
+                    'discount_amount': 100000,
+                    'shipping_fee': 0,
+                    'loyalty_points_earned': 240,
+                    'loyalty_points_used': 0,
+                    'items': [
+                        {'product': p_gift, 'quantity': 2}
+                    ],
+                    'timeline': [
+                        (None, Order.OrderStatus.PENDING, "Đơn hàng tạo thành công", "CUSTOMER"),
+                        (Order.OrderStatus.PENDING, Order.OrderStatus.PROCESSING, "Chuẩn bị set quà VIP công ty", "STAFF"),
+                        (Order.OrderStatus.PROCESSING, Order.OrderStatus.SHIPPING, "Vận chuyển đến văn phòng HQ", "STAFF"),
+                        (Order.OrderStatus.SHIPPING, Order.OrderStatus.COMPLETED, "Hoàn thành giao nhận", "STAFF")
+                    ]
+                },
+                {
+                    'order_code': 'ECO-20260906-0015',
+                    'user': user_admin,
+                    'is_guest': False,
+                    'customer_name': 'Quản Trị Viên EcoFruit (Admin)',
+                    'customer_phone': '0901234567',
+                    'customer_email': 'admin@ecofruit.vn',
+                    'delivery_address': '72 Lê Thánh Tôn, Phường Bến Nghé, Quận 1',
+                    'delivery_city': 'TP. Hồ Chí Minh',
+                    'delivery_district': 'Quận 1',
+                    'delivery_ward': 'Bến Nghé',
+                    'delivery_note': 'Hoa quả cho sự kiện Tea-break công ty',
+                    'payment_method': Order.PaymentMethod.WALLET,
+                    'payment_status': Order.PaymentStatus.PAID,
+                    'order_status': Order.OrderStatus.SHIPPING,
+                    'voucher': voucher_map.get('ECO10'),
+                    'voucher_code': 'ECO10',
+                    'discount_amount': 50000,
+                    'shipping_fee': 0,
+                    'loyalty_points_earned': 120,
+                    'loyalty_points_used': 0,
+                    'items': [
+                        {'product': p_apple, 'quantity': 5},
+                        {'product': p_kiwi, 'quantity': 5}
+                    ],
+                    'timeline': [
+                        (None, Order.OrderStatus.PENDING, "Đã trừ ví EcoPay công ty", "CUSTOMER"),
+                        (Order.OrderStatus.PENDING, Order.OrderStatus.PROCESSING, "Soạn trái cây tươi số lượng lớn", "STAFF"),
+                        (Order.OrderStatus.PROCESSING, Order.OrderStatus.SHIPPING, "Đang chuyển đến tầng 15", "STAFF")
+                    ]
+                },
+
+                # --- NHÂN VIÊN (staff@ecofruit.vn) ---
+                {
+                    'order_code': 'ECO-20260903-0016',
+                    'user': user_staff,
+                    'is_guest': False,
+                    'customer_name': 'Trần Thu Hà',
+                    'customer_phone': '0912345678',
+                    'customer_email': 'staff@ecofruit.vn',
+                    'delivery_address': '180 Trần Duy Hưng, Phường Trung Hòa, Cầu Giấy',
+                    'delivery_city': 'Hà Nội',
+                    'delivery_district': 'Cầu Giấy',
+                    'delivery_ward': 'Trung Hòa',
+                    'delivery_note': 'Giao trong giờ trưa',
+                    'payment_method': Order.PaymentMethod.COD,
+                    'payment_status': Order.PaymentStatus.PAID,
+                    'order_status': Order.OrderStatus.COMPLETED,
+                    'voucher': voucher_map.get('FREESHIP'),
+                    'voucher_code': 'FREESHIP',
+                    'discount_amount': 20000,
+                    'shipping_fee': 0,
+                    'loyalty_points_earned': 30,
+                    'loyalty_points_used': 0,
+                    'items': [
+                        {'product': p_pomelo, 'quantity': 2},
+                        {'product': p_mango, 'quantity': 3}
+                    ],
+                    'timeline': [
+                        (None, Order.OrderStatus.PENDING, "Khởi tạo đơn hàng nhân viên", "CUSTOMER"),
+                        (Order.OrderStatus.PENDING, Order.OrderStatus.PROCESSING, "Soạn bưởi và xoài", "STAFF"),
+                        (Order.OrderStatus.PROCESSING, Order.OrderStatus.SHIPPING, "Giao hàng nội bộ", "STAFF"),
+                        (Order.OrderStatus.SHIPPING, Order.OrderStatus.COMPLETED, "Hoàn tất nhận hàng", "STAFF")
+                    ]
+                },
+
+                # --- KHÁCH VÃNG LAI (Guest Checkout) ---
+                {
+                    'order_code': 'ECO-20260911-0017',
+                    'user': None,
+                    'is_guest': True,
+                    'customer_name': 'Lê Văn Khách (Khách vãng lai)',
+                    'customer_phone': '0918882233',
+                    'customer_email': 'khachvanglai@gmail.com',
+                    'delivery_address': 'Số 99 Nguyễn Chí Thanh, Láng Thượng',
+                    'delivery_city': 'Hà Nội',
+                    'delivery_district': 'Đống Đa',
+                    'delivery_ward': 'Láng Thượng',
+                    'delivery_note': 'Giao trong buổi sáng, gọi trước 10 phút',
+                    'payment_method': Order.PaymentMethod.COD,
+                    'payment_status': Order.PaymentStatus.PENDING,
+                    'order_status': Order.OrderStatus.PENDING,
+                    'voucher': voucher_map.get('CHAOBAN'),
+                    'voucher_code': 'CHAOBAN',
+                    'discount_amount': 15000,
+                    'shipping_fee': 20000,
+                    'loyalty_points_earned': 0,
+                    'loyalty_points_used': 0,
+                    'items': [
+                        {'product': p_durian, 'quantity': 1},
+                        {'product': p_apple, 'quantity': 1}
+                    ],
+                    'timeline': [
+                        (None, Order.OrderStatus.PENDING, "Khách vãng lai đặt hàng thành công qua Web", "CUSTOMER")
+                    ]
+                },
+                {
+                    'order_code': 'ECO-20260910-0018',
+                    'user': None,
+                    'is_guest': True,
+                    'customer_name': 'Hoàng Minh Tuấn',
+                    'customer_phone': '0966554433',
+                    'customer_email': 'tuan.hm@outlook.com',
+                    'delivery_address': 'Tòa Landmark 81, 720A Điện Biên Phủ, Phường 22, Bình Thạnh',
+                    'delivery_city': 'TP. Hồ Chí Minh',
+                    'delivery_district': 'Bình Thạnh',
+                    'delivery_ward': 'Phường 22',
+                    'delivery_note': 'Giao sảnh lễ tân',
+                    'payment_method': Order.PaymentMethod.VNPAY,
+                    'payment_status': Order.PaymentStatus.PAID,
+                    'order_status': Order.OrderStatus.COMPLETED,
+                    'voucher': voucher_map.get('FREESHIP'),
+                    'voucher_code': 'FREESHIP',
+                    'discount_amount': 20000,
+                    'shipping_fee': 0,
+                    'loyalty_points_earned': 0,
+                    'loyalty_points_used': 0,
+                    'items': [
+                        {'product': p_strawberry, 'quantity': 2},
+                        {'product': p_kiwi, 'quantity': 2}
+                    ],
+                    'timeline': [
+                        (None, Order.OrderStatus.PENDING, "Khách vãng lai thanh toán VNPay thành công", "CUSTOMER"),
+                        (Order.OrderStatus.PENDING, Order.OrderStatus.PROCESSING, "Chi nhánh đóng hộp bảo ôn", "STAFF"),
+                        (Order.OrderStatus.PROCESSING, Order.OrderStatus.SHIPPING, "Shipper giao đến Landmark 81", "STAFF"),
+                        (Order.OrderStatus.SHIPPING, Order.OrderStatus.COMPLETED, "Khách nhận hàng thành công", "STAFF")
                     ]
                 }
             ]
@@ -1536,12 +1950,290 @@ class Command(BaseCommand):
 
                 seeded_orders_count += 1
 
-            self.stdout.write(self.style.SUCCESS(f"[OK] {seeded_orders_count} Multi-Status Orders seeded with Complete Timeline Logs."))
+            self.stdout.write(self.style.SUCCESS(f"[OK] {seeded_orders_count} Multi-Status Orders seeded across All User Accounts."))
+
+            # =========================================================================
+            # 7. SEED RICH DATABASE CARTS & CART ITEMS FOR ALL TEST USERS
+            # =========================================================================
+            user_carts_data = [
+                {
+                    'user': user_admin,
+                    'items': [
+                        {'product': p_durian, 'quantity': 1},
+                        {'product': p_apple, 'quantity': 2},
+                        {'product': p_muscat, 'quantity': 1}
+                    ]
+                },
+                {
+                    'user': user_long,
+                    'items': [
+                        {'product': p_cherry, 'quantity': 2},
+                        {'product': p_muscat, 'quantity': 2},
+                        {'product': p_gift, 'quantity': 1}
+                    ]
+                },
+                {
+                    'user': user_an,
+                    'items': [
+                        {'product': p_avocado, 'quantity': 2},
+                        {'product': p_strawberry, 'quantity': 3},
+                        {'product': p_orange, 'quantity': 2}
+                    ]
+                },
+                {
+                    'user': user_lan,
+                    'items': [
+                        {'product': p_strawberry, 'quantity': 2},
+                        {'product': p_kiwi, 'quantity': 3},
+                        {'product': p_blueberry, 'quantity': 2},
+                        {'product': p_apple, 'quantity': 2}
+                    ]
+                },
+                {
+                    'user': user_staff,
+                    'items': [
+                        {'product': p_mango, 'quantity': 2},
+                        {'product': p_pomelo, 'quantity': 1}
+                    ]
+                },
+                {
+                    'user': user_xanh,
+                    'items': [
+                        {'product': p_durian, 'quantity': 1},
+                        {'product': p_orange, 'quantity': 2},
+                        {'product': p_cherry, 'quantity': 1}
+                    ]
+                }
+            ]
+
+            seeded_carts_count = 0
+            seeded_cart_items_count = 0
+            for c_data in user_carts_data:
+                usr = c_data['user']
+                if not usr:
+                    continue
+                cart_obj, _ = Cart.objects.get_or_create(user=usr)
+                CartItem.objects.filter(cart=cart_obj).delete()
+
+                for it in c_data['items']:
+                    prod = it['product']
+                    qty = it['quantity']
+                    if prod:
+                        CartItem.objects.create(
+                            cart=cart_obj,
+                            product=prod,
+                            quantity=qty,
+                            unit_price=prod.price
+                        )
+                        seeded_cart_items_count += 1
+                seeded_carts_count += 1
+
+            self.stdout.write(self.style.SUCCESS(f"[OK] {seeded_carts_count} User Carts seeded with {seeded_cart_items_count} distinct Cart Items."))
+
+            # =========================================================================
+            # 8. SEED RICH REALISTIC PRODUCT REVIEWS (VERIFIED PURCHASES ONLY)
+            # =========================================================================
+            reviews_data = [
+                # Táo Envy New Zealand
+                {
+                    'product': p_apple,
+                    'user': user_lan,
+                    'rating': 5,
+                    'comment': 'Táo Envy New Zealand giòn tan, ngọt đậm tự nhiên và thơm nức. Cắt ra để lâu không bị thâm chút nào, bé nhà mình rất mê ăn!',
+                    'likes': 28
+                },
+                {
+                    'product': p_apple,
+                    'user': user_long,
+                    'rating': 5,
+                    'comment': 'Size L to đều, cuống tươi xanh. Đóng hộp carton cứng cáp lót mút cẩn thận, 10/10 điểm cho chất lượng giao hàng!',
+                    'likes': 15
+                },
+                {
+                    'product': p_apple,
+                    'user': user_an,
+                    'rating': 4,
+                    'comment': 'Táo ăn rất giòn ngọt, lượng calo thấp hợp cho chế độ eat clean giảm cân của mình.',
+                    'likes': 9
+                },
+
+                # Nho Mẫu Đơn Shine Muscat
+                {
+                    'product': p_muscat,
+                    'user': user_long,
+                    'rating': 5,
+                    'comment': 'Nho mẫu đơn chuẩn Okayama Nhật Bản, chùm to đều, trái đanh giòn sần sật, cắn vào ngập miệng thơm mùi hoa hồng xạ hương cực kỳ quý phái. Mua làm quà biếu đối tác ai cũng khen!',
+                    'likes': 42
+                },
+                {
+                    'product': p_muscat,
+                    'user': user_lan,
+                    'rating': 5,
+                    'comment': 'Vỏ siêu mỏng ăn liền không cần bóc, không có hạt nào. Vị ngọt thanh tao sang trọng.',
+                    'likes': 19
+                },
+
+                # Cherry Đỏ Mỹ
+                {
+                    'product': p_cherry,
+                    'user': user_long,
+                    'rating': 5,
+                    'comment': 'Cherry đỏ Mỹ Size 9.0 trái to đanh, cuống xanh mướt, cắn vào giòn rụm tanh tách mọng nước! Giao hỏa tốc 2h thùng xốp mát lạnh.',
+                    'likes': 36
+                },
+                {
+                    'product': p_cherry,
+                    'user': user_xanh,
+                    'rating': 5,
+                    'comment': 'Chất lượng xuất sắc, không hề có quả nào bị nứt hay dập. Đáng đồng tiền bát gạo!',
+                    'likes': 14
+                },
+
+                # Bơ Sáp 034 Đắk Lắk
+                {
+                    'product': p_avocado,
+                    'user': user_lan,
+                    'rating': 5,
+                    'comment': 'Bơ 034 dẻo quánh, cơm vàng ươm béo ngậy như phô mai, hạt bé xíu. Mình đang mang bầu ăn bơ này bổ sung axit folic mỗi ngày cực tốt.',
+                    'likes': 31
+                },
+                {
+                    'product': p_avocado,
+                    'user': user_an,
+                    'rating': 5,
+                    'comment': 'Bơ chín tự nhiên đều quả, không bị xơ đen hay đắng ở đầu cuống. Rất ưng ý!',
+                    'likes': 16
+                },
+
+                # Bưởi Da Xanh Bến Tre
+                {
+                    'product': p_pomelo,
+                    'user': user_an,
+                    'rating': 5,
+                    'comment': 'Bưởi da xanh vỏ mỏng dính dễ bóc, tép hồng căng mọng nước nhưng ráo tay, ngọt đậm không hề bị the đắng. Người tiểu đường ăn rất yên tâm.',
+                    'likes': 25
+                },
+                {
+                    'product': p_pomelo,
+                    'user': user_staff,
+                    'rating': 5,
+                    'comment': 'Múi tróc đều, vị ngọt thanh mát giải nhiệt cực tốt. Đóng gói cẩn thận từng quả.',
+                    'likes': 12
+                },
+
+                # Sầu Riêng Ri6 Chín Cây
+                {
+                    'product': p_durian,
+                    'user': user_xanh,
+                    'rating': 5,
+                    'comment': 'Sầu riêng chín cây tự nhiên thơm nức mũi cả nhà, khui ra 5 hộc đầy đặn, cơm vàng hạt lép dẻo quánh béo ngậy. Chính sách bao ăn 1 đổi 1 rất uy tín!',
+                    'likes': 45
+                },
+                {
+                    'product': p_durian,
+                    'user': user_admin,
+                    'rating': 5,
+                    'comment': 'Cơm sầu dày cộm, béo đậm đà chuẩn Ri6 Chợ Lách. Giao hàng chuẩn giờ.',
+                    'likes': 20
+                },
+
+                # Dâu Tây Mộc Châu
+                {
+                    'product': p_strawberry,
+                    'user': user_lan,
+                    'rating': 5,
+                    'comment': 'Dâu tây đỏ au tươi rói, không bị dập nát một quả nào. Vị ngọt dịu chua thanh tự nhiên, các bé nhà mình mê tít!',
+                    'likes': 22
+                },
+                {
+                    'product': p_strawberry,
+                    'user': user_an,
+                    'rating': 5,
+                    'comment': 'Dâu hái sáng sớm giao chiều tươi nguyên cuống lá xanh. Hộp đóng gói chống sốc rất kỹ.',
+                    'likes': 17
+                },
+
+                # Kiwi Vàng SunGold Zespri
+                {
+                    'product': p_kiwi,
+                    'user': user_lan,
+                    'rating': 5,
+                    'comment': 'Kiwi vàng ruột vàng ươm mọng nước, vị ngọt thanh mát thơm lừng. Giàu vitamin C tăng đề kháng mùa dịch.',
+                    'likes': 18
+                },
+
+                # Cam Sành Hàm Yên
+                {
+                    'product': p_orange,
+                    'user': user_an,
+                    'rating': 5,
+                    'comment': 'Cam vỏ mỏng, mọng nước vô cùng, vắt được rất nhiều nước cam nguyên chất ngọt thanh không cần pha thêm đường.',
+                    'likes': 20
+                },
+                {
+                    'product': p_orange,
+                    'user': user_xanh,
+                    'rating': 4,
+                    'comment': 'Cam tươi ngon chuẩn hữu cơ VietGAP, vị đậm đà thơm mát.',
+                    'likes': 11
+                },
+
+                # Hộp Quà Eco VIP Phú Quý
+                {
+                    'product': p_gift,
+                    'user': user_long,
+                    'rating': 5,
+                    'comment': 'Set quà đóng gói cực kỳ sang trọng và đẳng cấp! Nắp kính trong suốt nhìn rõ từng chùm nho mẫu đơn và cherry đỏ, nơ lụa thắt tinh tế. Đối tác nhận quà rất ấn tượng!',
+                    'likes': 38
+                }
+            ]
+
+            seeded_reviews_count = 0
+            for r_data in reviews_data:
+                prod = r_data['product']
+                usr = r_data['user']
+                if not prod or not usr:
+                    continue
+
+                ProductReview.objects.create(
+                    product=prod,
+                    user=usr,
+                    reviewer_name=usr.full_name,
+                    rating=r_data['rating'],
+                    comment=r_data['comment'],
+                    is_verified_purchase=True,
+                    likes_count=r_data.get('likes', 10)
+                )
+                seeded_reviews_count += 1
+
+            # Seed extra reviews for all remaining products so no product has 0 reviews
+            all_prods = Product.objects.all()
+            for p in all_prods:
+                if p.reviews.count() == 0:
+                    ProductReview.objects.create(
+                        product=p,
+                        user=user_lan if p.id % 2 == 0 else user_an,
+                        reviewer_name=user_lan.full_name if p.id % 2 == 0 else user_an.full_name,
+                        rating=5,
+                        comment=f"{p.name} rất tươi ngon, đúng chuẩn chất lượng VietGAP/GlobalGAP của EcoFruit. Đóng gói sạch sẽ và giao hàng hỏa tốc mát lạnh!",
+                        is_verified_purchase=True,
+                        likes_count=15
+                    )
+                    seeded_reviews_count += 1
+
+                # Recompute product rating and review count from real reviews
+                avg_rat = p.reviews.aggregate(Avg('rating'))['rating__avg'] or 5.0
+                p.rating = round(float(avg_rat), 1)
+                p.review_count = p.reviews.count()
+                p.save()
+
+            self.stdout.write(self.style.SUCCESS(f"[OK] {seeded_reviews_count} Verified Purchase Product Reviews seeded & synchronized."))
 
         self.stdout.write(self.style.SUCCESS("\n[SUCCESS] EcoFruit Enterprise Database Seeding Completed 100% Successfully!"))
         self.stdout.write(self.style.NOTICE(f" - Users: {User.objects.count()} (with encrypted passwords & addresses)"))
         self.stdout.write(self.style.NOTICE(f" - Categories: {Category.objects.count()}"))
         self.stdout.write(self.style.NOTICE(f" - Products: {Product.objects.count()} (with gallery images & nutrition facts)"))
+        self.stdout.write(self.style.NOTICE(f" - Carts: {Cart.objects.count()} (with {CartItem.objects.count()} seeded items)"))
         self.stdout.write(self.style.NOTICE(f" - Vouchers: {Voucher.objects.count()} (active with discount validations)"))
         self.stdout.write(self.style.NOTICE(f" - Reviews: {ProductReview.objects.count()} (verified purchases)"))
         self.stdout.write(self.style.NOTICE(f" - Orders: {Order.objects.count()} (with items and audit status logs)"))

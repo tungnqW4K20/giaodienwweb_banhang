@@ -27,7 +27,9 @@ class ProductListSerializer(serializers.ModelSerializer):
             'id', 'name', 'slug', 'sku', 'category', 'category_name', 'category_slug',
             'price', 'original_price', 'discount_percent', 'unit', 'stock',
             'season', 'season_display', 'origin', 'certification',
-            'image', 'rating', 'review_count', 'sold_count',
+            'calories', 'vitamins', 'storage_guide', 'shelf_life',
+            'short_description', 'description', 'image', 'tags',
+            'rating', 'review_count', 'sold_count',
             'is_featured', 'is_bestseller', 'is_organic', 'created_at'
         ]
 

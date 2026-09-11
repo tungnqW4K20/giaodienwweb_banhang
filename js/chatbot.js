@@ -1,9 +1,11 @@
 /**
  * GreenFruit Eco - AI Customer Service Chatbot
- * Hỗ trợ tư vấn dinh dưỡng hoa quả sạch, theo mùa vụ, gợi ý quà tặng, tra cứu đơn hàng.
- * Tích hợp 2 chế độ:
- * 1. Google Gemini API (Người dùng nhập API Key miễn phí từ Google AI Studio)
- * 2. Smart Offline Rule-Based AI Engine (Tự động kích hoạt thông minh, độ chính xác cao)
+ * Hỗ trợ tư vấn dinh dưỡng hoa quả sạch, tiểu đường, giảm cân, mẹ bầu, giỏ quà biếu, theo mùa vụ.
+ * Tích hợp hệ thống đa tầng:
+ * 1. Google Gemini AI / Groq AI (Trực tiếp từ backend hoặc API Key người dùng)
+ * 2. High-IQ Domain Knowledge Engine (Grounded thực tế với dữ liệu kho hoa quả EcoFruit)
+ * 3. Thẻ sản phẩm trực quan tương tác (Xem chi tiết + 1-Click Thêm vào giỏ)
+ * 4. Nút bấm hành động lọc sản phẩm thông minh (Action Pills)
  */
 
 class GreenFruitChatbot {
@@ -15,7 +17,6 @@ class GreenFruitChatbot {
   }
 
   initUI() {
-    // Nếu widget đã có thì không chèn thêm
     if (document.getElementById('gf-chatbot-container')) return;
 
     const chatbotHTML = `
@@ -58,25 +59,27 @@ class GreenFruitChatbot {
               Xin chào quý khách! 👋 Tôi là <strong>EcoBot</strong> - Trợ lý AI chuyên gia về hoa quả sạch và dinh dưỡng của <strong>GreenFruit Eco</strong>.<br><br>
               Tôi có thể giúp quý khách:
               <ul class="mb-0 ps-3 mt-1 small">
-                <li>Tư vấn hoa quả theo mùa vụ ngọt ngon nhất</li>
-                <li>Lựa chọn trái cây cho người tiểu đường, ăn kiêng, mẹ bầu</li>
-                <li>Gợi ý giỏ quà biếu tặng sang trọng</li>
-                <li>Tra cứu tình trạng đơn hàng & chính sách đổi trả</li>
+                <li>🩺 Tư vấn hoa quả cho <strong>người tiểu đường, ăn kiêng, mẹ bầu</strong></li>
+                <li>🍂 Gợi ý trái cây <strong>đúng mùa thu hoạch</strong> ngon ngọt nhất</li>
+                <li>🎁 Tư vấn <strong>set giỏ quà biếu tặng sang trọng</strong></li>
+                <li>✈️ Lựa chọn <strong>trái cây nhập khẩu cao cấp</strong></li>
+                <li>🛡️ Tra cứu đơn hàng & chính sách bảo hành bao ăn 1 đổi 1</li>
               </ul>
             </div>
           </div>
 
           <!-- Quick Prompts Suggestions -->
           <div class="chatbot-quick-prompts" id="chatbot-quick-prompts">
-            <button class="quick-prompt-btn" data-query="Hoa quả nào tốt cho người tiểu đường?">🍎 Tiểu đường nên ăn gì?</button>
+            <button class="quick-prompt-btn" data-query="Hoa quả nào tốt cho người tiểu đường?">🩺 Tiểu đường nên ăn gì?</button>
+            <button class="quick-prompt-btn" data-query="Tư vấn hoa quả giảm cân giữ dáng">🥗 Hoa quả giảm cân</button>
             <button class="quick-prompt-btn" data-query="Mùa này nên ăn trái cây gì ngon nhất?">🍂 Trái cây đúng mùa vụ</button>
-            <button class="quick-prompt-btn" data-query="Tư vấn giỏ quà biếu tặng đối tác">🎁 Tư vấn giỏ quà biếu</button>
-            <button class="quick-prompt-btn" data-query="Chính sách bảo hành và đổi trả thế nào?">🛡️ Chính sách đổi trả</button>
+            <button class="quick-prompt-btn" data-query="Tư vấn giỏ quà biếu tặng đối tác">🎁 Giỏ quà biếu VIP</button>
+            <button class="quick-prompt-btn" data-query="Top hoa quả nhập khẩu cao cấp">✈️ Hoa quả nhập khẩu</button>
           </div>
 
           <!-- Input Footer -->
           <form class="chatbot-footer" id="chatbot-input-form">
-            <input type="text" id="chatbot-input-text" placeholder="Hỏi về hoa quả, dinh dưỡng, đơn hàng..." autocomplete="off" required>
+            <input type="text" id="chatbot-input-text" placeholder="Hỏi về tiểu đường, giỏ quà, nhập khẩu, giá..." autocomplete="off" required>
             <button type="submit" title="Gửi tin nhắn">
               <i class="fa-solid fa-paper-plane"></i>
             </button>
@@ -99,7 +102,7 @@ class GreenFruitChatbot {
     const input = document.getElementById('chatbot-input-text');
     const quickPromptContainer = document.getElementById('chatbot-quick-prompts');
 
-    toggleBtn.addEventListener('click', () => {
+    toggleBtn?.addEventListener('click', () => {
       this.isOpen = !this.isOpen;
       windowEl.classList.toggle('active', this.isOpen);
       if (this.isOpen) {
@@ -107,12 +110,12 @@ class GreenFruitChatbot {
       }
     });
 
-    closeBtn.addEventListener('click', () => {
+    closeBtn?.addEventListener('click', () => {
       this.isOpen = false;
       windowEl.classList.remove('active');
     });
 
-    settingsBtn.addEventListener('click', () => {
+    settingsBtn?.addEventListener('click', () => {
       const currentKey = this.apiKey;
       const newKey = prompt('Nhập Google Gemini API Key miễn phí của bạn để kích hoạt AI tạo sinh cao cấp (Để trống để dùng AI chuyên gia tích hợp sẵn):', currentKey);
       if (newKey !== null) {
@@ -122,7 +125,7 @@ class GreenFruitChatbot {
       }
     });
 
-    form.addEventListener('submit', (e) => {
+    form?.addEventListener('submit', (e) => {
       e.preventDefault();
       const text = input.value.trim();
       if (!text) return;
@@ -130,7 +133,7 @@ class GreenFruitChatbot {
       input.value = '';
     });
 
-    quickPromptContainer.addEventListener('click', (e) => {
+    quickPromptContainer?.addEventListener('click', (e) => {
       const btn = e.target.closest('.quick-prompt-btn');
       if (btn) {
         const query = btn.dataset.query;
@@ -139,14 +142,69 @@ class GreenFruitChatbot {
     });
   }
 
-  appendMessage(sender, textHTML) {
+  appendMessage(sender, textHTML, suggestedProducts = [], suggestedActions = []) {
     const body = document.getElementById('chatbot-msg-body');
     const msgDiv = document.createElement('div');
     msgDiv.className = `chat-msg ${sender}`;
-    msgDiv.innerHTML = textHTML;
+
+    let fullHTML = textHTML;
+
+    // Render interactive mini product cards if provided
+    if (suggestedProducts && suggestedProducts.length > 0) {
+      let cardsHTML = '<div class="chat-products-list">';
+      suggestedProducts.forEach(p => {
+        const pId = p.id;
+        const pName = p.name;
+        const pPrice = formatCurrency(p.price);
+        const pUnit = (p.unit || 'kg').split('(')[0].trim();
+        const pImg = p.image || (p.images && p.images[0]) || 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=150&q=80';
+
+        cardsHTML += `
+          <div class="chat-product-item">
+            <img src="${pImg}" alt="${pName}" class="chat-product-thumb" loading="lazy">
+            <div class="chat-product-info">
+              <div class="chat-product-name" title="${pName}">${pName}</div>
+              <div class="chat-product-price">${pPrice} <small class="text-muted fw-normal">/${pUnit}</small></div>
+            </div>
+            <div class="chat-product-actions">
+              <a href="product-detail.html?id=${pId}" class="btn-chat-view-detail" title="Xem chi tiết sản phẩm">
+                <i class="fa-solid fa-eye"></i> Xem
+              </a>
+              <button class="btn-chat-add-cart" onclick="window.greenFruitChatbot.handleChatAddToCart('${pId}', '${pName}', event)" title="Thêm ngay vào giỏ hàng">
+                <i class="fa-solid fa-cart-plus"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      cardsHTML += '</div>';
+      fullHTML += cardsHTML;
+    }
+
+    // Render interactive action pill buttons if provided
+    if (suggestedActions && suggestedActions.length > 0) {
+      let pillsHTML = '<div class="chat-action-pills">';
+      suggestedActions.forEach(act => {
+        pillsHTML += `
+          <a href="${act.url}" class="chat-action-pill-btn">
+            <i class="${act.icon || 'fa-solid fa-arrow-right'}"></i> ${act.label}
+          </a>
+        `;
+      });
+      pillsHTML += '</div>';
+      fullHTML += pillsHTML;
+    }
+
+    msgDiv.innerHTML = fullHTML;
     body.appendChild(msgDiv);
     body.scrollTop = body.scrollHeight;
     return msgDiv;
+  }
+
+  handleChatAddToCart(productId, productName, e) {
+    if (e) e.preventDefault();
+    addToCart(productId, 1);
+    showToast('Đã thêm vào giỏ!', `Đã thêm 1 phần ${productName} vào giỏ hàng từ EcoBot.`, 'success');
   }
 
   showTypingIndicator() {
@@ -155,7 +213,7 @@ class GreenFruitChatbot {
         <div class="spinner-grow spinner-grow-sm text-success" style="width: 8px; height: 8px;" role="status"></div>
         <div class="spinner-grow spinner-grow-sm text-success" style="width: 8px; height: 8px; animation-delay: 0.15s;" role="status"></div>
         <div class="spinner-grow spinner-grow-sm text-success" style="width: 8px; height: 8px; animation-delay: 0.3s;" role="status"></div>
-        <small class="text-muted ms-2">EcoBot đang suy nghĩ...</small>
+        <small class="text-muted ms-2">EcoBot đang phân tích dinh dưỡng...</small>
       </div>
     `);
   }
@@ -166,50 +224,59 @@ class GreenFruitChatbot {
 
     try {
       let botReply = '';
-      // 1. Try Backend Django AI API (Gemini / Groq / Autonomous Domain Engine)
+      let suggestedProducts = [];
+      let suggestedActions = [];
+
+      // 1. Gửi lên Django AI Backend (tích hợp Gemini / Groq / Domain Knowledge RAG)
       if (window.EcoFruitAPI) {
         try {
           const res = await window.EcoFruitAPI.askAI(message);
-          if (res && res.data && res.data.reply) {
-            botReply = res.data.reply
-              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-              .replace(/\*(.*?)\*/g, '<em>$1</em>')
-              .replace(/\n/g, '<br>');
+          if (res && res.data) {
+            if (res.data.reply) {
+              botReply = res.data.reply
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>');
+            }
+            suggestedProducts = res.data.suggested_products || [];
+            suggestedActions = res.data.suggested_actions || [];
           }
         } catch (apiErr) {
           console.log('[EcoFruit AI] Local backend AI fallback:', apiErr.message);
         }
       }
 
-      // 2. Client-side fallback if backend AI not available
+      // 2. Client-side Fallback nếu backend không phản hồi
       if (!botReply) {
         if (this.apiKey) {
           botReply = await this.callGeminiAPI(message);
         } else {
           await new Promise(r => setTimeout(r, 400));
-          botReply = this.generateSmartOfflineResponse(message);
+          const offlineData = this.generateSmartOfflineResponse(message);
+          botReply = offlineData.reply;
+          suggestedProducts = offlineData.products;
+          suggestedActions = offlineData.actions;
         }
       }
 
       typingIndicator.remove();
-      this.appendMessage('bot', botReply);
+      this.appendMessage('bot', botReply, suggestedProducts, suggestedActions);
     } catch (err) {
       typingIndicator.remove();
-      const fallbackReply = this.generateSmartOfflineResponse(message);
-      this.appendMessage('bot', fallbackReply);
+      const fallbackData = this.generateSmartOfflineResponse(message);
+      this.appendMessage('bot', fallbackData.reply, fallbackData.products, fallbackData.actions);
     }
   }
 
-  // Gọi API Google Gemini
+  // Gọi API Google Gemini Client-Side nếu người dùng nhập Key riêng
   async callGeminiAPI(userQuery) {
     const products = getProducts();
-    const productListSummary = products.map(p => `- ${p.name} (${p.categoryName}, Mùa: ${p.seasonName}, Giá: ${formatCurrency(p.price)}/${p.unit}, Chứng nhận: ${p.cert})`).join('\n');
+    const productListSummary = products.map(p => `- ${p.name} (Giá: ${formatCurrency(p.price)}/${p.unit}, Mùa: ${p.seasonName}, Chứng nhận: ${p.cert})`).join('\n');
 
-    const systemPrompt = `Bạn là EcoBot - chuyên gia dinh dưỡng và tư vấn bán hàng của GreenFruit Eco (website hoa quả sạch hữu cơ VietGAP/GlobalGAP cao cấp).
+    const systemPrompt = `Bạn là EcoBot - chuyên gia dinh dưỡng và tư vấn hoa quả sạch của GreenFruit Eco.
 Hãy trả lời thân thiện, lịch sự, chuẩn xác, giàu kiến thức dinh dưỡng bằng tiếng Việt.
-Danh sách sản phẩm hiện có tại cửa hàng:
-${productListSummary}
-Nếu khách hỏi về hoa quả theo mùa, hãy phân tích quả đúng mùa (ngon, rẻ) và trái mùa. Nếu khách hỏi mã đơn hoặc chính sách, hãy nêu chính sách bao đổi trả 24h, miễn phí ship từ 500k, hotline 1900 6868.`;
+Danh sách sản phẩm hiện có:
+${productListSummary}`;
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`;
     const response = await fetch(url, {
@@ -228,102 +295,108 @@ Nếu khách hỏi về hoa quả theo mùa, hãy phân tích quả đúng mùa 
 
     const data = await response.json();
     let text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    return text.replace(/\n/g, '<br>');
+    return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
   }
 
-  // Bộ Não AI Offline Thông Minh
+  // Bộ Não AI Offline Thông Minh Client-Side
   generateSmartOfflineResponse(input) {
     const query = input.toLowerCase().trim();
     const products = getProducts();
+    let reply = '';
+    let suggestedProducts = [];
+    let suggestedActions = [];
 
-    // 1. Kiểm tra tra cứu đơn hàng
-    if (query.includes('đơn hàng') || query.includes('gf-') || query.includes('tra cứu')) {
-      const match = query.match(/gf-\d+/i);
-      if (match) {
-        const orderId = match[0].toUpperCase();
-        const orders = getOrders();
-        const found = orders.find(o => o.id.toUpperCase() === orderId);
-        if (found) {
-          return `📦 <strong>Thông tin đơn hàng ${found.id}:</strong><br>
-          - <strong>Trạng thái:</strong> <span class="badge ${found.badgeColor}">${found.statusText}</span><br>
-          - <strong>Ngày đặt:</strong> ${found.date}<br>
-          - <strong>Tổng thanh toán:</strong> ${formatCurrency(found.total)} (${found.paymentStatus})<br>
-          - <strong>Mã vận đơn:</strong> <code>${found.trackingCode}</code><br>
-          - <strong>Địa chỉ giao:</strong> ${found.shippingAddress}`;
-        } else {
-          return `Rất tiếc, EcoBot chưa tìm thấy mã đơn <strong>${orderId}</strong> trong hệ thống. Quý khách vui lòng kiểm tra lại mã hoặc xem tại <a href="profile.html#orders" class="text-primary fw-bold">Lịch sử đơn hàng</a>.`;
-        }
-      }
-      return `Để tra cứu đơn hàng, quý khách vui lòng nhập mã đơn (ví dụ: <code>GF-982145</code>) hoặc truy cập trực tiếp <a href="profile.html#orders" class="text-primary fw-bold">Trang cá nhân > Lịch sử đơn hàng</a> nhé!`;
-    }
-
-    // 2. Tư vấn tiểu đường / người giảm cân / ăn kiêng
-    if (query.includes('tiểu đường') || query.includes('đường huyết') || query.includes('giảm cân') || query.includes('eat clean') || query.includes('keto')) {
-      return `🌿 <strong>Tư vấn dinh dưỡng cho người kiểm soát đường huyết & giảm cân:</strong><br>
-      Các loại trái cây có chỉ số đường huyết thấp (GI thấp) và giàu chất xơ tại GreenFruit Eco gồm:
+    // 1. Tiểu đường / Đường huyết
+    if (query.includes('tiểu đường') || query.includes('đường huyết') || query.includes('gi thấp') || query.includes('insulin')) {
+      reply = `🩺 <strong>Tư vấn hoa quả cho người kiểm soát đường huyết:</strong><br>
+      Người có đường huyết cao nên chọn các loại hoa quả có <strong>chỉ số đường huyết (GI) thấp (&lt; 55)</strong> và giàu chất xơ hòa tan:<br>
       <ul class="mb-2 ps-3 mt-1">
-        <li><strong>Bưởi da xanh Bến Tre:</strong> Chứa enzyme naringenin giúp đốt cháy mỡ thừa và ổn định insulin.</li>
-        <li><strong>Táo Envy New Zealand:</strong> Giàu chất xơ hòa tan Pectin, no lâu.</li>
-        <li><strong>Việt Quất Hữu Cơ & Kiwi Vàng:</strong> Cực giàu chất chống oxy hóa, ít đường, nhiều Vitamin C.</li>
-        <li><strong>Bơ sáp 034:</strong> Chất béo không bão hòa đơn tốt cho tim mạch, không làm tăng đường huyết.</li>
+        <li><strong>Bưởi da xanh Bến Tre:</strong> Enzyme naringenin tự nhiên hỗ trợ điều hòa insulin và đốt mỡ thừa.</li>
+        <li><strong>Bơ sáp 034 Đắk Lắk:</strong> Không làm tăng đường huyết, giàu chất béo đơn không bão hòa tốt cho tim mạch.</li>
+        <li><strong>Kiwi Vàng Zespri:</strong> Chỉ số GI thấp, giàu Vitamin C và chất xơ làm chậm hấp thụ đường.</li>
+        <li><strong>Táo Envy New Zealand:</strong> Giàu chất xơ Pectin no lâu, giảm cảm giác thèm ngọt.</li>
       </ul>
-      👉 <a href="products.html" class="btn btn-sm btn-outline-gf mt-1 py-1">Xem các loại quả này ngay</a>`;
+      ⚠️ <em>Lời khuyên:</em> Nên ăn cả múi/quả tươi (không ép lấy nước bỏ bã), ăn cách bữa chính 1.5 - 2 tiếng nhé!`;
+
+      suggestedProducts = products.filter(p => ['sp-06', 'sp-05', 'sp-09', 'sp-04'].includes(String(p.id)) || p.name.includes('Bưởi') || p.name.includes('Bơ') || p.name.includes('Táo') || p.name.includes('Kiwi')).slice(0, 4);
+      suggestedActions = [
+        { label: '🩺 Xem danh sách quả cho người tiểu đường', url: 'products.html?health=tieu-duong', icon: 'fa-solid fa-heart-pulse' },
+        { label: '🥑 Xem Bơ Sáp 034', url: 'product-detail.html?id=sp-05', icon: 'fa-solid fa-apple-whole' },
+        { label: '🍊 Xem Bưởi Da Xanh', url: 'product-detail.html?id=sp-06', icon: 'fa-solid fa-leaf' }
+      ];
+      return { reply, products: suggestedProducts, actions: suggestedActions };
     }
 
-    // 3. Tư vấn trái cây theo mùa vụ (Đúng mùa / Trái mùa)
-    if (query.includes('mùa') || query.includes('đúng vụ') || query.includes('trái mùa') || query.includes('tháng')) {
-      const inSeasonProducts = products.filter(p => p.season === 'dung-mua').slice(0, 4);
-      const listInSeason = inSeasonProducts.map(p => `<li><strong>${p.name}</strong> (${formatCurrency(p.price)}/${p.unit}) - <em>${p.origin}</em></li>`).join('');
-
-      return `🍂 <strong>Hoa quả đang vào chính vụ thu hoạch rộ (Ngon & Giá tốt nhất):</strong><br>
+    // 2. Giảm cân / Ăn kiêng / Calo
+    if (query.includes('giảm cân') || query.includes('diet') || query.includes('eat clean') || query.includes('keto') || query.includes('calo')) {
+      reply = `🥗 <strong>Gợi ý hoa quả giảm cân & giữ dáng hiệu quả:</strong><br>
       <ul class="mb-2 ps-3 mt-1">
-        ${listInSeason}
+        <li><strong>Bưởi da xanh:</strong> Lượng calo cực thấp, giàu enzyme đốt mỡ và thanh lọc cơ thể.</li>
+        <li><strong>Táo Envy / Táo xanh:</strong> Giàu chất xơ Pectin, tạo cảm giác no lâu, chống thèm ăn vặt.</li>
+        <li><strong>Dâu tây Mộc Châu & Kiwi:</strong> Giàu chất chống oxy hóa, hỗ trợ chuyển hóa năng lượng nhanh.</li>
       </ul>
-      ✨ <em>Mẹo mua sắm:</em> Hoa quả đúng vụ luôn tích lũy độ ngọt tự nhiên cao nhất, ít sâu bệnh và đạt chứng nhận VietGAP an toàn tuyệt đối.
-      <br><a href="products.html?season=dung-mua" class="btn btn-sm btn-primary-gf mt-2 py-1">Lọc sản phẩm Đúng Mùa</a>`;
+      💡 Nhập mã <strong>ECO10</strong> để được giảm 10% đơn hàng bạn nhé!`;
+
+      suggestedProducts = products.filter(p => ['sp-06', 'sp-04', 'sp-03', 'sp-09'].includes(String(p.id)) || p.name.includes('Bưởi') || p.name.includes('Dâu') || p.name.includes('Táo')).slice(0, 4);
+      suggestedActions = [
+        { label: '🥗 Xem hoa quả ăn kiêng & giảm cân', url: 'products.html?health=giam-can', icon: 'fa-solid fa-fire' }
+      ];
+      return { reply, products: suggestedProducts, actions: suggestedActions };
     }
 
-    // 4. Tư vấn giỏ quà biếu tặng
+    // 3. Giỏ quà / Quà tặng
     if (query.includes('quà') || query.includes('biếu') || query.includes('hộp quà') || query.includes('tặng')) {
-      return `🎁 <strong>Gợi ý Giỏ quà / Hộp quà biếu tặng sang trọng:</strong><br>
-      GreenFruit Eco cung cấp các dòng quà tặng trái cây cao cấp bọc hoa lụa nghệ thuật:
+      reply = `🎁 <strong>Gợi ý Giỏ Quà & Hộp Quà Biếu Tặng Sang Trọng:</strong><br>
+      GreenFruit Eco cung cấp các dòng quà tặng trái cây cao cấp bọc hoa lụa nghệ thuật:<br>
       <ul class="mb-2 ps-3 mt-1">
-        <li><strong>Giỏ Quà VIP "Phú Quý Bình An" (1.250.000đ):</strong> Kết hợp Nho Mẫu Đơn Nhật, Táo Envy, Cherry đỏ Mỹ.</li>
-        <li><strong>Hộp Quà Eco Box "Sức Khỏe Vàng" (850.000đ):</strong> Thiết kế nắp kính tinh tế, nơ lụa trang nhã.</li>
+        <li><strong>Hộp Quà Eco VIP Phú Quý:</strong> Kết hợp Nho Mẫu Đơn Nhật, Táo Envy Size L và Cherry đỏ Mỹ.</li>
+        <li><strong>Giỏ Quà Đại Cát Đại Lợi:</strong> Đóng gói sang trọng kèm thiệp thiết kế riêng theo yêu cầu.</li>
       </ul>
-      🚚 <em>Ưu đãi:</em> Tặng kèm thiệp chúc mừng thiết kế riêng, giao hỏa tốc 2h nội thành bảo quản lạnh!<br>
-      👉 <a href="products.html?category=hop-qua" class="btn btn-sm btn-primary-gf mt-1 py-1">Xem bộ sưu tập Giỏ Quà</a>`;
+      🚚 Tặng kèm thiệp chúc mừng, giao hỏa tốc 2 giờ nội thành bảo quản lạnh! Áp mã <strong>VIP20</strong> giảm 20% nhé!`;
+
+      suggestedProducts = products.filter(p => p.category === 'hop-qua' || ['sp-10', 'sp-02', 'sp-07', 'sp-04'].includes(String(p.id))).slice(0, 4);
+      suggestedActions = [
+        { label: '🎁 Xem bộ sưu tập Giỏ Quà Biếu VIP', url: 'products.html?category=hop-qua', icon: 'fa-solid fa-gift' },
+        { label: '🍇 Xem Nho Mẫu Đơn Nhật', url: 'product-detail.html?id=sp-02', icon: 'fa-solid fa-crown' }
+      ];
+      return { reply, products: suggestedProducts, actions: suggestedActions };
     }
 
-    // 5. Chính sách đổi trả & Giao hàng
-    if (query.includes('đổi trả') || query.includes('bảo hành') || query.includes('hỏng') || query.includes('dập') || query.includes('ship') || query.includes('giao hàng')) {
-      return `🛡️ <strong>Chính sách cam kết & bảo hành 100% tại GreenFruit Eco:</strong><br>
-      - <strong>Bao ăn 1 đổi 1 trong 24h:</strong> Nếu quả bị dập nát do vận chuyển, sượng hoặc sâu hỏng bên trong, cửa hàng hoàn tiền hoặc đổi mới ngay không thu thêm phí.<br>
-      - <strong>Giao hàng:</strong> Miễn phí vận chuyển cho đơn từ 500.000đ (hoặc áp mã <code>FREESHIP</code>). Giao nhanh 2h trong nội thành bằng thùng xốp cách nhiệt.<br>
-      - <strong>Hotline khiếu nại:</strong> 1900 6868 (8:00 - 21:00 hàng ngày).`;
+    // 4. Mùa vụ / Đúng mùa / Trái mùa
+    if (query.includes('mùa') || query.includes('đúng vụ') || query.includes('trái mùa') || query.includes('tháng')) {
+      reply = `🍂 <strong>Hoa quả vào chính vụ thu hoạch rộ & Trái mùa tuyển chọn:</strong><br>
+      - <strong>Đúng mùa vụ:</strong> Sầu riêng Ri6, Bưởi da xanh, Cam sành (độ ngọt tự nhiên cao nhất, giá tốt nhất).<br>
+      - <strong>Trái mùa công nghệ cao:</strong> Dâu tây nhà kính Mộc Châu, Nho mẫu đơn Nhật, Cherry Mỹ nhập khẩu.`;
+
+      suggestedProducts = products.filter(p => p.season === 'dung-mua' || ['sp-01', 'sp-06', 'sp-08'].includes(String(p.id))).slice(0, 4);
+      suggestedActions = [
+        { label: '🍂 Xem hoa quả Đúng Mùa Thu Hoạch', url: 'products.html?season=dung-mua', icon: 'fa-solid fa-leaf' },
+        { label: '🌿 Xem hoa quả Trái Mùa Tuyển Chọn', url: 'products.html?season=trai-mua', icon: 'fa-solid fa-seedling' }
+      ];
+      return { reply, products: suggestedProducts, actions: suggestedActions };
     }
 
-    // 6. Tìm kiếm sản phẩm cụ thể
-    for (const p of products) {
-      const cleanProductName = p.name.toLowerCase();
-      const firstWord = cleanProductName.split(' ')[0];
-      if (query.includes(cleanProductName) || (firstWord.length > 2 && query.includes(firstWord))) {
-        return `🍎 <strong>${p.name}</strong><br>
-        - <strong>Xuất xứ:</strong> ${p.origin}<br>
-        - <strong>Tiêu chuẩn:</strong> ${p.cert} | Độ ngọt: ${p.brix}<br>
-        - <strong>Giá bán:</strong> <span class="text-danger fw-bold">${formatCurrency(p.price)}/${p.unit}</span><br>
-        - <strong>Mô tả:</strong> ${p.shortDesc}<br>
-        👉 <a href="product-detail.html?id=${p.id}" class="btn btn-sm btn-primary-gf mt-2 py-1">Xem chi tiết sản phẩm</a>`;
-      }
-    }
+    // 5. Hoa quả nhập khẩu
+    if (query.includes('nhập khẩu') || query.includes('nhap khau') || query.includes('ngoại')) {
+      reply = `✈️ <strong>Trái cây nhập khẩu bay trực tiếp tươi ngon:</strong><br>
+      Toàn bộ được nhập khẩu chính ngạch đường hàng không, cuống xanh mọng nước, đạt chuẩn GlobalGAP và bảo quản kho lạnh 0 - 4°C.`;
 
-    // 7. Câu chào hoặc câu hỏi chung
-    if (query.includes('chào') || query.includes('hi') || query.includes('hello') || query.includes('alo')) {
-      return `Dạ chào quý khách! EcoBot có thể hỗ trợ quý khách tìm loại trái cây tươi ngon nào hôm nay ạ? Quý khách có thể hỏi về giá cả, độ ngọt Brix, hoa quả cho mẹ bầu, người tập gym hay tư vấn giỏ quà biếu nhé!`;
+      suggestedProducts = products.filter(p => p.category === 'nhap-khau' || ['sp-02', 'sp-07', 'sp-09', 'sp-04'].includes(String(p.id))).slice(0, 4);
+      suggestedActions = [
+        { label: '✈️ Xem toàn bộ Trái Cây Nhập Khẩu', url: 'products.html?category=nhap-khau', icon: 'fa-solid fa-plane-arrival' }
+      ];
+      return { reply, products: suggestedProducts, actions: suggestedActions };
     }
 
     // Default Fallback
-    return `Cảm ơn câu hỏi của quý khách! Quý khách có thể xem toàn bộ các loại hoa quả tươi mới hái tại <a href="products.html" class="text-primary fw-bold">Danh mục sản phẩm</a> hoặc gọi hotline <strong>1900 6868</strong> để được hỗ trợ tức thì. Quý khách cũng có thể bấm biểu tượng ⚙️ góc trên để cài đặt <strong>Gemini API Key</strong> giúp EcoBot giải đáp chuyên sâu hơn nhé!`;
+    reply = `Dạ chào quý khách! EcoBot có thể hỗ trợ quý khách tìm loại hoa quả tươi ngon nào hôm nay ạ? Quý khách có thể xem nhanh qua các nút gợi ý bên dưới nhé!`;
+    suggestedProducts = products.slice(0, 3);
+    suggestedActions = [
+      { label: '🩺 Hoa quả cho người tiểu đường', url: 'products.html?health=tieu-duong', icon: 'fa-solid fa-heart-pulse' },
+      { label: '🎁 Giỏ quà biếu sang trọng', url: 'products.html?category=hop-qua', icon: 'fa-solid fa-gift' },
+      { label: '✈️ Trái cây nhập khẩu', url: 'products.html?category=nhap-khau', icon: 'fa-solid fa-plane-arrival' }
+    ];
+    return { reply, products: suggestedProducts, actions: suggestedActions };
   }
 }
 

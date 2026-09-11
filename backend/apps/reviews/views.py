@@ -1,10 +1,61 @@
 from rest_framework import views, status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.db.models import Avg, Count
 from apps.common.response import api_response, api_error
 from apps.products.models import Product
+from apps.orders.models import OrderItem, Order
 from .models import ProductReview
 from .serializers import ProductReviewSerializer, CreateReviewSerializer
+
+class ReviewEligibilityView(views.APIView):
+    """
+    Checks whether the currently authenticated customer has completed a purchase for this product.
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request, product_id):
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return api_error(message="Không tìm thấy sản phẩm.", status_code=status.HTTP_404_NOT_FOUND)
+
+        if not request.user or not request.user.is_authenticated:
+            return api_response(
+                data={
+                    "eligible": False,
+                    "is_authenticated": False,
+                    "reason": "Vui lòng đăng nhập để gửi đánh giá cho sản phẩm đã mua."
+                },
+                message="Chưa đăng nhập."
+            )
+
+        # Check if customer has an order containing this product with COMPLETED status
+        has_purchased = OrderItem.objects.filter(
+            order__user=request.user,
+            order__order_status=Order.OrderStatus.COMPLETED,
+            product=product
+        ).exists()
+
+        if not has_purchased:
+            return api_response(
+                data={
+                    "eligible": False,
+                    "is_authenticated": True,
+                    "reason": "Chỉ khách hàng đã mua và hoàn thành đơn hàng cho sản phẩm này mới có thể viết đánh giá."
+                },
+                message="Chưa có đơn hàng hoàn thành cho sản phẩm này."
+            )
+
+        return api_response(
+            data={
+                "eligible": True,
+                "is_authenticated": True,
+                "reviewer_name": request.user.full_name,
+                "message": "Bạn đủ điều kiện gửi đánh giá cho sản phẩm này."
+            },
+            message="Đủ điều kiện đánh giá."
+        )
+
 
 class ProductReviewListView(views.APIView):
     permission_classes = [AllowAny]
@@ -48,18 +99,35 @@ class ProductReviewListView(views.APIView):
         except Product.DoesNotExist:
             return api_error(message="Không tìm thấy sản phẩm.", status_code=status.HTTP_404_NOT_FOUND)
 
+        # 1. Require Authentication
+        if not request.user or not request.user.is_authenticated:
+            return api_error(
+                message="Vui lòng đăng nhập để gửi đánh giá cho sản phẩm bạn đã mua.",
+                status_code=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # 2. Strict Verified Purchase Check: Must have a COMPLETED order for this product
+        has_purchased = OrderItem.objects.filter(
+            order__user=request.user,
+            order__order_status=Order.OrderStatus.COMPLETED,
+            product=product
+        ).exists()
+
+        if not has_purchased and not request.user.is_staff:
+            return api_error(
+                message="Chỉ khách hàng đã mua và hoàn thành đơn hàng cho sản phẩm này mới có thể viết đánh giá.",
+                status_code=status.HTTP_403_FORBIDDEN
+            )
+
         serializer = CreateReviewSerializer(data=request.data)
         if not serializer.is_valid():
             return api_error(message="Dữ liệu đánh giá không hợp lệ.", errors=serializer.errors)
 
-        user = request.user if request.user.is_authenticated else None
-        reviewer_name = serializer.validated_data['reviewer_name']
-        if user:
-            reviewer_name = user.full_name
+        reviewer_name = request.user.full_name or serializer.validated_data.get('reviewer_name') or 'Khách hàng GreenFruit'
 
         review = ProductReview.objects.create(
             product=product,
-            user=user,
+            user=request.user,
             reviewer_name=reviewer_name,
             rating=serializer.validated_data['rating'],
             comment=serializer.validated_data['comment'],
@@ -74,6 +142,6 @@ class ProductReviewListView(views.APIView):
 
         return api_response(
             data=ProductReviewSerializer(review).data,
-            message="Cảm ơn bạn đã gửi đánh giá!",
+            message="Cảm ơn bạn đã gửi đánh giá! Đánh giá đã được xác thực thành công.",
             status_code=status.HTTP_201_CREATED
         )

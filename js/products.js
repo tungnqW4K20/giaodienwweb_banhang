@@ -10,6 +10,8 @@ let currentFilters = {
   minPrice: 0,
   maxPrice: 5000000,
   cert: 'all',
+  health: '',
+  sale: false,
   rating: 0,
   search: '',
   sort: 'bestseller',
@@ -44,6 +46,14 @@ function parseUrlParams() {
     currentFilters.season = urlParams.get('season');
     const radio = document.querySelector(`input[name="seasonFilter"][value="${currentFilters.season}"]`);
     if (radio) radio.checked = true;
+  }
+
+  if (urlParams.has('health')) {
+    currentFilters.health = urlParams.get('health');
+  }
+
+  if (urlParams.has('sale')) {
+    currentFilters.sale = urlParams.get('sale') === 'true';
   }
 
   if (urlParams.has('search')) {
@@ -267,11 +277,37 @@ function applyFiltersAndRender() {
     result = result.filter(p => 
       p.name.toLowerCase().includes(q) || 
       p.origin.toLowerCase().includes(q) || 
-      p.shortDesc.toLowerCase().includes(q)
+      (p.shortDesc && p.shortDesc.toLowerCase().includes(q))
     );
   }
 
-  // 6. Sắp xếp
+  // 6. Lọc theo Sức khỏe / Nhu cầu chuyên sâu (Tích hợp từ Chatbot AI)
+  if (currentFilters.health) {
+    const h = currentFilters.health.toLowerCase();
+    if (h === 'tieu-duong') {
+      result = result.filter(p => {
+        const text = (p.name + ' ' + (p.shortDesc || '') + ' ' + (p.nutrition || '') + ' ' + (p.tags || '')).toLowerCase();
+        return text.includes('bưởi') || text.includes('bơ') || text.includes('táo') || text.includes('kiwi') || text.includes('dâu') || text.includes('tiểu đường') || text.includes('ít đường');
+      });
+    } else if (h === 'giam-can') {
+      result = result.filter(p => {
+        const text = (p.name + ' ' + (p.shortDesc || '') + ' ' + (p.nutrition || '')).toLowerCase();
+        return text.includes('bưởi') || text.includes('táo') || text.includes('kiwi') || text.includes('dâu') || text.includes('giảm cân');
+      });
+    } else if (h === 'me-bau') {
+      result = result.filter(p => {
+        const text = (p.name + ' ' + (p.shortDesc || '') + ' ' + (p.nutrition || '')).toLowerCase();
+        return text.includes('bơ') || text.includes('cam') || text.includes('nho') || text.includes('kiwi') || text.includes('bầu');
+      });
+    }
+  }
+
+  // 7. Lọc theo Khuyến mãi / Hot Sale
+  if (currentFilters.sale) {
+    result = result.filter(p => (p.originalPrice > p.price) || p.isFlashSale || p.isBestSeller);
+  }
+
+  // 8. Sắp xếp
   if (currentFilters.sort === 'price-asc') {
     result.sort((a, b) => a.price - b.price);
   } else if (currentFilters.sort === 'price-desc') {
@@ -295,6 +331,29 @@ function renderActiveFilterTags() {
   if (!container) return;
 
   let tagsHTML = '';
+
+  if (currentFilters.health) {
+    const healthLabels = {
+      'tieu-duong': '🩺 Tốt cho người tiểu đường (Low GI)',
+      'giam-can': '🥗 Giảm cân & Giữ dáng',
+      'me-bau': '🤰 Bổ dưỡng cho mẹ bầu'
+    };
+    tagsHTML += `
+      <span class="active-filter-tag bg-success text-white">
+        ${healthLabels[currentFilters.health] || 'Tư vấn sức khỏe'}
+        <button class="btn-remove-filter text-white" onclick="removeFilter('health')">×</button>
+      </span>
+    `;
+  }
+
+  if (currentFilters.sale) {
+    tagsHTML += `
+      <span class="active-filter-tag bg-danger text-white">
+        🔥 Khuyến Mãi / Hot Sale
+        <button class="btn-remove-filter text-white" onclick="removeFilter('sale')">×</button>
+      </span>
+    `;
+  }
 
   if (currentFilters.category !== 'tat-ca') {
     const catName = document.querySelector(`input[name="categoryFilter"][value="${currentFilters.category}"]`)?.nextElementSibling?.textContent || currentFilters.category;
@@ -339,12 +398,18 @@ function renderActiveFilterTags() {
 
 // Xóa từng tag lọc
 function removeFilter(type) {
-  if (type === 'category') {
+  if (type === 'health') {
+    currentFilters.health = '';
+  } else if (type === 'sale') {
+    currentFilters.sale = false;
+  } else if (type === 'category') {
     currentFilters.category = 'tat-ca';
-    document.querySelector('input[name="categoryFilter"][value="tat-ca"]').checked = true;
+    const catRadio = document.querySelector('input[name="categoryFilter"][value="tat-ca"]');
+    if (catRadio) catRadio.checked = true;
   } else if (type === 'season') {
     currentFilters.season = 'tat-ca';
-    document.querySelector('input[name="seasonFilter"][value="tat-ca"]').checked = true;
+    const seasonRadio = document.querySelector('input[name="seasonFilter"][value="tat-ca"]');
+    if (seasonRadio) seasonRadio.checked = true;
   } else if (type === 'price') {
     currentFilters.priceRange = 'all';
     currentFilters.minPrice = 0;
