@@ -10,6 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCartPage();
 });
 
+// Lắng nghe sự kiện đồng bộ dữ liệu từ Django API
+window.addEventListener('ecofruit:data-synced', () => {
+  console.log('[Cart] Cập nhật giỏ hàng từ API Backend');
+  renderCartPage();
+});
+
 // Nạp voucher đã lưu nếu có
 function loadAppliedVoucher() {
   try {
@@ -326,7 +332,7 @@ function setupVoucherForm() {
 }
 
 // Áp dụng voucher theo mã
-function applyVoucherCode(code) {
+async function applyVoucherCode(code) {
   if (!code) {
     showToast('Lỗi mã', 'Vui lòng nhập mã voucher giảm giá.', 'error');
     return;
@@ -339,6 +345,30 @@ function applyVoucherCode(code) {
     if (p) subtotal += p.price * item.qty;
   });
 
+  // 1. Thử gọi API backend kiểm tra voucher trên MySQL
+  if (window.EcoFruitAPI) {
+    try {
+      const res = await EcoFruitAPI.validateVoucher(code, subtotal);
+      if (res && res.data && res.data.valid) {
+        appliedVoucher = {
+          code: res.data.voucher.code,
+          title: res.data.voucher.title,
+          discountType: res.data.voucher.discount_type === 'PERCENT' ? 'percent' : 'fixed',
+          discountValue: Number(res.data.discount_amount),
+          maxDiscount: Number(res.data.voucher.max_discount_amount || 100000),
+          minOrder: Number(res.data.voucher.min_order_amount || 0)
+        };
+        localStorage.setItem('gf_applied_voucher', JSON.stringify(appliedVoucher));
+        showToast('Áp dụng mã thành công!', `Giảm ${formatCurrency(res.data.discount_amount)} (MySQL Verified)`, 'success');
+        renderCartPage();
+        return;
+      }
+    } catch (err) {
+      console.log('[Voucher API] Backend validation fallback:', err.message);
+    }
+  }
+
+  // 2. Local Fallback
   const check = checkVoucher(code, subtotal);
   if (check.success) {
     appliedVoucher = check.voucher;

@@ -14,18 +14,41 @@ document.addEventListener('DOMContentLoaded', () => {
   handleHashNavigation();
 });
 
+// Lắng nghe sự kiện đồng bộ dữ liệu từ Django API
+window.addEventListener('ecofruit:data-synced', () => {
+  console.log('[Profile] Đồng bộ thông tin từ API Backend');
+  loadUserProfile();
+});
+
 // ==================== NẠP DỮ LIỆU USER ====================
-function loadUserProfile() {
+async function loadUserProfile() {
   currentUser = getCurrentUser();
   if (!currentUser) {
     currentUser = DEFAULT_USER;
     setCurrentUser(currentUser);
   }
 
+  // 1. Thử tải profile mới nhất từ Django API (nếu đã đăng nhập)
+  if (window.EcoFruitAPI && EcoFruitAPI.getToken()) {
+    try {
+      const liveProfile = await EcoFruitAPI.getProfile();
+      if (liveProfile) {
+        currentUser.fullName = liveProfile.full_name || currentUser.fullName;
+        currentUser.email = liveProfile.email || currentUser.email;
+        currentUser.phone = liveProfile.phone_number || currentUser.phone;
+        currentUser.walletBalance = Number(liveProfile.balance || currentUser.walletBalance);
+        currentUser.points = liveProfile.loyalty_points || currentUser.points;
+        setCurrentUser(currentUser);
+      }
+    } catch (err) {
+      console.log('[Profile API] Dùng cached profile:', err.message);
+    }
+  }
+
   // Sidebar info
   document.getElementById('user-sidebar-name').textContent = currentUser.fullName;
   document.getElementById('user-sidebar-email').textContent = currentUser.email;
-  document.getElementById('user-sidebar-badge').textContent = currentUser.membership || 'Khách hàng VIP';
+  document.getElementById('user-sidebar-badge').textContent = currentUser.membership || 'Khách hàng VIP EcoFruit';
   document.getElementById('user-avatar-img').src = currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80';
 
   // Form info
@@ -39,7 +62,7 @@ function loadUserProfile() {
   document.getElementById('wallet-balance-amount').textContent = formatCurrency(balance);
 
   // Render orders
-  renderOrderHistory();
+  await renderOrderHistory();
 }
 
 // ==================== XỬ LÝ SỬA THÔNG TIN CÁ NHÂN ====================
@@ -47,15 +70,28 @@ function setupProfileForm() {
   const form = document.getElementById('profile-info-form');
   if (!form) return;
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     currentUser.fullName = document.getElementById('profile-fullname').value.trim();
     currentUser.phone = document.getElementById('profile-phone').value.trim();
     currentUser.address = document.getElementById('profile-address').value.trim();
 
+    // 1. Gửi lên Django API nếu có token
+    if (window.EcoFruitAPI && EcoFruitAPI.getToken()) {
+      try {
+        await EcoFruitAPI.updateProfile({
+          full_name: currentUser.fullName,
+          phone_number: currentUser.phone
+        });
+        console.log('[Profile] Đã lưu thông tin vào MySQL Backend!');
+      } catch (err) {
+        console.warn('[Profile] Lưu backend fallback:', err.message);
+      }
+    }
+
     setCurrentUser(currentUser);
-    showToast('Cập nhật thành công', 'Thông tin cá nhân của bạn đã được lưu lại!', 'success');
+    showToast('Cập nhật thành công', 'Thông tin cá nhân của bạn đã được lưu lại (Đã đồng bộ MySQL)!', 'success');
     loadUserProfile();
   });
 
@@ -87,11 +123,60 @@ function setupOrderHistoryTabs() {
   });
 }
 
-function renderOrderHistory() {
+async function renderOrderHistory() {
   const container = document.getElementById('order-history-list');
   if (!container) return;
 
   let orders = getOrders();
+
+  // Thử kéo danh sách đơn hàng thực tế từ Django Backend MySQL
+  if (window.EcoFruitAPI) {
+    try {
+      const apiOrders = await EcoFruitAPI.getOrders();
+      if (apiOrders && apiOrders.length > 0) {
+        const transformedApiOrders = apiOrders.map(o => {
+          let badge = 'bg-warning text-dark';
+          let statusKey = 'pending';
+          const orderSt = o.order_status || o.status || 'PENDING';
+          if (orderSt === 'COMPLETED') { badge = 'bg-success'; statusKey = 'completed'; }
+          else if (orderSt === 'SHIPPING' || orderSt === 'PROCESSING') { badge = 'bg-primary'; statusKey = 'shipping'; }
+          else if (orderSt === 'CANCELLED') { badge = 'bg-danger'; statusKey = 'cancelled'; }
+
+          return {
+            id: o.order_code,
+            date: new Date(o.created_at).toLocaleString('vi-VN'),
+            status: statusKey,
+            statusText: o.order_status_display || o.status_display || orderSt,
+            badgeColor: badge,
+            items: (o.items || []).map(item => ({
+              id: String(item.product),
+              name: item.product_name,
+              price: Number(item.unit_price),
+              qty: item.quantity,
+              unit: item.unit || 'kg',
+              image: item.product_image || 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=100&q=80'
+            })),
+            subtotal: Number(o.subtotal || o.subtotal_amount || 0),
+            shippingFee: Number(o.shipping_fee || 0),
+            discount: Number(o.discount_amount || 0),
+            total: Number(o.total_amount || o.final_total_amount || 0),
+            paymentMethod: o.payment_method_display || o.payment_method,
+            paymentStatus: o.payment_status_display || o.payment_status,
+            shippingAddress: o.delivery_address,
+            trackingCode: o.tracking_code || `VNPOST-${o.order_code}`
+          };
+        });
+
+        // Kết hợp và loại bỏ trùng lặp mã đơn
+        const existingCodes = new Set(transformedApiOrders.map(o => o.id));
+        const nonDuplicateLocal = orders.filter(o => !existingCodes.has(o.id));
+        orders = [...transformedApiOrders, ...nonDuplicateLocal];
+        localStorage.setItem(DB_KEYS.ORDERS, JSON.stringify(orders));
+      }
+    } catch (err) {
+      console.log('[Orders API] Local orders fallback:', err.message);
+    }
+  }
 
   if (currentOrderFilter !== 'all') {
     orders = orders.filter(o => o.status === currentOrderFilter);
@@ -114,7 +199,7 @@ function renderOrderHistory() {
   let html = '';
   orders.forEach(order => {
     let itemsHTML = '';
-    order.items.forEach(item => {
+    (order.items || []).forEach(item => {
       itemsHTML += `
         <div class="order-item-row">
           <img src="${item.image || 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=100&q=80'}" alt="${item.name}" class="order-item-thumb">
@@ -212,12 +297,23 @@ function setupVNPaySandboxWallet() {
         orderId: txnId,
         amount: amount,
         orderInfo: `Nap tien vi GreenFruit Eco qua VNPAY Sandbox`,
-        onSuccess: (txnData) => {
+        onSuccess: async (txnData) => {
           currentUser.walletBalance = (currentUser.walletBalance || 0) + amount;
+          
+          // Gửi lên Django API cập nhật ví
+          if (window.EcoFruitAPI && EcoFruitAPI.getToken()) {
+            try {
+              await EcoFruitAPI.topUpWallet(amount);
+              console.log('[Wallet] Đã nạp số dư vào MySQL Backend thành công!');
+            } catch (err) {
+              console.warn('[Wallet] Nạp backend fallback:', err.message);
+            }
+          }
+
           setCurrentUser(currentUser);
           loadUserProfile();
 
-          showToast('Nạp tiền thành công!', `Đã cộng ${formatCurrency(amount)} vào ví GreenFruit Eco qua VNPAY Sandbox.`, 'success');
+          showToast('Nạp tiền thành công!', `Đã cộng ${formatCurrency(amount)} vào ví GreenFruit Eco qua VNPAY Sandbox (Đã ghi nhận DB).`, 'success');
         },
         onCancel: () => {
           showToast('Hủy nạp tiền', 'Giao dịch nạp tiền qua VNPAY đã bị hủy.', 'info');

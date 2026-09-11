@@ -1,14 +1,15 @@
 /**
  * EcoFruit Enterprise API Client & Progressive Data Adapter
  * Seamlessly connects Frontend to Python Django REST Backend
- * with zero-fail fallback to LocalStorage if offline.
+ * with real-time MySQL database hydration and zero-fail fallback.
  */
 
 const API_CONFIG = {
   BASE_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://127.0.0.1:8000/api/v1'
     : '/api/v1',
-  TIMEOUT_MS: 8000,
+  TIMEOUT_MS: 5000,
+  isBackendConnected: false
 };
 
 class ApiClient {
@@ -69,11 +70,26 @@ class ApiClient {
       if (!response.ok) {
         throw new Error(json.message || `Lỗi máy chủ (${response.status})`);
       }
+      API_CONFIG.isBackendConnected = true;
       return json;
     } catch (err) {
       clearTimeout(timeoutId);
-      console.warn(`[EcoFruit API] Backend request failed (${endpoint}):`, err.message);
+      console.warn(`[EcoFruit API] (${endpoint}):`, err.message);
       throw err;
+    }
+  }
+
+  // =========================================================================
+  // HEALTH & BACKEND STATUS
+  // =========================================================================
+  static async checkHealth() {
+    try {
+      const res = await this.request('/health/');
+      API_CONFIG.isBackendConnected = (res.status === 'online');
+      return res;
+    } catch {
+      API_CONFIG.isBackendConnected = false;
+      return null;
     }
   }
 
@@ -168,9 +184,9 @@ class ApiClient {
 
       // Auto merge local storage cart items into DB
       try {
-        const localCart = JSON.parse(localStorage.getItem('ecofruit_cart') || '[]');
+        const localCart = JSON.parse(localStorage.getItem('gf_cart') || '[]');
         if (localCart.length > 0) {
-          await this.mergeCart(localCart.map(i => ({ product_id: i.id, quantity: i.quantity })));
+          await this.mergeCart(localCart.map(i => ({ product_id: parseInt(i.id) || 1, quantity: i.qty || 1 })));
         }
       } catch (e) {
         console.log('Cart merge optional step:', e);
@@ -182,6 +198,7 @@ class ApiClient {
   static logout() {
     this.setToken(null);
     this.setUser(null);
+    localStorage.removeItem('gf_current_user');
     window.location.reload();
   }
 
@@ -325,17 +342,106 @@ class ApiClient {
         } catch {}
       };
 
-      eventSource.onerror = () => {
-        // SSE auto-reconnects
-      };
-
       return eventSource;
     } catch (e) {
       console.log('SSE notification fallback:', e);
       return null;
     }
   }
+
+  // =========================================================================
+  // AUTOMATIC BACKEND HYDRATION BRIDGE (LIVE DATA SYNC)
+  // =========================================================================
+  static async syncFromBackend() {
+    try {
+      const health = await this.checkHealth();
+      if (!health || health.status !== 'online') return false;
+
+      // 1. Fetch Products from MySQL
+      const prodRes = await this.getProducts({ page_size: 100 });
+      if (prodRes && prodRes.data && prodRes.data.length > 0) {
+        const transformedProducts = prodRes.data.map(p => {
+          let catKey = 'noi-dia';
+          if (p.category_slug) catKey = p.category_slug;
+          else if (p.category === 1) catKey = 'nhap-khau';
+
+          let seasonKey = 'dung-mua';
+          if (p.season === 'OFF_SEASON') seasonKey = 'trai-mua';
+          else if (p.season === 'ALL_YEAR') seasonKey = 'quanh-nam';
+
+          return {
+            id: String(p.id),
+            sku: p.sku || `SKU-${p.id}`,
+            name: p.name,
+            slug: p.slug,
+            category: catKey,
+            categoryId: String(p.category),
+            categoryName: p.category_name || 'Hoa Quả Tươi',
+            season: seasonKey,
+            seasonName: p.season_display || (seasonKey === 'dung-mua' ? 'Đúng Mùa Vụ' : 'Trái Mùa Tuyển Chọn'),
+            price: Number(p.price),
+            originalPrice: Number(p.original_price || p.price),
+            unit: p.unit || 'kg',
+            stock: Number(p.stock || 100),
+            salesCount: Number(p.sold_count || 50),
+            rating: Number(p.rating || 5.0),
+            reviewsCount: Number(p.review_count || 10),
+            origin: p.origin || 'Việt Nam',
+            cert: p.certification || 'VietGAP',
+            certType: 'vietgap',
+            images: [p.image],
+            shortDesc: p.short_description || p.name,
+            description: p.description || p.short_description || p.name,
+            nutrition: {
+              calories: p.calories || '52 kcal / 100g',
+              vitamins: p.vitamins || 'Vitamin C, A, Chất xơ',
+              storage: p.storage_guide || 'Bảo quản ngăn mát tủ lạnh 4-8 độ C',
+              shelfLife: p.shelf_life || '5 - 7 ngày'
+            },
+            isFlashSale: (p.discount_percent > 15) || p.is_bestseller,
+            isFeatured: p.is_featured,
+            isBestSeller: p.is_bestseller
+          };
+        });
+
+        localStorage.setItem('gf_products', JSON.stringify(transformedProducts));
+        console.log(`[EcoFruit API] Đã nạp thành công ${transformedProducts.length} sản phẩm trực tiếp từ MySQL Backend!`);
+      }
+
+      // 2. Fetch Vouchers from MySQL
+      const vouchers = await this.getVouchers();
+      if (vouchers && vouchers.length > 0) {
+        const transformedVouchers = vouchers.map(v => ({
+          code: v.code,
+          title: v.title,
+          description: v.description,
+          discountType: v.discount_type === 'PERCENT' ? 'percent' : 'fixed',
+          discountValue: Number(v.discount_value),
+          maxDiscount: Number(v.max_discount_amount || 100000),
+          minOrder: Number(v.min_order_amount || 0)
+        }));
+        localStorage.setItem('gf_vouchers', JSON.stringify(transformedVouchers));
+      }
+
+      // 3. Dispatch Live Data Ready Event for UI
+      window.dispatchEvent(new CustomEvent('ecofruit:data-synced', {
+        detail: { count: prodRes?.data?.length || 0, source: 'Django-MySQL' }
+      }));
+
+      return true;
+    } catch (e) {
+      console.warn('[EcoFruit API] Live sync skipped (using cached):', e.message);
+      return false;
+    }
+  }
 }
 
-// Attach globally for browser pages
+// Attach globally
 window.EcoFruitAPI = ApiClient;
+
+// Auto-hydrate on page load
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    ApiClient.syncFromBackend();
+  });
+}

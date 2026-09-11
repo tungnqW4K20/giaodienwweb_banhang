@@ -839,10 +839,12 @@ function getProducts() {
   }
 }
 
-// Lấy chi tiết sản phẩm theo ID
+// Lấy chi tiết sản phẩm theo ID hoặc Slug
 function getProductById(id) {
+  if (!id) return null;
   const products = getProducts();
-  return products.find(p => p.id === id) || null;
+  const target = String(id).toLowerCase().trim();
+  return products.find(p => String(p.id).toLowerCase() === target || (p.slug && p.slug.toLowerCase() === target)) || null;
 }
 
 // Lấy danh mục
@@ -1012,7 +1014,8 @@ function checkVoucher(code, subtotal) {
 function getReviewsForProduct(productId) {
   try {
     const allReviews = JSON.parse(localStorage.getItem(DB_KEYS.REVIEWS)) || DEFAULT_REVIEWS;
-    return allReviews[productId] || DEFAULT_REVIEWS[productId] || [];
+    const key = String(productId);
+    return allReviews[key] || allReviews[productId] || DEFAULT_REVIEWS[key] || DEFAULT_REVIEWS[productId] || [];
   } catch (e) {
     return DEFAULT_REVIEWS[productId] || [];
   }

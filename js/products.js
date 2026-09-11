@@ -23,6 +23,13 @@ document.addEventListener('DOMContentLoaded', () => {
   applyFiltersAndRender();
 });
 
+// Lắng nghe sự kiện đồng bộ dữ liệu trực tiếp từ Python Django / MySQL API
+window.addEventListener('ecofruit:data-synced', (e) => {
+  console.log(`[Products] Cập nhật catalog từ ${e.detail?.source || 'API'}: ${e.detail?.count || 0} sản phẩm`);
+  renderCategoryCounts();
+  applyFiltersAndRender();
+});
+
 // ==================== ĐỌC THAM SỐ TỪ URL ====================
 function parseUrlParams() {
   const urlParams = new URLSearchParams(window.location.search);

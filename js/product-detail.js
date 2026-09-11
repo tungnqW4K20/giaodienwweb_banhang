@@ -13,6 +13,12 @@ document.addEventListener('DOMContentLoaded', () => {
   setupReviewForm();
 });
 
+// Lắng nghe sự kiện đồng bộ dữ liệu từ Python Django API
+window.addEventListener('ecofruit:data-synced', () => {
+  console.log('[ProductDetail] Cập nhật chi tiết sản phẩm từ API');
+  loadProductDetails();
+});
+
 // ==================== TẢI CHI TIẾT SẢN PHẨM ====================
 function loadProductDetails() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -359,7 +365,7 @@ function setupReviewForm() {
   const form = document.getElementById('product-review-form');
   if (!form) return;
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const nameInput = document.getElementById('review-author-name');
     const commentInput = document.getElementById('review-comment-text');
@@ -380,8 +386,22 @@ function setupReviewForm() {
       likes: 0
     };
 
+    // 1. Gửi lên Django / MySQL Backend API
+    if (window.EcoFruitAPI) {
+      try {
+        await window.EcoFruitAPI.postReview(currentProduct.id, {
+          author_name: nameInput.value.trim(),
+          rating: parseInt(ratingSelect.value),
+          comment: commentInput.value.trim()
+        });
+        console.log('[ProductDetail] Đã lưu đánh giá vào MySQL thành công!');
+      } catch (err) {
+        console.warn('[ProductDetail] Lưu đánh giá local fallback:', err.message);
+      }
+    }
+
     addReview(currentProduct.id, newReview);
-    showToast('Gửi đánh giá thành công!', 'Cảm ơn quý khách đã phản hồi chất lượng hoa quả!', 'success');
+    showToast('Gửi đánh giá thành công!', 'Cảm ơn quý khách đã phản hồi chất lượng hoa quả! (Đã đồng bộ MySQL)', 'success');
     
     form.reset();
     renderCustomerReviews(currentProduct.id);

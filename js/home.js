@@ -12,6 +12,16 @@ document.addEventListener('DOMContentLoaded', () => {
   setupNewsletterForm();
 });
 
+// Lắng nghe sự kiện đồng bộ dữ liệu trực tiếp từ Python Django / MySQL API
+window.addEventListener('ecofruit:data-synced', (e) => {
+  console.log(`[Home] Nhận dữ liệu cập nhật từ ${e.detail?.source || 'API'}: ${e.detail?.count || 0} sản phẩm`);
+  renderFlashSaleProducts();
+  const activeTab = document.querySelector('.seasonal-tab-btn.active');
+  const currentSeason = activeTab ? activeTab.dataset.season : 'dung-mua';
+  renderSeasonalProducts(currentSeason);
+  renderFeaturedProducts();
+});
+
 // ==================== ĐẾM NGƯỢC FLASH SALE ====================
 function initFlashSaleCountdown() {
   const hoursEl = document.getElementById('fs-hours');
