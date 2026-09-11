@@ -14,61 +14,130 @@ class Command(BaseCommand):
         self.stdout.write(self.style.NOTICE("[INFO] Starting database seeding for EcoFruit..."))
 
         # 1. Create Users
-        admin_user, _ = User.objects.get_or_create(
-            email='admin@ecofruit.vn',
-            defaults={
-                'full_name': 'Quản Trị Viên EcoFruit',
+        users_to_seed = [
+            {
+                'email': 'admin@ecofruit.vn',
+                'password': 'Admin@123456',
+                'full_name': 'Quản Trị Viên EcoFruit (Admin)',
                 'phone_number': '0901234567',
                 'role': User.Role.ADMIN,
                 'is_staff': True,
                 'is_superuser': True,
                 'balance': 10000000,
                 'loyalty_points': 5000,
-            }
-        )
-        admin_user.set_password('Admin@123456')
-        admin_user.save()
-
-        demo_user, _ = User.objects.get_or_create(
-            email='khachhang@gmail.com',
-            defaults={
-                'full_name': 'Nguyễn Văn An',
+                'addresses': [
+                    {'recipient_name': 'Văn Phòng EcoFruit HQ', 'phone': '0901234567', 'address': '72 Lê Thánh Tôn, Bến Nghé, Quận 1', 'city': 'TP. Hồ Chí Minh', 'district': 'Quận 1', 'ward': 'Bến Nghé', 'is_default': True}
+                ]
+            },
+            {
+                'email': 'staff@ecofruit.vn',
+                'password': 'Staff@123456',
+                'full_name': 'Trần Thu Hà (Quản lý kho & Đơn hàng)',
+                'phone_number': '0912345678',
+                'role': User.Role.STAFF,
+                'is_staff': True,
+                'is_superuser': False,
+                'balance': 2500000,
+                'loyalty_points': 1200,
+                'addresses': [
+                    {'recipient_name': 'Kho Trung Tâm Cầu Giấy', 'phone': '0912345678', 'address': '180 Trần Duy Hưng, Cầu Giấy', 'city': 'Hà Nội', 'district': 'Cầu Giấy', 'ward': 'Trung Hòa', 'is_default': True}
+                ]
+            },
+            {
+                'email': 'vip@ecofruit.vn',
+                'password': 'Vip@123456',
+                'full_name': 'Phạm Hoàng Long (Khách hàng Kim Cương)',
+                'phone_number': '0933889977',
+                'role': User.Role.CUSTOMER,
+                'is_staff': False,
+                'is_superuser': False,
+                'balance': 5000000,
+                'loyalty_points': 8800,
+                'addresses': [
+                    {'recipient_name': 'Phạm Hoàng Long (Biệt thự Vinhomes)', 'phone': '0933889977', 'address': 'Biệt thự B6-12 Vinhomes Riverside, Long Biên', 'city': 'Hà Nội', 'district': 'Long Biên', 'ward': 'Phúc Đồng', 'is_default': True}
+                ]
+            },
+            {
+                'email': 'khachhang@gmail.com',
+                'password': 'Customer@123456',
+                'full_name': 'Nguyễn Văn An (Khách hàng Thân thiết)',
                 'phone_number': '0988776655',
                 'role': User.Role.CUSTOMER,
+                'is_staff': False,
+                'is_superuser': False,
                 'balance': 500000,
                 'loyalty_points': 350,
+                'addresses': [
+                    {'recipient_name': 'Nguyễn Văn An (Công ty)', 'phone': '0988776655', 'address': 'Tầng 8, Tòa nhà Keangnam Landmark 72', 'city': 'Hà Nội', 'district': 'Nam Từ Liêm', 'ward': 'Mễ Trì', 'is_default': True},
+                    {'recipient_name': 'Nguyễn Văn An (Nhà riêng)', 'phone': '0988776655', 'address': 'Số 15 ngõ 120 Hoàng Quốc Việt', 'city': 'Hà Nội', 'district': 'Cầu Giấy', 'ward': 'Nghĩa Đô', 'is_default': False}
+                ]
+            },
+            {
+                'email': 'lan.tran@gmail.com',
+                'password': 'Password@123',
+                'full_name': 'Trần Mai Lan (Mẹ Bầu & Hữu Cơ)',
+                'phone_number': '0977112233',
+                'role': User.Role.CUSTOMER,
+                'is_staff': False,
+                'is_superuser': False,
+                'balance': 850000,
+                'loyalty_points': 620,
+                'addresses': [
+                    {'recipient_name': 'Trần Mai Lan', 'phone': '0977112233', 'address': 'Căn hộ 12A-04 Chung cư Imperia Sky Garden, 423 Minh Khai', 'city': 'Hà Nội', 'district': 'Hai Bà Trưng', 'ward': 'Vĩnh Tuy', 'is_default': True}
+                ]
+            },
+            {
+                'email': 'demo@greenfruit.vn',
+                'password': 'password123',
+                'full_name': 'Nguyễn Văn Xanh (Tài khoản Demo Frontend)',
+                'phone_number': '0909123456',
+                'role': User.Role.CUSTOMER,
+                'is_staff': False,
+                'is_superuser': False,
+                'balance': 3500000,
+                'loyalty_points': 1250,
+                'addresses': [
+                    {'recipient_name': 'Nguyễn Văn Xanh', 'phone': '0909123456', 'address': '72 Lê Thánh Tôn, Phường Bến Nghé, Quận 1', 'city': 'TP. Hồ Chí Minh', 'district': 'Quận 1', 'ward': 'Bến Nghé', 'is_default': True}
+                ]
             }
-        )
-        demo_user.set_password('Customer@123456')
-        demo_user.save()
+        ]
 
-        # Addresses for demo user
-        UserAddress.objects.get_or_create(
-            user=demo_user,
-            detail_address='Tầng 8, Tòa nhà Keangnam Landmark 72',
-            defaults={
-                'recipient_name': 'Nguyễn Văn An',
-                'phone_number': '0988776655',
-                'province': 'Hà Nội',
-                'district': 'Nam Từ Liêm',
-                'ward': 'Mễ Trì',
-                'is_default': True
-            }
-        )
-        UserAddress.objects.get_or_create(
-            user=demo_user,
-            detail_address='Số 15 ngõ 120 Hoàng Quốc Việt',
-            defaults={
-                'recipient_name': 'Nguyễn Văn An (Nhà riêng)',
-                'phone_number': '0988776655',
-                'province': 'Hà Nội',
-                'district': 'Cầu Giấy',
-                'ward': 'Nghĩa Đô',
-                'is_default': False
-            }
-        )
+        for udata in users_to_seed:
+            user_obj, _ = User.objects.get_or_create(
+                email=udata['email'],
+                defaults={
+                    'full_name': udata['full_name'],
+                    'phone_number': udata['phone_number'],
+                    'role': udata['role'],
+                    'is_staff': udata.get('is_staff', False),
+                    'is_superuser': udata.get('is_superuser', False),
+                    'balance': udata['balance'],
+                    'loyalty_points': udata['loyalty_points'],
+                }
+            )
+            user_obj.full_name = udata['full_name']
+            user_obj.phone_number = udata['phone_number']
+            user_obj.role = udata['role']
+            user_obj.balance = udata['balance']
+            user_obj.loyalty_points = udata['loyalty_points']
+            user_obj.set_password(udata['password'])
+            user_obj.save()
 
-        self.stdout.write(self.style.SUCCESS("[OK] Users & Addresses created."))
+            for addr in udata.get('addresses', []):
+                UserAddress.objects.get_or_create(
+                    user=user_obj,
+                    detail_address=addr['address'],
+                    defaults={
+                        'recipient_name': addr['recipient_name'],
+                        'phone_number': addr['phone'],
+                        'province': addr['city'],
+                        'district': addr['district'],
+                        'ward': addr['ward'],
+                        'is_default': addr.get('is_default', False)
+                    }
+                )
+
+        self.stdout.write(self.style.SUCCESS("[OK] 6 Full Users & Addresses created."))
 
         # 2. Create Categories
         categories_data = [
@@ -795,6 +864,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS("[OK] Product Reviews seeded."))
 
         # 6. Create Demo Order for Demo User
+        demo_user = User.objects.filter(email='khachhang@gmail.com').first()
         p1 = created_products[0]
         p2 = created_products[6]
         order_code = "ECO-20260911-DEMO01"
@@ -803,9 +873,9 @@ class Command(BaseCommand):
             defaults={
                 'user': demo_user,
                 'is_guest': False,
-                'customer_name': demo_user.full_name,
-                'customer_phone': demo_user.phone_number,
-                'customer_email': demo_user.email,
+                'customer_name': demo_user.full_name if demo_user else 'Nguyễn Văn An',
+                'customer_phone': demo_user.phone_number if demo_user else '0988776655',
+                'customer_email': demo_user.email if demo_user else 'khachhang@gmail.com',
                 'delivery_address': 'Tầng 8, Tòa nhà Keangnam Landmark 72, Mễ Trì, Nam Từ Liêm',
                 'delivery_city': 'Hà Nội',
                 'delivery_district': 'Nam Từ Liêm',
